@@ -1,0 +1,14 @@
+[user]
+	name = Anton Rogov
+[alias]
+	co = checkout
+[color]
+	branch = auto
+	status = auto
+	diff = auto
+	log = auto
+[core]
+	editor = vim
+	excludesfile = ~/.gitignore
+[apply]
+	whitespace = nowarn
