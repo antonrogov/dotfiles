@@ -1,0 +1,22 @@
+#!/bin/sh
+
+install() {
+  rm -f $1
+  ln -s .dotfiles/$1
+}
+
+cd
+if [ -d Library ]; then
+  cd Library
+  rm -rf Scripts
+  ln -s ../.dotfiles/Library/Scripts
+  cd ..
+fi
+install .gitconfig
+install .inputrc
+install .irbrc
+install .tmux.conf
+install .vim
+install .vimrc
+install .zshenv
+install .zshrc

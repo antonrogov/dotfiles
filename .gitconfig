@@ -1,7 +1,10 @@
 [user]
 	name = Anton Rogov
+	email = antonrogov@me.com
 [alias]
-	co = checkout
+  aa = add --all
+  co = checkout
+  amend = commit --amend
 [color]
 	branch = auto
 	status = auto

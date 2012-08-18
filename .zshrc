@@ -3,10 +3,9 @@
 alias h='history 25'
 alias j='jobs -l'
 alias la='ls -a'
-alias ll='ls -lA --color=auto'
+alias ll='ls -lA'
 alias ff='find . -name'
 alias view='vim -R -'
-alias mview='mvim -R -'
 
 alias sst='svn status'
 sd() { svn diff $* | e }
@@ -14,41 +13,44 @@ alias sca='svn commit'
 alias scam='svn commit -m'
 
 alias gst='git status'
+alias gaa='git add --all'
 alias gl='git pull'
 alias gp='git push'
 alias gc='git commit -v'
-alias gca='git commit -v -a'
-alias gcam='git commit -v -a -m'
+alias gcm='git commit -m'
 alias gb='git branch'
 alias gba='git branch -a'
 gbl() { git blame $* | view }
 gd() { git diff $* | view }
+gdc() { git diff --cached $* | view }
 gsl() { git stash list }
 gss() { git stash show -p "stash@{$*}" | view }
 gsd() { git stash drop "stash@{$*}" }
 gsp() { git stash pop "stash@{$*}" }
+glr() { pretty_git_log --all -30 $* }
+gla() { pretty_git_log --all $* }
 
-alias migrate='rake db:migrate db:test:clone'
-alias rst='touch tmp/restart.txt'
-alias r='bundle exec rails'
-alias bcuc='bundle exec rake cucumber LOG=no'
-alias bspec='bundle exec rake spec LOG=no'
-alias rcov='rake rcov LOG=no'
-alias cuc='bundle exec cucumber -r features'
-alias spe='bundle exec rspec'
+alias reload!='. ~/.zshrc'
 alias fetch='curl -C - -O'
-alias %=' '
+alias ensure '(echo "while(1)" ; echo "\!* && break" ; echo end) | csh -f'
+alias q3='/Applications/Quake3/Quake3.app/Contents/MacOS/Quake3\ UB +set fs_game osp +exec ~/Library/Application\ Support/Quake3/osp/q3config.cfg'
+alias pgstart='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
+alias pgstop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
+alias deploying="git log --pretty=oneline live..master | grep fixes | sed -E 's/.*(#[0-9]+).*/\1/' | sort | tr '\n' ' ';echo"
 
-if [[ -n $VIMRUNTIME ]]; then
-  export PS1=$'%3~$ '
+if [[ -n $SSH_CONNECTION ]]; then
+  export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;31m%}%m:%3~$%{\e[0m%} '
 else
-  export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;32m%}%3~$%{\e[0m%} '
+  if [[ -n $VIMRUNTIME ]]; then
+    export PS1=$'%3~$ '
+  else
+    export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;32m%}%3~$%{\e[0m%} '
+  fi
 fi
 
-export TERM=xterm-256color
-export EDITOR='e -w'
+export EDITOR='vim'
 export CLICOLOR='1'
-export LSCOLORS='exfxcxdxbxexexexexexhx' # BSD ls
+export LSCOLORS='exfxcxdxbxexexexexexhx'
 export LC_CTYPE=en_US.UTF-8
 
 HISTFILE=~/.zhistory
@@ -103,9 +105,74 @@ bindkey '\e[A' q-history-search-backward
 bindkey '\e[B' q-history-search-forward
 bindkey '\e[1;5C' forward-word
 bindkey '\e[1;5D' backward-word
-bindkey '\eOC' forward-word
-bindkey '\eOD' backward-word
 bindkey '\e[1~' beginning-of-line
 bindkey '\e[4~' end-of-line
 bindkey '\e[3~' delete-char
 bindkey "\e[9~" backward-delete-word
+
+function devise-slim() {
+  rails generate devise:views -e erb
+  for i in `find app/views/devise -name '*.erb'` ; do html2haml -e $i ${i%erb}haml ; rm $i ; done
+  for i in `find app/views/devise -name '*.haml'` ; do haml2slim $i ${i%haml}slim ; rm $i ; done
+}
+
+
+
+# Log output:
+#
+# * 51c333e    (12 days)    <Gary Bernhardt>   add vim-eunuch
+#
+# The time massaging regexes start with ^[^<]* because that ensures that they
+# only operate before the first "<". That "<" will be the beginning of the
+# author name, ensuring that we don't destroy anything in the commit message
+# that looks like time.
+#
+# The log format uses } characters between each field, and `column` is later
+# used to split on them. A } in the commit subject or any other field will
+# break this.
+
+function pretty_git_log() {
+  HASH="%C(yellow)%h%Creset"
+  RELATIVE_TIME="%Cgreen(%ar)%Creset"
+  AUTHOR="%C(bold blue)<%an>%Creset"
+  REFS="%C(red)%d%Creset"
+  SUBJECT="%s"
+
+  FORMAT="$HASH}$RELATIVE_TIME}$AUTHOR}$REFS $SUBJECT"
+
+  git log --graph --pretty="tformat:${FORMAT}" $* |
+    # Replace (2 years ago) with (2 years)
+    sed -Ee 's/(^[^<]*) ago)/\1)/' |
+    # Replace (2 years, 5 months) with (2 years)
+    sed -Ee 's/(^[^<]*), [[:digit:]]+ .*months?)/\1)/' |
+    # Line columns up based on } delimiter
+    column -s '}' -t |
+    # Page only if we need to
+    less -FXRS
+}
+
+# use AppleScript to communicate with the Pomodoro application on OSX
+function pomodoro() {
+  case $1 in
+    start)
+      osascript -e "tell app \"Pomodoro\" to start \"$2\" duration 25 break 5"
+      ;;
+    stop)
+      osascript -e "tell app \"Pomodoro\" to reset"
+      ;;
+    pause)
+      osascript -e "tell app \"Pomodoro\" to external interrupt"
+      ;;
+    resume)
+      osascript -e "tell app \"Pomodoro\" to resume"
+      ;;
+    list)
+      osascript ~/Library/Scripts/today.scpt
+      ;;
+    stats)
+      osascript ~/Library/Scripts/stats.scpt $2 $3 | sort
+      ;;
+    *)
+      echo "${0} start {task desc}|stop|pause|resume|list|stats {area name} [more]"
+  esac
+}

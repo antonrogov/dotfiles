@@ -3,17 +3,16 @@ let g:mapleader = ","
 
 set nocompatible
 
+" allow unsaved background buffers and remember marks/undo for them
+set hidden
+
 set number
 set numberwidth=5
 set ruler
 syntax on
 
-set t_Co=256
-
-" set encoding
 set encoding=utf-8
 
-" set nowrap
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
@@ -34,58 +33,14 @@ set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn,vendor/gems/*
 " Status bar
 set laststatus=2
 
+" highlight current line
+set cursorline
+set colorcolumn=81
+
 " Without setting this, ZoomWin restores windows in a way that causes
 " equalalways behavior to be triggered the next time CommandT is used.
 " This is likely a bludgeon to solve some other issue, but it works
 set noequalalways
-
-" NERDTree configuration
-"let NERDTreeIgnore=['\.pyc$', '\.rbc$', '\~$']
-"map <Leader>n :NERDTreeToggle<CR>
-
-" Command-T configuration
-"let g:CommandTMaxHeight=20
-
-" ZoomWin configuration
-"map <Leader><Leader> :ZoomWin<CR>
-
-" CTags
-"map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
-"map <C-\> :tnext<CR>
-
-" Gundo configuration
-"nmap <F5> :GundoToggle<CR>
-"imap <F5> <ESC>:GundoToggle<CR>
-
-" Remember last location in file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-    \| exe "normal g'\"" | endif
-endif
-
-function s:setupWrapping()
-  set wrap
-  set wrapmargin=2
-  set textwidth=72
-endfunction
-
-function s:setupMarkup()
-  call s:setupWrapping()
-  map <buffer> <Leader>p :Hammer<CR>
-endfunction
-
-" Thorfile, Rakefile, Vagrantfile and Gemfile are Ruby
-au BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,Guardfile,config.ru,*.rabl} set ft=ruby
-
-" md, markdown, and mk are markdown and define buffer-local preview
-au BufRead,BufNewFile *.{md,markdown,mdown,mkd,mkdn} call s:setupMarkup()
-
-" add json syntax highlighting
-au BufNewFile,BufRead *.json set ft=javascript
-
-au BufRead,BufNewFile *.txt call s:setupWrapping()
-
-au BufRead,BufNewFile *.{c,h,cpp,cc,hh} set et ts=4 sw=4 sts=4
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
@@ -95,70 +50,44 @@ call pathogen#infect()
 " load the plugin and indent settings for the detected filetype
 filetype plugin indent on
 
-" Opens an edit command with the path of the currently edited file filled in
-" Normal mode: <Leader>e
-map <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
-
-" Opens a tab edit command with the path of the currently edited file filled in
-" Normal mode: <Leader>t
-map <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
-
-" Inserts the path of the currently edited file into a command
-" Command mode: Ctrl+P
-cmap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
-
-" Unimpaired configuration
-" Bubble single lines
-nmap <C-Up> [e
-nmap <C-Down> ]e
-nmap <C-k> [e
-nmap <C-j> ]e
-" Bubble multiple lines
-vmap <C-Up> [egv
-vmap <C-Down> ]egv
-vmap <C-k> [egv
-vmap <C-j> ]egv
-
-" Enable syntastic syntax checking
-" let g:syntastic_enable_signs=1
-" let g:syntastic_quiet_warnings=1
-
-" gist-vim defaults
-if has("mac")
-  let g:gist_clip_command = 'pbcopy'
-elseif has("unix")
-  let g:gist_clip_command = 'xclip -selection clipboard'
-endif
-let g:gist_detect_filetype = 1
-let g:gist_open_browser_after_post = 1
-
 " Use modeline overrides
 set modeline
 set modelines=10
 
 " Default color scheme
+set t_Co=256
+set background=dark
 color railscasts
+
+" https://groups.google.com/forum/#!msg/vim_dev/r3CPPl6AVRM/wCgbD4PU5NAJ
+set timeout timeoutlen=5000 ttimeoutlen=100
 
 " Directories for swp files
 set backupdir=~/.vim/backup
 set directory=~/.vim/backup
 
-" Turn off jslint errors by default
-" let g:JSLintHighlightErrorLine = 0
-
-" MacVIM shift+arrow-keys behavior (required in .vimrc)
-let macvim_hig_shift_movement = 1
-
-" % to bounce from do to end etc.
-runtime! macros/matchit.vim
-
 " Show (partial) command in the status line
 set showcmd
 
-if has("gui_running")
-  " Automatically resize splits when resizing MacVim window
-  autocmd VimResized * wincmd =
-endif
+augroup vimrcEx
+  au!
+
+  " Remember last location in file
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
+
+  au FileType text setlocal textwidth=78
+
+  au BufRead,BufNewFile *.rabl set ft=ruby
+  au BufNewFile,BufRead *.json set ft=javascript
+
+  au FileType python,c,cpp,objc set et ts=4 sw=4 sts=4
+
+  " Indent p tags
+  au FileType html,eruby if g:html_indent_tags !~ '\\|p\>' | let g:html_indent_tags .= '\|p\|li\|dt\|dd' | endif
+
+  " Don't syntax highlight markdown because it's often wrong
+  au! FileType mkd setlocal syn=off
+augroup END
 
 " disable arrow keys
 nnoremap   <Up>     <NOP>
@@ -174,36 +103,172 @@ vnoremap   <Down>   <NOP>
 vnoremap   <Left>   <NOP>
 vnoremap   <Right>  <NOP>
 
-" highlight current line
-set cursorline
-set colorcolumn=81
+" Move around splits with <c-hjkl>
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
 
+" fix diffs highlighting
 hi def link diffAdded		DiffAdd
 hi def link diffRemoved		DiffDelete
 
-function! RunShellCommand(cmdline)
-  let expanded_cmdline = a:cmdline
-  for part in split(a:cmdline, ' ')
-    if part[0] =~ '\v[%#<]'
-      let expanded_part = fnameescape(expand(part))
-      let expanded_cmdline = substitute(expanded_cmdline, part, expanded_part, '')
-    endif
-  endfor
-  tabnew
-  setlocal buftype=nofile syntax=diff bufhidden=wipe nobuflisted noswapfile nowrap
-  execute '$read !'. expanded_cmdline
-  setlocal nomodifiable
-endfunction
-
-function! Browser ()
-  let line = getline (".")
-  let line = matchstr (line, "http://[^ ,;\t]*")
-  exec "!open ".line
-endfunction
-
-map <Leader>w :call Browser()<CR>
+map <leader>y "*y
+map <leader>p "*p
 map <Leader>gs :Gstatus<CR>
-map <Leader>gc :Gcommit<CR>
-map <Leader>gd :call RunShellCommand('git diff')<CR>
-map <Leader>gdc :call RunShellCommand('git diff --cached')<CR>
-map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log -R *<CR><CR>
+map <leader>ga :CommandTFlush<cr>\|:CommandT app/assets<cr>
+map <leader>gv :CommandTFlush<cr>\|:CommandT app/views<cr>
+map <leader>gc :CommandTFlush<cr>\|:CommandT app/controllers<cr>
+map <leader>gm :CommandTFlush<cr>\|:CommandT app/models<cr>
+map <leader>gh :CommandTFlush<cr>\|:CommandT app/helpers<cr>
+map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
+map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
+map <leader>gt :CommandTFlush<cr>\|:CommandTTag<cr>
+map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
+map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
+map <Leader>/ <plug>NERDCommenterToggle<CR>
+vmap > >gv
+vmap < <gv
+nnoremap <leader><leader> <c-^>
+
+" calculations
+function! MyCalc(str)
+  return system("echo 'scale=2 ; print " . a:str . "' | bc -l")
+endfunction
+map <silent> <Leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
+vmap <silent> <Leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
+command! -nargs=+ MyCalc :echo MyCalc("<args>")
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" OPEN FILES IN DIRECTORY OF CURRENT FILE
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+map <leader>e :edit %%
+map <leader>v :view %%
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" MULTIPURPOSE TAB KEY
+" Indent if we're at the beginning of a line. Else, do completion.
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! InsertTabWrapper()
+  let col = col('.') - 1
+  if !col || getline('.')[col - 1] !~ '\k'
+    return "\<tab>"
+  else
+    return "\<c-p>"
+  endif
+endfunction
+inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+inoremap <s-tab> <c-n>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" RENAME CURRENT FILE
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! RenameFile()
+  let old_name = expand('%')
+  let new_name = input('New file name: ', expand('%'), 'file')
+  if new_name != '' && new_name != old_name
+    exec ':saveas ' . new_name
+    exec ':silent !rm ' . old_name
+    redraw!
+  endif
+endfunction
+map <leader>n :call RenameFile()<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" SWITCH BETWEEN TEST AND PRODUCTION CODE
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! OpenTestAlternate()
+  let new_file = AlternateForCurrentFile()
+  exec ':e ' . new_file
+endfunction
+
+function! AlternateForCurrentFile()
+  let current_file = expand("%")
+  let new_file = current_file
+  let in_spec = match(current_file, '^spec/') != -1
+  let going_to_spec = !in_spec
+  let in_app = match(current_file, '\<\(app\|spec\)\>/\<\(controllers\|models\|views\|services\|presenters\|jobs\|mailers\)\>') != -1
+  if going_to_spec
+    if in_app
+      let new_file = substitute(new_file, '^app/', '', '')
+    end
+    let new_file = substitute(new_file, '\.rb$', '_spec.rb', '')
+    let new_file = 'spec/' . new_file
+  else
+    let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
+    let new_file = substitute(new_file, '^spec/', '', '')
+    if in_app
+      let new_file = 'app/' . new_file
+    end
+  endif
+  return new_file
+endfunction
+nnoremap <leader>. :call OpenTestAlternate()<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" RUNNING TESTS
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <leader>t :call RunTestFile()<cr>
+map <leader>T :call RunNearestTest()<cr>
+map <leader>a :call RunTests('')<cr>
+map <leader>c :call RunScenarios()<cr>
+map <leader>w :call RunScenarios("--profile wip")<cr>
+
+function! RunTestFile(...)
+  if a:0
+    let command_suffix = a:1
+  else
+    let command_suffix = ""
+  endif
+
+  " Run the tests for the previously-marked file.
+  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\)$') != -1
+  if in_test_file
+    call SetTestFile()
+  elseif !exists("t:grb_test_file")
+    return
+  end
+  call RunTests(t:grb_test_file . command_suffix)
+endfunction
+
+function! RunNearestTest()
+  let spec_line_number = line('.')
+  call RunTestFile(":" . spec_line_number . " -b")
+endfunction
+
+function! SetTestFile()
+  " Set the spec file that tests will be run for.
+  let t:grb_test_file=@%
+endfunction
+
+function! RunTests(filename)
+  " Write the file and run tests for the given filename
+  :w
+  ":silent !echo;echo;echo;echo;echo;echo;echo;echo;echo;echo
+  if match(a:filename, '\.feature$') != -1
+    call RunScenarios(a:filename)
+  else
+    if filereadable("script/test")
+      exec ":!script/test " . a:filename
+    else
+      exec ":!rspec --color " . a:filename
+    end
+  end
+endfunction
+
+function! RunScenarios(...)
+  :w
+
+  if a:0
+    let args = a:1
+  else
+    let args = ""
+  endif
+
+  if filereadable("script/feature")
+    exec ":!script/feature " . args
+  else
+    exec ":!cucumber " . args
+  end
+endfunction
