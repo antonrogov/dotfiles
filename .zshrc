@@ -176,3 +176,5 @@ function pomodoro() {
       echo "${0} start {task desc}|stop|pause|resume|list|stats {area name} [more]"
   esac
 }
+
+[[ -s ~/.zshrc.local ]] && . ~/.zshrc.local
