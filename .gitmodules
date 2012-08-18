@@ -1,0 +1,27 @@
+[submodule ".vim/bundle/Command-T"]
+  path = .vim/bundle/Command-T
+	url = https://github.com/wincent/Command-T.git
+[submodule ".vim/bundle/vim-applescript"]
+  path = .vim/bundle/vim-applescript
+	url = https://github.com/vim-scripts/applescript.vim.git
+[submodule ".vim/bundle/vim-clojure"]
+  path = .vim/bundle/vim-clojure
+	url = https://github.com/vim-scripts/VimClojure.git
+[submodule ".vim/bundle/vim-coffee-script"]
+  path = .vim/bundle/vim-coffee-script
+	url = https://github.com/kchmck/vim-coffee-script.git
+[submodule ".vim/bundle/vim-fugitive"]
+  path = .vim/bundle/vim-fugitive
+  url = https://github.com/tpope/vim-fugitive.git
+[submodule ".vim/bundle/vim-nerdcommenter"]
+  path = .vim/bundle/vim-nerdcommenter
+	url = https://github.com/antonr/nerdcommenter.git
+[submodule ".vim/bundle/vim-ruby"]
+  path = .vim/bundle/vim-ruby
+	url = https://github.com/vim-ruby/vim-ruby.git
+[submodule ".vim/bundle/vim-rails"]
+  path = .vim/bundle/vim-rails
+	url = https://github.com/tpope/vim-rails.git
+[submodule ".vim/bundle/vim-slim"]
+  path = .vim/bundle/vim-slim
+	url = https://github.com/bbommarito/vim-slim.git
