@@ -223,7 +223,7 @@ function! RunTestFile(...)
   endif
 
   " Run the tests for the previously-marked file.
-  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\)$') != -1
+  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\)$') != -1
   if in_test_file
     call SetTestFile()
   elseif !exists("t:grb_test_file")
@@ -248,6 +248,8 @@ function! RunTests(filename)
   ":silent !echo;echo;echo;echo;echo;echo;echo;echo;echo;echo
   if match(a:filename, '\.feature$') != -1
     call RunScenarios(a:filename)
+  elseif match(a:filename, '\.js.coffee$') != -1
+    call RunJasmine(a:filename)
   else
     if filereadable("script/test")
       exec ":!script/test " . a:filename
@@ -271,4 +273,9 @@ function! RunScenarios(...)
   else
     exec ":!cucumber " . args
   end
+endfunction
+
+function! RunJasmine(filename)
+  :w
+  exec ":!guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename
 endfunction
