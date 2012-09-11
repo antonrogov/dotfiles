@@ -5,6 +5,7 @@
   aa = add --all
   co = checkout
   amend = commit --amend
+  pick = cherry-pick
 [color]
 	branch = auto
 	status = auto
