@@ -6,6 +6,7 @@
   co = checkout
   amend = commit --amend
   pick = cherry-pick
+  changes = whatchanged -p --abbrev-commit --pretty=medium
 [color]
 	branch = auto
 	status = auto
