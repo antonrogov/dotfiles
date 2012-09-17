@@ -193,11 +193,19 @@ function! AlternateForCurrentFile()
     if in_app
       let new_file = substitute(new_file, '^app/', '', '')
     end
-    let new_file = substitute(new_file, '\.rb$', '_spec.rb', '')
+    if match(new_file, '^views/') != -1
+      let new_file = substitute(new_file, '$', '_spec.rb', '')
+    else
+      let new_file = substitute(new_file, '\.rb$', '_spec.rb', '')
+    end
     let new_file = 'spec/' . new_file
   else
-    let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
     let new_file = substitute(new_file, '^spec/', '', '')
+    if match(new_file, '^views/') != -1
+      let new_file = substitute(new_file, '_spec\.rb$', '', '')
+    else
+      let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
+    end
     if in_app
       let new_file = 'app/' . new_file
     end
@@ -243,19 +251,12 @@ function! SetTestFile()
 endfunction
 
 function! RunTests(filename)
-  " Write the file and run tests for the given filename
-  :w
-  ":silent !echo;echo;echo;echo;echo;echo;echo;echo;echo;echo
   if match(a:filename, '\.feature$') != -1
     call RunScenarios(a:filename)
   elseif match(a:filename, '\.js.coffee$') != -1
     call RunJasmine(a:filename)
   else
-    if filereadable("script/test")
-      exec ":!script/test " . a:filename
-    else
-      exec ":!rspec --color " . a:filename
-    end
+    call RunRSpec(a:filename)
   end
 endfunction
 
@@ -268,14 +269,15 @@ function! RunScenarios(...)
     let args = ""
   endif
 
-  if filereadable("script/feature")
-    exec ":!script/feature " . args
-  else
-    exec ":!cucumber " . args
-  end
+  exec ":!cucumber " . args
 endfunction
 
 function! RunJasmine(filename)
   :w
   exec ":!guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename
+endfunction
+
+function! RunRSpec(filename)
+  :w
+  exec ":!rspec --color " . a:filename
 endfunction
