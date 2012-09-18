@@ -30,6 +30,7 @@ hi Normal                    guifg=#E6E1DC guibg=#2B2B2B ctermfg=white ctermbg=2
 hi Cursor                    guifg=#000000 ctermfg=0 guibg=#FFFFFF ctermbg=15	
 hi CursorLine                guibg=#333435 ctermbg=235 cterm=NONE
 hi LineNr                    guifg=#888888 ctermfg=242
+hi CursorLineNr              guifg=#bbbbbb ctermfg=248
 hi Search                    guibg=#5A647E ctermfg=NONE ctermbg=236 cterm=underline
 hi Visual                    guibg=#5A647E ctermbg=60
 hi ColorColumn               guibg=#333435 ctermbg=235
