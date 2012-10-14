@@ -10,6 +10,9 @@ if [ -d Library ]; then
   cd Library
   rm -rf Scripts
   ln -s ../.dotfiles/Library/Scripts
+  cd Preferences
+  ln -s ../../.dotfiles/Library/Preferences/com.googlecode.iterm2.plist
+  ln -s ../../.dotfiles/Library/Preferences/com.ugolandini.Pomodoro.plist
   cd ..
 fi
 install .gitconfig
