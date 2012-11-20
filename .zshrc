@@ -170,7 +170,7 @@ function pomodoro() {
       osascript ~/Library/Scripts/today.scpt
       ;;
     stats)
-      osascript ~/Library/Scripts/stats.scpt $2 $3 | sort
+      osascript ~/Library/Scripts/stats.scpt $2 $3 $4 | sort
       ;;
     *)
       echo "${0} start {task desc}|stop|pause|resume|list|stats {area name} [more]"

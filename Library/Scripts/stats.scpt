@@ -13,6 +13,13 @@ on run argv
             end repeat
           end if
 
+          if length of argv > 2 and item 3 of argv equals "more" then
+            set d to d - days
+            repeat until d's weekday is Monday
+              set d to d - days
+            end repeat
+          end if
+
           set time of d to 0
 
           set areaName to item 1 of argv
