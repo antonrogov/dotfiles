@@ -131,6 +131,8 @@ vmap > >gv
 vmap < <gv
 nnoremap <leader><leader> <c-^>
 
+let g:NERDSpaceDelims = 1
+
 " calculations
 function! MyCalc(str)
   return system("echo 'scale=2 ; print " . a:str . "' | bc -l")
@@ -231,7 +233,7 @@ function! RunTestFile(...)
   endif
 
   " Run the tests for the previously-marked file.
-  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\)$') != -1
+  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\|.spec.coffee\)$') != -1
   if in_test_file
     call SetTestFile()
   elseif !exists("t:grb_test_file")
@@ -253,6 +255,8 @@ endfunction
 function! RunTests(filename)
   if match(a:filename, '\.feature$') != -1
     call RunScenarios(a:filename)
+  elseif match(a:filename, '\.spec.coffee$') != -1
+    call RunJasmineNode(a:filename)
   elseif match(a:filename, '\.js.coffee$') != -1
     call RunJasmine(a:filename)
   else
@@ -275,6 +279,11 @@ endfunction
 function! RunJasmine(filename)
   :w
   exec ":!guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename
+endfunction
+
+function! RunJasmineNode(filename)
+  :w
+  exec ":!jasmine-node --coffee " . a:filename
 endfunction
 
 function! RunRSpec(filename)
