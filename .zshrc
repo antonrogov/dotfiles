@@ -36,7 +36,8 @@ alias ensure '(echo "while(1)" ; echo "\!* && break" ; echo end) | csh -f'
 alias q3='/Applications/Quake3/Quake3.app/Contents/MacOS/Quake3\ UB +set fs_game osp +exec ~/Library/Application\ Support/Quake3/osp/q3config.cfg'
 alias pgstart='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
 alias pgstop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
-alias deploying="git log --pretty=oneline live..master | grep fixes | sed -E 's/.*(#[0-9]+).*/\1/' | sort | tr '\n' ' ';echo"
+alias esstart='elasticsearch -f -D es.config=/usr/local/opt/elasticsearch/config/elasticsearch.yml'
+alias deploying="git log --pretty=oneline live..master | grep fixes | sed -E 's/.*(#[0-9]+).*/\1/' | sort | uniq"
 
 if [[ -n $SSH_CONNECTION ]]; then
   export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;31m%}%m:%3~$%{\e[0m%} '

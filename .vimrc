@@ -109,10 +109,6 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 
-" fix diffs highlighting
-hi def link diffAdded		DiffAdd
-hi def link diffRemoved		DiffDelete
-
 map <leader>y "*y
 map <leader>p "*p
 map <Leader>gs :Gstatus<CR>
@@ -255,8 +251,8 @@ endfunction
 function! RunTests(filename)
   if match(a:filename, '\.feature$') != -1
     call RunScenarios(a:filename)
-  elseif match(a:filename, '\.spec.coffee$') != -1
-    call RunJasmineNode(a:filename)
+  elseif match(a:filename, '_spec.coffee$') != -1
+    call RunKonacha(a:filename)
   elseif match(a:filename, '\.js.coffee$') != -1
     call RunJasmine(a:filename)
   else
@@ -279,6 +275,11 @@ endfunction
 function! RunJasmine(filename)
   :w
   exec ":!guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename
+endfunction
+
+function! RunKonacha(filename)
+  :w
+  exec ":!konacha " . a:filename
 endfunction
 
 function! RunJasmineNode(filename)

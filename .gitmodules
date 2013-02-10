@@ -28,3 +28,9 @@
 [submodule ".vim/bundle/vim-less"]
 	path = .vim/bundle/vim-less
 	url = https://github.com/groenewege/vim-less
+[submodule ".vim/bundle/vim-colors-solarized"]
+	path = .vim/bundle/vim-colors-solarized
+	url = https://github.com/altercation/vim-colors-solarized.git
+[submodule ".vim/bundle/vim-colors-railscasts"]
+	path = .vim/bundle/vim-colors-railscasts
+	url = https://github.com/antonr/vim-railscasts-theme.git
