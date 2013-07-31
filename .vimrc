@@ -28,7 +28,7 @@ nnoremap <CR> :nohlsearch<CR>/<BS>
 
 " Tab completion
 set wildmode=list:longest,list:full
-set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn,vendor/gems/*
+set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn,vendor/gems/*,vendor/ruby/**
 
 " Status bar
 set laststatus=2
@@ -60,7 +60,7 @@ set background=dark
 color railscasts
 
 " https://groups.google.com/forum/#!msg/vim_dev/r3CPPl6AVRM/wCgbD4PU5NAJ
-set timeout timeoutlen=5000 ttimeoutlen=100
+set timeout timeoutlen=1000 ttimeoutlen=100
 
 " Directories for swp files
 set backupdir=~/.vim/backup
@@ -83,7 +83,7 @@ augroup vimrcEx
   au FileType python,c,cpp,objc set et ts=4 sw=4 sts=4
 
   " Indent p tags
-  au FileType html,eruby if g:html_indent_tags !~ '\\|p\>' | let g:html_indent_tags .= '\|p\|li\|dt\|dd' | endif
+  " au FileType html,eruby if g:html_indent_tags !~ '\\|p\>' | let g:html_indent_tags .= '\|p\|li\|dt\|dd' | endif
 
   " Don't syntax highlight markdown because it's often wrong
   au! FileType mkd setlocal syn=off
@@ -186,13 +186,16 @@ function! AlternateForCurrentFile()
   let new_file = current_file
   let in_spec = match(current_file, '^spec/') != -1
   let going_to_spec = !in_spec
-  let in_app = match(current_file, '\<\(app\|spec\)\>/\<\(controllers\|helpers\|models\|views\|services\|presenters\|jobs\|mailers\)\>') != -1
+  let in_app = match(current_file, '\<\(app\|spec\)\>/\<\(assets\|javascripts\|controllers\|helpers\|models\|views\|services\|presenters\|jobs\|uploaders\|mailers\)\>') != -1
   if going_to_spec
     if in_app
       let new_file = substitute(new_file, '^app/', '', '')
     end
     if match(new_file, '^views/') != -1
       let new_file = substitute(new_file, '$', '_spec.rb', '')
+    elseif match(new_file, '^assets/javascripts') != -1
+      let new_file = substitute(new_file, '^assets/', '', '')
+      let new_file = substitute(new_file, '\(\.js\|\.coffee\|\.js\.coffee\)$', '_spec\1', '')
     else
       let new_file = substitute(new_file, '\.rb$', '_spec.rb', '')
     end
@@ -201,6 +204,8 @@ function! AlternateForCurrentFile()
     let new_file = substitute(new_file, '^spec/', '', '')
     if match(new_file, '^views/') != -1
       let new_file = substitute(new_file, '_spec\.rb$', '', '')
+    elseif match(new_file, '^javascripts/') != -1
+      let new_file = 'assets/' . substitute(new_file, '_spec\(\.js\|\.coffee\|\.js\.coffee\)$', '\1', '')
     else
       let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
     end
@@ -215,13 +220,17 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <leader>t :call RunTestFile()<cr>
+map <leader>t :call RunTestFile("")<cr>
+map <leader>w :call RunScenarios("", "--profile wip")<cr>
+map <leader>st :call RunTestFile("spring ")<cr>
+map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
+map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
+
 map <leader>T :call RunNearestTest()<cr>
 map <leader>a :call RunTests('')<cr>
 map <leader>c :call RunScenarios()<cr>
-map <leader>w :call RunScenarios("--profile wip")<cr>
 
-function! RunTestFile(...)
+function! RunTestFile(prefix)
   if a:0
     let command_suffix = a:1
   else
@@ -235,12 +244,13 @@ function! RunTestFile(...)
   elseif !exists("t:grb_test_file")
     return
   end
-  call RunTests(t:grb_test_file . command_suffix)
+
+  call RunTests(a:prefix, t:grb_test_file . command_suffix)
 endfunction
 
 function! RunNearestTest()
   let spec_line_number = line('.')
-  call RunTestFile(":" . spec_line_number . " -b")
+  call RunTestFile("", ":" . spec_line_number . " -b")
 endfunction
 
 function! SetTestFile()
@@ -248,19 +258,19 @@ function! SetTestFile()
   let t:grb_test_file=@%
 endfunction
 
-function! RunTests(filename)
+function! RunTests(prefix, filename)
   if match(a:filename, '\.feature$') != -1
-    call RunScenarios(a:filename)
+    call RunScenarios(a:prefix, a:filename)
   elseif match(a:filename, '_spec.coffee$') != -1
     call RunKonacha(a:filename)
   elseif match(a:filename, '\.js.coffee$') != -1
     call RunJasmine(a:filename)
   else
-    call RunRSpec(a:filename)
+    call RunRSpec(a:prefix, a:filename)
   end
 endfunction
 
-function! RunScenarios(...)
+function! RunScenarios(prefix, ...)
   :w
 
   if a:0
@@ -269,25 +279,30 @@ function! RunScenarios(...)
     let args = ""
   endif
 
-  exec ":!cucumber " . args
+  call RunCommand(a:prefix . "cucumber --color -r features " . args)
+endfunction
+
+function! RunRSpec(prefix, filename)
+  :w
+  call RunCommand(a:prefix . "rspec --color " . a:filename)
 endfunction
 
 function! RunJasmine(filename)
   :w
-  exec ":!guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename
+  call RunCommand("guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename)
 endfunction
 
 function! RunKonacha(filename)
   :w
-  exec ":!konacha " . a:filename
+  call RunCommand("konacha " . a:filename)
 endfunction
 
 function! RunJasmineNode(filename)
   :w
-  exec ":!jasmine-node --coffee " . a:filename
+  call RunCommand("jasmine-node --coffee " . a:filename)
 endfunction
 
-function! RunRSpec(filename)
-  :w
-  exec ":!rspec --color " . a:filename
+function! RunCommand(command)
+  exec ":silent !echo;echo " . a:command
+  exec ":!" . a:command
 endfunction
