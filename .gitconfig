@@ -1,21 +1,21 @@
 [user]
-	name = Anton Rogov
-	email = antonrogov@me.com
+    name = Anton Rogov
+    email = antonrogov@me.com
 [alias]
-  aa = add --all
-  co = checkout
-  amend = commit --amend
-  pick = cherry-pick
-  changes = whatchanged -p --abbrev-commit --pretty=medium
+    aa = add --all
+    co = checkout
+    amend = commit --amend
+    pick = cherry-pick
+    changes = whatchanged -p --abbrev-commit --pretty=medium
 [color]
-	branch = auto
-	status = auto
-	diff = auto
-	log = auto
+    branch = auto
+    status = auto
+    diff = auto
+    log = auto
 [core]
-	editor = vim
-	excludesfile = ~/.gitignore
+    editor = vim
+    excludesfile = ~/.gitignore
 [apply]
-	whitespace = nowarn
+    whitespace = nowarn
 [heroku]
-	account = personal
+    account = personal
