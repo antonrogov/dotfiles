@@ -306,3 +306,7 @@ function! RunCommand(command)
   exec ":silent !echo;echo " . a:command
   exec ":!" . a:command
 endfunction
+
+if filereadable(glob("~/.vimrc.local"))
+  source ~/.vimrc.local
+endif
