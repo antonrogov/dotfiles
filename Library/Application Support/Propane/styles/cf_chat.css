@@ -96,3 +96,19 @@ td.person img {
   opacity: 1.0;
   box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3) !important;
 }
+
+.hubot {
+  color: #999
+}
+
+.hubot.build {
+  font-weight: bold;
+}
+
+.hubot.build.success {
+  color: #090;
+}
+
+.hubot.build.failure {
+  color: #a00;
+}

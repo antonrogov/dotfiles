@@ -6,6 +6,8 @@ var expandDiffs = true;
 var expandHtml = true;
 var expandCloudAppImages = true;
 var expandYandexPhotos = true;
+var styleHubotMessages = true;
+var HATERS = [];
 
 
 
@@ -42,6 +44,7 @@ if (displayAvatars) {
       this.chat = chat;
 
       var messages = this.chat.transcript.messages;
+
       for (var i = 0; i < messages.length; i++) {
         var message = messages[i];
         message.addAvatar();
@@ -124,7 +127,7 @@ if (expandGithubUrls) {
             iframe = href + '#diff-stat';
         }
 
-        if (!iframe || IFRAME_HATERS.concat(HATERS).include(this.chat.username) || iframe.match(/Image-Diff-View-Modes/)) return;
+        if (!iframe || HATERS.include(this.chat.username) || iframe.match(/Image-Diff-View-Modes/)) return;
         message.bodyElement().insert({bottom:"<iframe style='border:0; margin-top: 5px' height='"+height+"' width='98%' src='"+iframe+"'></iframe>"});
       }
     },
@@ -542,4 +545,44 @@ if (expandYandexPhotos) {
 
   Campfire.Responders.push("YandexPhotoExpander");
   window.chat.installPropaneResponder("YandexPhotoExpander", "yandexphotoexpander");
+}
+
+
+
+if (styleHubotMessages) {
+  Campfire.HubotMessageStyler = Class.create({
+    initialize: function(chat) {
+      this.chat = chat;
+      var messages = this.chat.transcript.messages;
+      for (var i = 0; i < messages.length; i++) {
+        this.styleHubotMessage(messages[i]);
+      }
+      this.chat.windowmanager.scrollToBottom();
+    },
+
+    styleHubotMessage: function(message) {
+      if (!message.pending() && message.kind === 'text' && message.author() == 'Hubot') {
+        var body = message.bodyElement();
+        body.addClassName("hubot");
+        if (body.innerText.indexOf("Successfully built") !== -1) {
+          body.addClassName("build success");
+        } else if (body.innerText.indexOf("Failed to build") !== -1) {
+          body.addClassName("build failure");
+        }
+      }
+    },
+
+    onMessagesInserted: function(messages) {
+      var scrolledToBottom = this.chat.windowmanager.isScrolledToBottom();
+      for (var i = 0; i < messages.length; i++) {
+        this.styleHubotMessage(messages[i]);
+      }
+      if (scrolledToBottom) {
+        this.chat.windowmanager.scrollToBottom();
+      }
+    }
+  });
+
+  Campfire.Responders.push("HubotMessageStyler");
+  window.chat.installPropaneResponder("HubotMessageStyler", "hubotmessagestyler");
 }
