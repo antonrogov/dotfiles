@@ -106,9 +106,9 @@ td.person img {
 }
 
 .hubot.build.success {
-  color: #090;
+  color: #383;
 }
 
 .hubot.build.failure {
-  color: #a00;
+  color: #833;
 }
