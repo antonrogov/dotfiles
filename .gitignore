@@ -1,6 +1,8 @@
 /.CFUserTextEncoding
 /.DS_Store
 /.Trash
+/.bash_history
+/.cache
 /.config
 /.dotfiles
 /.dropbox
@@ -32,8 +34,11 @@
 /.vim/.netrwhist
 /.vim/backup
 /.viminfo
+/.vimrc.local
 /.ypp_42
+/.zcompdump
 /.zhistory
+/.zshrc.local
 /Desktop
 /Documents
 /Downloads
