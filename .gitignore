@@ -13,6 +13,7 @@
 /.gnome2
 /.guard_history
 /.heroku
+/.history
 /.inkscape-etc
 /.irb_history
 /.lein
@@ -25,6 +26,7 @@
 /.pry_history
 /.psql_history
 /.rbenv
+/.rdebug_hist
 /.rnd
 /.s3cfg
 /.sqlite_history
@@ -37,7 +39,6 @@
 /.vimrc.local
 /.ypp_42
 /.zcompdump
-/.zhistory
 /.zshrc.local
 /Desktop
 /Documents

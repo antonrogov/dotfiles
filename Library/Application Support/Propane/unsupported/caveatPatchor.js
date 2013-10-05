@@ -7,8 +7,8 @@ var expandHtml = true;
 var expandCloudAppImages = true;
 var expandYandexPhotos = true;
 var styleHubotMessages = true;
+var infiteScrollHistory = false;
 var HATERS = [];
-
 
 
 if (displayAvatars) {
@@ -585,4 +585,255 @@ if (styleHubotMessages) {
 
   Campfire.Responders.push("HubotMessageStyler");
   window.chat.installPropaneResponder("HubotMessageStyler", "hubotmessagestyler");
+}
+
+
+
+if (infiteScrollHistory) {
+  /*
+   * Simple JSONP utility with Prototype.js
+   */
+  var JsonpRequest = Class.create({
+      initialize: function(base_url, callback, options) {
+      this.base_url = base_url;
+      this.callback = callback;
+      this.options = $H({
+        callback_key: 'callback',
+        param: { }
+      });
+      this.options.update(options);
+      this.request();
+    },
+
+    request: function() {
+      var handler_name = this.create_handler_name();
+      var script_tag = new Element('script', {'type': 'text/javascript', 'src': this.url(handler_name)});
+
+      var callback = this.callback;
+      JsonpRequest[handler_name] = function(response) {
+        script_tag.remove();
+        delete JsonpRequest[handler_name];
+        callback.call(this, response);
+      };
+
+      $$('head').first().insert(script_tag);
+    },
+
+    create_handler_name: function() {
+      return 'handle_response_' + JsonpRequest.next_id++;
+    },
+
+    url: function(handler_name) {
+      var param = $H(this.options.get('param'));
+      param.set(this.options.get('callback_key'), 'JsonpRequest.' + handler_name);
+      param.update({
+        return_to: window.location.href + '?backfill=1',
+        '_': new Date().getTime()
+      });
+      return this.base_url + '?' + param.toQueryString()
+    }
+  });
+  JsonpRequest.next_id = 0;
+
+
+  Campfire.Transcript.addMethods({
+    /* maintainScrollPosition, html, *message_ids */
+    prependMessages: function() {
+      var ids = $A(arguments),
+          maintainScrollPosition = ids.shift(),
+          html = ids.shift();
+
+      new Insertion.Top(this.element, html);
+      this.findMessages()
+      var messages = ids.map(this.getMessageById.bind(this));
+      // this.chat.dispatch('messagesInsertedBeforeDisplay', messages);
+      // messages.pluck('element').each(function(element) {
+      //   Element.show(element);
+      //   maintainScrollPosition();
+      // });
+      this.chat.dispatch('messagesInserted', messages);
+      return messages;
+    }
+  });
+
+  Campfire.Transcript.messageTemplates = {
+    'TextMessage': new Template("<tr class=\"message text_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n    <div class=\"body\">#{body}</div>\n    \n  <span class=\"star \">\n    <a href=\"#\" onclick=\"chat.starmanager.toggle(this); return false;\" title=\"Starred lines appear as highlights in the transcript.\"></a>\n  </span>\n\n\n  </td>\n</tr>\n"),
+    'PasteMessage': new Template("<tr class=\"message paste_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n <a href=\"/room/#{room_id}/paste/#{id}\" target=\"_blank\">View paste</a> \n<br>   <div class=\"body\"><pre><code>#{body}</code></pre></div>\n    \n  <span class=\"star \">\n    <a href=\"#\" onclick=\"chat.starmanager.toggle(this); return false;\" title=\"Starred lines appear as highlights in the transcript.\"></a>\n  </span>\n\n\n  </td>\n</tr>\n"),
+    'TweetMessage': new Template("<tr class=\"message tweet_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n <div class=\"body\"><span class=\"clearfix tweet\"><span class=\"tweet_avatar\"><a href=\"http://twitter.com/#{tweet.author_username}/status/#{tweet.id}\" target=\"_blank\"><img alt=\"Profile_normal\" height=\"48\" src=\"#{tweet.author_avatar_url}\" width=\"48\"></a></span> \n #{tweet.message} \n <span class=\"tweet_author\">— <a href=\"http://twitter.com/#{tweet.author_username}/status/#{tweet.id}\" class=\"tweet_url\" target=\"_blank\">@#{tweet.author_username}</a> via Twitter</span> </span></div>\n    \n  <span class=\"star \">\n    <a href=\"#\" onclick=\"chat.starmanager.toggle(this); return false;\" title=\"Starred lines appear as highlights in the transcript.\"></a>\n  </span>\n\n\n  </td>\n</tr>\n"),
+    'EnterMessage': new Template("<tr class=\"message enter_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n    <div>has entered the room</div>\n    \n\n\n  </td>\n</tr>\n"),
+    'KickMessage': new Template("<tr class=\"message kick_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n    <div>has left the room</div>\n    \n\n\n  </td>\n</tr>\n"),
+    'UploadMessage': new Template("<tr class=\"message upload_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n    <div class=\"body\"><img alt=\"Icon_png_small\" class=\"file_icon\" height=\"18\" src=\"/images/icons/icon_PNG_small.gif?1331159708\" width=\"24\">\n<a href=\"#{full_url}\" target=\"_blank\" title=\"#{body}\">#{body}</a>\n</div>\n    \n\n\n  </td>\n</tr>\n"),
+    'UploadMessageImage': new Template("<tr class=\"message upload_message\" id=\"message_#{id}\"><td class=\"person\"><span class=\"author\" data-avatar=\"#{avatar_url}\" data-email=\"#{email_address}\" data-name=\"#{name}\">#{name}</span></td>\n  <td class=\"body\">\n    <div class=\"body\"><img alt=\"Icon_png_small\" class=\"file_icon\" height=\"18\" src=\"/images/icons/icon_PNG_small.gif?1331159708\" width=\"24\">\n<a href=\"#{full_url}\" target=\"_blank\" title=\"#{body}\">#{body}</a>\n<br>\n<a href=\"#{full_url}\" class=\"image\" target=\"_blank\"><img alt=\"#{body}\" onerror=\"$dispatch('inlineImageLoadFailed', this)\" onload=\"$dispatch('inlineImageLoaded', this)\" src=\"#{thumb_url}\"></a></div>\n    \n\n\n  </td>\n</tr>\n"),
+    'TimestampMessage': new Template("<tr class=\"message timestamp_message\" id=\"message_#{id}\"><td class=\"date\"><span class=\"author\" style=\"display:none\"></span></td>\n  <td class=\"time\">\n    <div class=\"body\">#{time}</div>\n    \n\n\n  </td>\n</tr>\n")
+  };
+
+  var i = new Image();
+  i.src = "https://github.com/images/spinners/octocat-spinner-16px.gif";
+
+  function processMessage(message) {
+    var pasteLines = 4;
+
+    var type = message.type;
+    var tmpl = Campfire.Transcript.messageTemplates[type];
+    if (!tmpl) return;
+
+    var user = chat.usersById[message.user_id];
+    var opts = user ? $H(user) : $H({});
+
+    if (message.body)
+      opts = opts.merge({body: chat.transcript.bodyForPendingMessage(message.body)});
+
+    if (opts.get('body') && type == 'PasteMessage') {
+      var lines = opts.get('body').split("\n");
+      if (lines.length > pasteLines)
+        opts.set('body', lines.slice(0, pasteLines).join("\n") + "\n...");
+    }
+
+    var date = new Date(message.created_at);
+    var hours = date.getHours();
+    var mins = date.getMinutes() + '';
+    if (mins.length == 1) mins = '0' + mins;
+    var time = (hours > 12 ? hours-12 : hours == 0 ? 12 : hours) + ':' + mins + ' ' + (hours >= 12 ? 'PM' : 'AM');
+
+    message.html = tmpl.evaluate(opts.merge({id: message.id,
+                                             time: time,
+                                             room_id: message.room_id,
+                                             tweet: message.tweet}));
+  }
+
+  function fetchUsers(ids, callback) {
+    if (!chat.usersById) window.chat.usersById = $H();
+
+    var newIds = ids.filter(function (id) {
+      return !chat.usersById[id];
+    });
+    var left = newIds.length;
+
+    newIds.each(function (id) {
+      var url = 'https://blackbits.campfirenow.com/users/' + id + '.json';
+
+      new Ajax.Request(url, {
+        method: 'get',
+        onComplete: function(response) {
+          chat.usersById[id] = response.responseJSON.user;
+          left--;
+          if (left <= 0) {
+            callback();
+          }
+        }
+      });
+    });
+  }
+
+  function prependMessages(ids, html) {
+    var history_request = 'history_request_' + (new Date().getTime());
+
+    new Insertion.Top(chat.transcript.element, "<tr id='"+history_request+"'><td colspan=2><img src='https://github.com/images/spinners/octocat-spinner-16px.gif'></td></tr>")
+    $(history_request).scrollTo()
+    var scrollBottom = document.body.scrollHeight - document.body.scrollTop;
+    var maintainScrollPosition = function() {
+      document.body.scrollTop = document.body.scrollHeight - scrollBottom;
+    }
+
+    // Images without explicit sizes, and iframes whose src URLs contain
+    // fragments, can cause the transcript to shift or scroll. We work
+    // hard to keep the scroll position the same distance from the bottom
+    // while backfilling.
+    var interval = setInterval(maintainScrollPosition, 0);
+
+    setTimeout(function(){
+      chat.messageHistory += ids.length
+      chat.transcript.prependMessages.apply(chat.transcript, [maintainScrollPosition, html].concat(ids))
+
+      setTimeout(function(){
+        $(history_request).remove()
+        maintainScrollPosition()
+        // Give iframes and images some more time to load before we let
+        // the scroll position go.
+        setTimeout(function(){
+          clearInterval(interval);
+        }, 1000)
+      }, 250)
+    }, 400)
+  }
+
+  function processMessages(data) {
+    var ids = [];
+    var html = '';
+    var messages = data.messages;
+
+    var userIds = messages.map(function (message) {
+      return message.user_id;
+    }).uniq().compact();
+
+    fetchUsers(userIds, function () {
+      messages.each(function (message) {
+        processMessage(message);
+        if (message.html) {
+          ids.push(message.id);
+          html += message.html;
+        }
+      });
+
+      if (ids.length) {
+        prependMessages(ids, html);
+      }
+
+      var link = $('todays_transcript_link');
+      link.href = link.href.replace(/\/\d+$/, '/' + messages[0].id);
+    });
+  }
+
+  function prependHistory(cb) {
+    var room_id = $('return_to_room_id').value
+    var earliest_message = $('todays_transcript_link').href.match(/(\d+)$/)[1]
+    var url = 'https://blackbits.campfirenow.com/room/' + room_id + '/recent.json';
+
+    new Ajax.Request(url + '?since_message_id=' + earliest_message, {
+      method: 'get',
+      onSuccess: function(response) {
+        processMessages(response.responseJSON);
+        if (cb) cb();
+      }
+    });
+  }
+
+  $('todays_transcript_link').onclick = function(ev){
+    ev.preventDefault();
+    prependHistory();
+  }
+
+  if (location.search.match(/backfill/)) {
+    prependHistory();
+  }
+
+  new Insertion.Bottom($('todays_transcript'), "<div style='float:right' id='infinite_scroll'></div>");
+
+  var triggerHistory = false,
+      triggeringHistory = false;
+
+  Event.observe(window, 'scroll', function(ev) {
+    var top = document.viewport.getScrollOffsets()[1];
+    if (top < -40) {
+      triggerHistory = true;
+    }
+
+    if (triggeringHistory)
+      $('infinite_scroll').update('backfilling..');
+    else if (triggerHistory)
+      $('infinite_scroll').update('let go to backfill');
+    else if (top < 0)
+      $('infinite_scroll').update('keep pulling down to backfill');
+    else if (top >= 0)
+      $('infinite_scroll').update('');
+
+    if (triggerHistory && top >= -5) {
+      triggerHistory = false;
+      triggeringHistory = true;
+      prependHistory(function () {
+        triggeringHistory = false;
+        $('infinite_scroll').update('');
+      });
+    }
+  });
 }

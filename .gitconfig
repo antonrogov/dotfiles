@@ -12,10 +12,11 @@
     status = auto
     diff = auto
     log = auto
+    grep = auto
 [core]
     editor = vim
     excludesfile = ~/.gitignore
 [apply]
     whitespace = nowarn
 [heroku]
-    account = personal
+    account = blackbits

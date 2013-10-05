@@ -223,6 +223,7 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 map <leader>t :call RunTestFile("")<cr>
 map <leader>w :call RunScenarios("", "--profile wip")<cr>
 map <leader>st :call RunTestFile("spring ")<cr>
+map <leader>dt :call RunTestFile("LOG_LEVEL=DEBUG ")<cr>
 map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
 map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
 
