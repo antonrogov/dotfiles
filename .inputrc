@@ -1,7 +1,2 @@
-"\e[1~": beginning-of-line
-"\e[4~": end-of-line
-"\e[3~": delete-char
-"\e[9~": backward-kill-word
-"\e[2~": quoted-insert
-"\e[1;5C": forward-word
-"\e[1;5D": backward-word
+Control-p: history-search-backward
+Control-n: history-search-forward

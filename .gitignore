@@ -55,6 +55,7 @@
 
 /Library/*
 !/Library/Application Support/
+!/Library/KeyBindings/
 !/Library/Preferences/
 !/Library/Scripts/
 

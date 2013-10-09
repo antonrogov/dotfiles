@@ -129,6 +129,8 @@ vmap < <gv
 nnoremap <leader><leader> <c-^>
 
 let g:NERDSpaceDelims = 1
+let g:CommandTBackspaceMap = '<C-h>'
+let g:CommandTCursorLeftMap = '<Left>'
 
 " calculations
 function! MyCalc(str)

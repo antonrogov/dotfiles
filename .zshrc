@@ -75,15 +75,7 @@ setopt COMPLETE_IN_WORD
 compctl -C -c -f -tn
 compctl -c sudo
 
-bindkey '\e[A' q-history-search-backward
-bindkey '\e[B' q-history-search-forward
-bindkey '\e[1;5C' forward-word
-bindkey '\e[1;5D' backward-word
-bindkey '\e[1~' beginning-of-line
-bindkey '\e[4~' end-of-line
-bindkey '^a' beginning-of-line
-bindkey '^e' end-of-line
-bindkey '\e[3~' delete-char
-bindkey '\e[9~' backward-delete-word
+bindkey '^p' q-history-search-backward
+bindkey '^n' q-history-search-forward
 
 [[ -s ~/.zshrc.local ]] && . ~/.zshrc.local
