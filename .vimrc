@@ -84,6 +84,7 @@ augroup vimrcEx
 
   " Indent p tags
   " au FileType html,eruby if g:html_indent_tags !~ '\\|p\>' | let g:html_indent_tags .= '\|p\|li\|dt\|dd' | endif
+  au FileType clojure set iskeyword-=/
 
   " Don't syntax highlight markdown because it's often wrong
   au! FileType mkd setlocal syn=off
