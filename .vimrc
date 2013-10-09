@@ -124,6 +124,7 @@ map <leader>gt :CommandTFlush<cr>\|:CommandTTag<cr>
 map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
 map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
 map <Leader>/ <plug>NERDCommenterToggle<CR>
+map <Leader>l :w\|:!reload-safari<CR><CR>
 vmap > >gv
 vmap < <gv
 nnoremap <leader><leader> <c-^>
