@@ -7,4 +7,8 @@
     "~v" = "pageUp:";
     "~d" = "deleteWordForward:";
     "^w" = "deleteWordBackward:";
+    "~а" = "moveWordForward:";
+    "~и" = "moveWordBackward:";
+    "~в" = "deleteWordForward:";
+    "^ц" = "deleteWordBackward:";
 }
