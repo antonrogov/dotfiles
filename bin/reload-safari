@@ -5,5 +5,4 @@ tell application "Safari"
     do JavaScript "window.location.reload()"
   end tell
 end tell
-return
-'
+' > /dev/null

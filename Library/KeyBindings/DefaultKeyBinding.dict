@@ -11,4 +11,5 @@
     "~и" = "moveWordBackward:";
     "~в" = "deleteWordForward:";
     "^ц" = "deleteWordBackward:";
+    "^р" = "deleteBackward:";
 }
