@@ -564,9 +564,11 @@ if (styleHubotMessages) {
       if (!message.pending() && message.kind === 'text' && message.author() == 'Hubot') {
         var body = message.bodyElement();
         body.addClassName("hubot");
-        if (body.innerText.indexOf("Successfully built") !== -1) {
+        if (body.innerText.indexOf("Successfully built") !== -1 ||
+            body.innerText.indexOf("Successfully deployed") !== -1) {
           body.addClassName("build success");
-        } else if (body.innerText.indexOf("Failed to build") !== -1) {
+        } else if (body.innerText.indexOf("Failed to build") !== -1 ||
+                   body.innerText.indexOf("Failed to deploy") !== -1) {
           body.addClassName("build failure");
         }
       }
@@ -785,8 +787,8 @@ if (infiteScrollHistory) {
   }
 
   function prependHistory(cb) {
-    var room_id = $('return_to_room_id').value
-    var earliest_message = $('todays_transcript_link').href.match(/(\d+)$/)[1]
+    var room_id = $('return_to_room_id').value;
+    var earliest_message = $('todays_transcript_link').href.match(/(\d+)$/)[1];
     var url = 'https://blackbits.campfirenow.com/room/' + room_id + '/recent.json';
 
     new Ajax.Request(url + '?since_message_id=' + earliest_message, {
