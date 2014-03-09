@@ -10,27 +10,20 @@ div.bottom {
   background-image: none ! important;
 }
 table.chat {
-  margin-bottom: 5px ! important;
+  margin-bottom: 0 !important;
 }
 div#last_message{
-  height: 10px ! important;
-  padding-bottom: 5px ! important;
+  display: none;
 }
 div#clipper > div {
   display:none ! important;
 }
 div.speak {
-  width: 100% ! important;
-  padding:0px ! important;
-  margin:0px ! important;
-  height:15px ! important;
-  bottom:0px ! important;
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAN0lEQVQ4EWP8//8/NwMVAQvQLAkqmscAMlBy0Bs46mXKomjwxzIjMKf8p8yTqLqZULmU80aggQDfMQgRDRblXgAAAABJRU5ErkJggg==) top repeat-x ! important;
+  display: none;
 }
 div.Left div.col {
-  margin:0px ! important;
-  padding-top: 0px ! important;
-  padding-bottom: 0px ! important;
+  margin: 0 !important;
+  padding: 0 !important;
   background-image:none ! important;
 }
 div#Header {
@@ -71,44 +64,56 @@ tr.propane_alert_match:not(.propane_search) td.body { background-color: #D9FAD9 
 tr.propane_hidden_enterleave { display: none ! important; }
 div#upload_form, input[type="file"] { display:none ! important; }
 
-td.body {
-  padding: 7px !important;
-  border-bottom: 1px solid #efefef !important;
-  border-left: 1px solid #efefef !important;
-  background-color: #fff !important;
-}
-
-td.time {
-  border-left: 1px solid #efefef !important;
-}
-
-td.person {
-  border-radius: 3px !important;
-  background: white !important;
-  border-bottom: 1px solid white !important;
+#todays_transcript {
+  padding: 5px !important;
 }
 
 td.person img {
-  border-radius: 30px !important;
-  width: 40px !important;
-  height: 40px !important;
-  margin-right: 5px;
-  opacity: 1.0;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3) !important;
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  margin-left: 2px;
+}
+
+span.star {
+  float: right !important;
 }
 
 .hubot {
   color: #999
 }
 
+.hubot.notice a {
+  color: #ccc !important;
+}
+
+.hubot.notice a:hover {
+  color: #ccc !important;
+  background: none !important;
+}
+
 .hubot.build {
   font-weight: bold;
 }
 
-.hubot.build.success {
+.hubot.success {
   color: #383;
 }
 
-.hubot.build.failure {
+.hubot.failure {
   color: #833;
+}
+
+.hubot.deploy {
+  color: white;
+  padding: 5px;
+  margin: 5px 0 -18px -5px;
+}
+
+.hubot.deploy.success {
+  background-color: #383;
+}
+
+.hubot.deploy.failure {
+  background-color: #383;
 }

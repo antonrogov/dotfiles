@@ -561,15 +561,20 @@ if (styleHubotMessages) {
     },
 
     styleHubotMessage: function(message) {
+      console.log(message);
       if (!message.pending() && message.kind === 'text' && message.author() == 'Hubot') {
         var body = message.bodyElement();
         body.addClassName("hubot");
-        if (body.innerText.indexOf("Successfully built") !== -1 ||
-            body.innerText.indexOf("Successfully deployed") !== -1) {
+        if (body.innerText.indexOf("Successfully built") !== -1) {
           body.addClassName("build success");
-        } else if (body.innerText.indexOf("Failed to build") !== -1 ||
-                   body.innerText.indexOf("Failed to deploy") !== -1) {
+        } else if (body.innerText.indexOf("Failed to build") !== -1) {
           body.addClassName("build failure");
+        } else if (body.innerText.indexOf("Successfully deployed") !== -1) {
+          body.addClassName("deploy success");
+        } else if (body.innerText.indexOf("Failed to build") !== -1) {
+          body.addClassName("deploy failure");
+        } else {
+          body.addClassName("notice");
         }
       }
     },
