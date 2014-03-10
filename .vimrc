@@ -104,6 +104,12 @@ vnoremap   <Down>   <NOP>
 vnoremap   <Left>   <NOP>
 vnoremap   <Right>  <NOP>
 
+" Move around splits with <c-hjkl>
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+
 map <leader>y "*y
 map <leader>p "*p
 map <Leader>gs :Gstatus<CR>
