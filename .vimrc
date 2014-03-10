@@ -70,6 +70,8 @@ set directory=~/.vim/backup
 " Show (partial) command in the status line
 set showcmd
 
+set autoread
+
 augroup vimrcEx
   au!
 
