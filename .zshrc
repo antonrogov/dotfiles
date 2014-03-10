@@ -57,7 +57,7 @@ HISTFILE=~/.history
 HISTSIZE=100000
 SAVEHIST=$HISTSIZE
 REPORTTIME=10 # print elapsed time when more than 10 seconds
-WORDCHARS="${WORDCHARS:s#/#}"
+WORDCHARS='*?[]~&;!$%^<>'
 
 setopt NO_BG_NICE
 setopt NO_HUP
