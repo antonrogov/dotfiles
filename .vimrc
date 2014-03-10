@@ -77,17 +77,19 @@ augroup vimrcEx
   au!
 
   " Remember last location in file
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
+  au BufReadPost *
+    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g'\"" |
+    \ endif
 
   au FileType text setlocal textwidth=78
 
   au BufRead,BufNewFile *.rabl set ft=ruby
   au BufNewFile,BufRead *.json set ft=javascript
+  au BufRead *.mkd set ai formatoptions=tcroqn2 comments=n:&gt;
+  au BufRead *.markdown set ai formatoptions=tcroqn2 comments=n:&gt;
 
   au FileType python,c,cpp,objc set et ts=4 sw=4 sts=4
-
-  " Indent p tags
-  " au FileType html,eruby if g:html_indent_tags !~ '\\|p\>' | let g:html_indent_tags .= '\|p\|li\|dt\|dd' | endif
   au FileType clojure set iskeyword-=/
 
   " Don't syntax highlight markdown because it's often wrong
