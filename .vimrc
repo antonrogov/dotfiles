@@ -206,7 +206,7 @@ function! AlternateForCurrentFile()
       let new_file = substitute(new_file, '$', '_spec.rb', '')
     elseif match(new_file, '^assets/javascripts') != -1
       let new_file = substitute(new_file, '^assets/', '', '')
-      let new_file = substitute(new_file, '\(\.js\|\.coffee\|\.js\.coffee\)$', '_spec\1', '')
+      let new_file = substitute(new_file, '\(\.js\|\.coffee\|\.js\.coffee\)$', '_spec.coffee', '')
     else
       let new_file = substitute(new_file, '\.rb$', '_spec.rb', '')
     end
@@ -216,7 +216,7 @@ function! AlternateForCurrentFile()
     if match(new_file, '^views/') != -1
       let new_file = substitute(new_file, '_spec\.rb$', '', '')
     elseif match(new_file, '^javascripts/') != -1
-      let new_file = 'assets/' . substitute(new_file, '_spec\(\.js\|\.coffee\|\.js\.coffee\)$', '\1', '')
+      let new_file = 'assets/' . substitute(new_file, '_spec\(\.js\|\.coffee\|\.js\.coffee\)$', '*', '')
     else
       let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
     end
