@@ -70,11 +70,11 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt COMPLETE_IN_WORD
 
-compctl -C -c -f -tn
-compctl -c sudo
-
 bindkey '^p' q-history-search-backward
 bindkey '^n' q-history-search-forward
+
+autoload -U compinit
+compinit
 
 for config_file ($HOME/.zsh/functions/*.zsh); do
   source $config_file
