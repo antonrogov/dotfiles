@@ -1,9 +1,5 @@
 # .zshrc
 
-for config_file ($HOME/.zsh/functions/*.zsh); do
-  source $config_file
-done
-
 alias h='history 25'
 alias j='jobs -l'
 alias la='ls -a'
@@ -79,5 +75,9 @@ compctl -c sudo
 
 bindkey '^p' q-history-search-backward
 bindkey '^n' q-history-search-forward
+
+for config_file ($HOME/.zsh/functions/*.zsh); do
+  source $config_file
+done
 
 [[ -s ~/.zshrc.local ]] && . ~/.zshrc.local
