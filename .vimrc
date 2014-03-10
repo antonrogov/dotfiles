@@ -71,6 +71,7 @@ set directory=~/.vim/backup
 set showcmd
 
 set autoread
+set nojoinspaces
 
 augroup vimrcEx
   au!
