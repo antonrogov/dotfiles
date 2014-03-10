@@ -55,6 +55,7 @@ export LC_CTYPE=en_US.UTF-8
 export ACK_COLOR_MATCH='red'
 export GREP_OPTIONS='--color'
 export HOMEBREW_CASK_OPTS='--appdir=/Applications --caskroom=/usr/local/Caskroom'
+set -o emacs
 
 HISTFILE=~/.history
 HISTSIZE=100000
