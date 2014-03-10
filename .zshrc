@@ -76,6 +76,10 @@ bindkey '^n' q-history-search-forward
 autoload -U compinit
 compinit
 
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line
+
 for config_file ($HOME/.zsh/functions/*.zsh); do
   source $config_file
 done
