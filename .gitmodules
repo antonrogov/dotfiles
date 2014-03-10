@@ -15,7 +15,7 @@
   url = https://github.com/tpope/vim-fugitive.git
 [submodule ".vim/bundle/vim-nerdcommenter"]
   path = .vim/bundle/vim-nerdcommenter
-	url = https://github.com/antonr/nerdcommenter.git
+	url = https://github.com/antonrogov/nerdcommenter.git
 [submodule ".vim/bundle/vim-ruby"]
   path = .vim/bundle/vim-ruby
 	url = https://github.com/vim-ruby/vim-ruby.git
@@ -30,7 +30,7 @@
 	url = https://github.com/altercation/vim-colors-solarized.git
 [submodule ".vim/bundle/vim-colors-railscasts"]
 	path = .vim/bundle/vim-colors-railscasts
-	url = https://github.com/antonr/vim-railscasts-theme.git
+	url = https://github.com/antonrogov/vim-railscasts-theme.git
 [submodule ".vim/bundle/vim-slim"]
 	path = .vim/bundle/vim-slim
 	url = https://github.com/slim-template/vim-slim.git
