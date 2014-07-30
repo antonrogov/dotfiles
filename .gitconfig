@@ -20,3 +20,5 @@
     whitespace = nowarn
 [heroku]
     account = blackbits
+[credential]
+	helper = osxkeychain
