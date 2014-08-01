@@ -1,0 +1,6 @@
+#!/bin/bash
+
+file=${1#spec/javascripts/}
+file=${file#.coffee}
+
+phantomjs ~/code/konacha-phantomjs/lib/konacha/phantomjs/runner.coffee http://localhost:3000/konacha/$file
