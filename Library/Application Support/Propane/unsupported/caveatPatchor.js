@@ -571,7 +571,7 @@ if (styleHubotMessages) {
           body.addClassName("build failure");
         } else if (body.innerText.indexOf("Successfully deployed") !== -1) {
           body.addClassName("deploy success");
-        } else if (body.innerText.indexOf("Failed to build") !== -1) {
+        } else if (body.innerText.indexOf("Failed to deploy") !== -1) {
           body.addClassName("deploy failure");
         } else {
           body.addClassName("notice");
