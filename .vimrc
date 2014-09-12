@@ -64,6 +64,8 @@ color railscasts
 set timeout timeoutlen=1000 ttimeoutlen=100
 
 " Directories for swp files
+set nobackup
+set nowritebackup
 set backupdir=~/.vim/backup
 set directory=~/.vim/backup
 
