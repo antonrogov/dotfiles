@@ -197,13 +197,27 @@ endfunction
 function! AlternateForCurrentFile()
   let current_file = expand("%")
   let new_file = current_file
-  let in_spec = match(current_file, '^spec/') != -1
-  let going_to_spec = !in_spec
-  let in_app = match(current_file, '\<\(app\|spec\)\>/\<\(assets\|javascripts\|controllers\|helpers\|models\|views\|services\|presenters\|jobs\|uploaders\|mailers\)\>') != -1
-  if going_to_spec
-    if in_app
+
+  if match(current_file, '^spec/') != -1
+    let new_file = substitute(new_file, '^spec/', '', '')
+
+    if match(new_file, '^views/') != -1
+      let new_file = substitute(new_file, '_spec\.rb$', '', '')
+    elseif match(new_file, '^javascripts/') != -1
+      let new_file = 'assets/' . substitute(new_file, '_spec\(\.js\|\.coffee\|\.js\.coffee\)$', '*', '')
+    else
+      let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
+    end
+
+    let dir = split(new_file, '/')[0]
+    if isdirectory('app/' . dir)
+      let new_file = 'app/' . new_file
+    end
+  else
+    if match(new_file, '^app/') != -1
       let new_file = substitute(new_file, '^app/', '', '')
     end
+
     if match(new_file, '^views/') != -1
       let new_file = substitute(new_file, '$', '_spec.rb', '')
     elseif match(new_file, '^assets/javascripts') != -1
@@ -212,20 +226,10 @@ function! AlternateForCurrentFile()
     else
       let new_file = substitute(new_file, '\.rb$', '_spec.rb', '')
     end
+
     let new_file = 'spec/' . new_file
-  else
-    let new_file = substitute(new_file, '^spec/', '', '')
-    if match(new_file, '^views/') != -1
-      let new_file = substitute(new_file, '_spec\.rb$', '', '')
-    elseif match(new_file, '^javascripts/') != -1
-      let new_file = 'assets/' . substitute(new_file, '_spec\(\.js\|\.coffee\|\.js\.coffee\)$', '*', '')
-    else
-      let new_file = substitute(new_file, '_spec\.rb$', '.rb', '')
-    end
-    if in_app
-      let new_file = 'app/' . new_file
-    end
   endif
+
   return new_file
 endfunction
 nnoremap <leader>. :call OpenTestAlternate()<cr>
