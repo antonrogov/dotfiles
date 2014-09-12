@@ -3,10 +3,20 @@
     email = anton@blackbits.pro
 [alias]
     aa = add --all
-    co = checkout
     amend = commit --amend
-    pick = cherry-pick
+    b = branch
+    ba = branch --all
+    c = commit -v
     changes = whatchanged -p --abbrev-commit --pretty=medium
+    co = checkout
+    d = diff
+    dc = diff --cached
+    fa = fetch --all
+    la = !. ~/.zsh/functions/pretty_git_log.zsh && pretty_git_log --all
+    lr = !git la -30
+    p = push
+    pick = cherry-pick
+    st = status
 [color]
     branch = auto
     status = auto
@@ -21,4 +31,4 @@
 [heroku]
     account = blackbits
 [credential]
-	helper = osxkeychain
+    helper = osxkeychain
