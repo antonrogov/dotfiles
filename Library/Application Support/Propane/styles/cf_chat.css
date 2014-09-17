@@ -110,6 +110,10 @@ span.star {
   margin: 5px 0 -18px -5px;
 }
 
+.hubot.deploy a {
+  color: white !important;
+}
+
 .hubot.deploy.success {
   background-color: #383;
 }
