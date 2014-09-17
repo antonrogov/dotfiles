@@ -32,3 +32,5 @@
     account = blackbits
 [credential]
     helper = osxkeychain
+[push]
+    default = simple
