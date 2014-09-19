@@ -39,4 +39,4 @@
 	url = https://github.com/christoomey/vim-tmux-navigator.git
 [submodule ".vim/bundle/vim-ruby-rspec"]
 	path = .vim/bundle/vim-ruby-rspec
-	url = git@github.com:antonrogov/vim-ruby-rspec.git
+	url = https://github.com/antonrogov/vim-ruby-rspec.git
