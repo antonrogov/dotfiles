@@ -70,6 +70,7 @@
 
 /Library/Application Support/*
 !/Library/Application Support/Propane
+/Library/Application Support/Propane/hosts
 
 /Library/Preferences/*
 !/Library/Preferences/com.googlecode.iterm2.plist
