@@ -5,6 +5,7 @@ var expandGithubShortcuts = true;
 var expandDiffs = true;
 var expandHtml = true;
 var expandCloudAppImages = true;
+var replaceDropboxImages = true;
 var expandYandexPhotos = true;
 var styleHubotMessages = true;
 var infiteScrollHistory = false;
@@ -506,6 +507,50 @@ if (expandCloudAppImages) {
 }
 
 
+if (replaceDropboxImages) {
+  Campfire.DropboxReplacer = Class.create({
+    initialize: function(chat) {
+      this.chat = chat;
+      var messages = this.chat.transcript.messages;
+      for (var i = 0; i < messages.length; i++) {
+        this.replaceURL(messages[i]);
+      }
+    },
+
+    replaceURL: function(message) {
+      if (message.kind === 'text') {
+        var links = message.bodyElement().select('a');
+        if (links.length != 1) {
+          return;
+        }
+
+        var href = links[0].getAttribute('href').replace('&#39', '');
+        var match = href.match(/^https:\/\/www.dropbox.com\/s\//);
+        if (!match) return;
+
+        var imageURL = href.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+
+        message.resize((function() {
+          message.bodyElement().innerHTML = '<a href="'+imageURL+'" class="image loading" target="_blank">' + '<img src="'+imageURL+'" onload="$dispatch(&quot;inlineImageLoaded&quot;, this)" onerror="$dispatch(&quot;inlineImageLoadFailed&quot;, this)" /></a>';
+        }).bind(this));
+      }
+    },
+
+    onMessagesInsertedBeforeDisplay: function(messages) {
+      for (var i = 0; i < messages.length; i++) {
+        this.replaceURL(messages[i]);
+      }
+    },
+
+    onMessageAccepted: function(message, messageID) {
+      this.replaceURL(message);
+    }
+  });
+
+  Campfire.Responders.push("DropboxReplacer");
+  window.chat.installPropaneResponder("DropboxReplacer", "dropboxreplacer");
+}
+
 
 if (expandYandexPhotos) {
   Campfire.YandexPhotoExpander = Class.create({
@@ -561,7 +606,6 @@ if (styleHubotMessages) {
     },
 
     styleHubotMessage: function(message) {
-      console.log(message);
       if (!message.pending() && message.kind === 'text' && message.author() == 'Hubot') {
         var body = message.bodyElement();
         body.addClassName("hubot");
