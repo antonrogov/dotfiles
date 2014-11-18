@@ -1,5 +1,5 @@
 var displayAvatars = true;
-var expandGithubUrls = true;
+var expandGithubUrls = false;
 var shortenGithubUrls = true;
 var expandGithubShortcuts = true;
 var expandDiffs = true;
