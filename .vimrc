@@ -10,6 +10,7 @@ set number
 set numberwidth=5
 set ruler
 syntax on
+set statusline=%1*\ %<%f\ %*%2*%*\ %h%m%r%=\ %l,%c%V\ \ %P
 
 set encoding=utf-8
 
