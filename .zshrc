@@ -47,7 +47,7 @@ else
   if [[ -n $VIMRUNTIME ]]; then
     export PS1=$'%3~$ '
   else
-    export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;32m%}%3~$%{\e[0m%} '
+    export PS1=$'%{\e[0;32m%}%3~$%{\e[0m%} '
   fi
 fi
 
