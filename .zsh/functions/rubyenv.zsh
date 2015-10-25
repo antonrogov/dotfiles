@@ -20,6 +20,7 @@ function rubyenv() {
       export GEM_HOME=$env
       export GEM_PATH=$env
       export PATH=$env/bin:$PATH
+      rehash
       ;;
 
     deactivate)
@@ -43,6 +44,7 @@ function rubyenv() {
         unset PATH
       fi
       unset _OLD_PATH
+      rehash
       ;;
 
     *)
