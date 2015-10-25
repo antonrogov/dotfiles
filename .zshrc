@@ -39,7 +39,7 @@ glr() { pretty_git_log --all -30 $* }
 gla() { pretty_git_log --all $* }
 
 alias reload!='. ~/.zshrc'
-alias fetch='curl -C - -O'
+alias fetch='curl -L -C - -O'
 
 if [[ -n $SSH_CONNECTION ]]; then
   export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;31m%}%m:%3~$%{\e[0m%} '
