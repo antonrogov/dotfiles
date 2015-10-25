@@ -238,16 +238,16 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <leader>t :call RunTestFile("")<cr>
-map <leader>w :call RunScenarios("", "--profile wip")<cr>
-map <leader>st :call RunTestFile("spring ")<cr>
-map <leader>dt :call RunTestFile("LOG_LEVEL=DEBUG ")<cr>
-map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
-map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
+au FileType ruby map <leader>t :call RunTestFile("")<cr>
+au FileType ruby map <leader>w :call RunScenarios("", "--profile wip")<cr>
+au FileType ruby map <leader>st :call RunTestFile("spring ")<cr>
+au FileType ruby map <leader>dt :call RunTestFile("LOG_LEVEL=DEBUG ")<cr>
+au FileType ruby map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
+au FileType ruby map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
 
-map <leader>T :call RunNearestTest()<cr>
-map <leader>a :call RunTests('')<cr>
-map <leader>c :call RunScenarios()<cr>
+au FileType ruby map <leader>T :call RunNearestTest()<cr>
+au FileType ruby map <leader>a :call RunTests('')<cr>
+au FileType ruby map <leader>c :call RunScenarios()<cr>
 
 function! RunTestFile(prefix)
   if a:0
