@@ -531,7 +531,7 @@ if (replaceDropboxImages) {
         var imageURL = href.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
 
         message.resize((function() {
-          message.bodyElement().innerHTML = '<a href="'+imageURL+'" class="image loading" target="_blank">' + '<img src="'+imageURL+'" onload="$dispatch(&quot;inlineImageLoaded&quot;, this)" onerror="$dispatch(&quot;inlineImageLoadFailed&quot;, this)" /></a>';
+          message.bodyElement().innerHTML = '<a href="'+imageURL+'" class="image loading" target="_blank"><img src="'+imageURL+'" onload="$dispatch(&quot;inlineImageLoaded&quot;, this)" onerror="$dispatch(&quot;inlineImageLoadFailed&quot;, this)" /></a>';
         }).bind(this));
       }
     },
