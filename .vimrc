@@ -92,7 +92,7 @@ augroup vimrcEx
   au BufRead *.mkd set ai formatoptions=tcroqn2 comments=n:&gt;
   au BufRead *.markdown set ai formatoptions=tcroqn2 comments=n:&gt;
 
-  au FileType python,c,cpp,objc set et ts=4 sw=4 sts=4
+  au FileType python,c,cpp,objc,go set et ts=4 sw=4 sts=4
   au FileType clojure set iskeyword-=/
 
   " Don't syntax highlight markdown because it's often wrong
