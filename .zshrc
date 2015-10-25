@@ -1,5 +1,10 @@
 # .zshrc
 
+PATH="$HOME/bin:$PATH"
+PATH="$HOME/.rbenv/shims:$PATH"
+PATH="node_modules/.bin:$PATH"
+export PATH
+
 alias h='history 25'
 alias j='jobs -l'
 alias la='ls -a'
