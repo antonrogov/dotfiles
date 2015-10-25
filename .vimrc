@@ -30,7 +30,7 @@ nnoremap <CR> :nohlsearch<CR>/<BS>
 " Tab completion
 set wildmode=list:longest,list:full
 set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn
-set wildignore+=vendor/gems/*,vendor/ruby/**,tmp/cache/**
+set wildignore+=vendor/gems/*,vendor/ruby/**,bower_components/**,node_modules/**,tmp/**
 
 " Status bar
 set laststatus=2
