@@ -54,3 +54,4 @@ function rubyenv() {
 
 alias ra='rubyenv activate'
 alias rd='rubyenv deactivate'
+alias rl='ls -1 ~/.rbenv/envs'
