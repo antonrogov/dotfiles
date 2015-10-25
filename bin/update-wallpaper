@@ -1,5 +1,5 @@
 osascript -e '
 tell application "Finder"
-	set desktop picture to some file of folder "Macintosh HD:Users:anton:Library:Desktop Pictures"
+  set desktop picture to some file of folder "Pictures:Desktop Pictures" of home
 end tell
 '
