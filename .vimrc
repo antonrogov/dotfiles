@@ -30,7 +30,7 @@ nnoremap <CR> :nohlsearch<CR>/<BS>
 " Tab completion
 set wildmode=list:longest,list:full
 set wildignore+=*.o,*.obj,.git,*.rbc,*.class,.svn
-set wildignore+=vendor/gems/*,vendor/ruby/**,bower_components/**,node_modules/**,tmp/**
+set wildignore+=vendor/gems/*,vendor/ruby/**,**/bower_components/**,**/node_modules/**,**/tmp/**
 
 " Status bar
 set laststatus=2
@@ -238,12 +238,12 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-au FileType ruby map <leader>t :call RunTestFile("")<cr>
-au FileType ruby map <leader>w :call RunScenarios("", "--profile wip")<cr>
-au FileType ruby map <leader>st :call RunTestFile("spring ")<cr>
-au FileType ruby map <leader>dt :call RunTestFile("LOG_LEVEL=DEBUG ")<cr>
-au FileType ruby map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
-au FileType ruby map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
+au FileType ruby,cucumber map <leader>t :call RunTestFile("")<cr>
+au FileType ruby,cucumber map <leader>w :call RunScenarios("", "--profile wip")<cr>
+au FileType ruby,cucumber map <leader>st :call RunTestFile("spring ")<cr>
+au FileType ruby,cucumber map <leader>dt :call RunTestFile("LOG_LEVEL=DEBUG ")<cr>
+au FileType ruby,cucumber map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
+au FileType ruby,cucumber map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
 
 au FileType ruby map <leader>T :call RunNearestTest()<cr>
 au FileType ruby map <leader>a :call RunTests('')<cr>
