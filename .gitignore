@@ -56,6 +56,7 @@
 /Movies
 /Music
 /Pictures
+/Public
 /Spotify
 /code
 
@@ -73,4 +74,3 @@
 
 /Library/Preferences/*
 !/Library/Preferences/com.googlecode.iterm2.plist
-!/Library/Preferences/com.ugolandini.Pomodoro.plist
