@@ -122,15 +122,6 @@ nnoremap <c-l> <c-w>l
 map <leader>y "*y
 map <leader>p "*p
 map <Leader>gs :Gstatus<CR>
-map <leader>ga :CommandTFlush<cr>\|:CommandT app/assets<cr>
-map <leader>gv :CommandTFlush<cr>\|:CommandT app/views<cr>
-map <leader>gc :CommandTFlush<cr>\|:CommandT app/controllers<cr>
-map <leader>gm :CommandTFlush<cr>\|:CommandT app/models<cr>
-map <leader>gh :CommandTFlush<cr>\|:CommandT app/helpers<cr>
-map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
-map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
-map <leader>gt :CommandTFlush<cr>\|:CommandTTag<cr>
-map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
 map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
 map <Leader>/ <plug>NERDCommenterToggle<CR>
 map <Leader>l :w\|:!reload-safari<CR><CR>
@@ -150,6 +141,73 @@ endfunction
 map <silent> <Leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
 vmap <silent> <Leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
 command! -nargs=+ MyCalc :echo MyCalc("<args>")
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Selecta mappings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! SelectaCommand(choice_command, selecta_args, vim_command)
+  try
+    let selection = system(a:choice_command . " | selecta " . a:selecta_args)
+  catch /Vim:Interrupt/
+    " Swallow the ^C so that the redraw below happens; otherwise there will be
+    " leftovers from selecta on the screen
+    redraw!
+    return
+  endtry
+  redraw!
+  exec a:vim_command . " " . selection
+endfunction
+
+function! SelectaFile(path)
+  let exclude = ["'*.git*'",
+               \ "'*node_modules*'",
+               \ "'*/tmp/*'",
+               \ "'*vendor/gems*'",
+               \ "'*vendor/ruby*'",
+               \ "'*bower_components*'"]
+  let args = "-not -path " . join(exclude, " -not -path ")
+  call SelectaCommand("find " . a:path . " -type f " . args . " | sed 's|\\./||'", "", ":e")
+endfunction
+
+function! SelectaNodeModule(path)
+  call SelectaCommand("find " . a:path . " -type f -path '*node_modules*'",
+                    \ "", ":e")
+endfunction
+
+function! SelectaBowerComponent(path)
+  call SelectaCommand("find " . a:path . "/* -type f -path '*bower_components*'",
+                    \ "", ":e")
+endfunction
+
+" map <leader>ga :CommandTFlush<cr>\|:CommandT app/assets<cr>
+" map <leader>gv :CommandTFlush<cr>\|:CommandT app/views<cr>
+" map <leader>gc :CommandTFlush<cr>\|:CommandT app/controllers<cr>
+" map <leader>gm :CommandTFlush<cr>\|:CommandT app/models<cr>
+" map <leader>gh :CommandTFlush<cr>\|:CommandT app/helpers<cr>
+" map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
+" map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
+" map <leader>gt :CommandTFlush<cr>\|:CommandTTag<cr>
+" map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
+
+nnoremap <leader>f :call SelectaFile(".")<cr>
+nnoremap <leader>gv :call SelectaFile("app/views")<cr>
+nnoremap <leader>gc :call SelectaFile("app/controllers")<cr>
+nnoremap <leader>gm :call SelectaFile("app/models")<cr>
+nnoremap <leader>gh :call SelectaFile("app/helpers")<cr>
+nnoremap <leader>gl :call SelectaFile("lib")<cr>
+nnoremap <leader>gf :call SelectaFile("features")<cr>
+nnoremap <leader>gn :call SelectaNodeModule(".")<cr>
+nnoremap <leader>gb :call SelectaBowerComponent(".")<cr>
+
+function! SelectaIdentifier()
+  " Yank the word under the cursor into the z register
+  normal "zyiw
+  " Fuzzy match files in the current directory, starting with the word under
+  " the cursor
+  call SelectaCommand("find * -type f", "-s " . @z, ":e")
+endfunction
+nnoremap <leader>gt :call SelectaIdentifier()<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " OPEN FILES IN DIRECTORY OF CURRENT FILE
