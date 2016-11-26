@@ -126,7 +126,6 @@ nnoremap <c-l> <c-w>l
 
 map <leader>y "*y
 map <leader>p "*p
-map <Leader>gs :Gstatus<CR>
 map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
 map <Leader>/ <plug>NERDCommenterToggle<CR>
 map <Leader>l :w\|:!reload-safari<CR><CR>
@@ -213,6 +212,38 @@ function! SelectaIdentifier()
   call SelectaCommand("find * -type f", "-s " . @z, ":e")
 endfunction
 nnoremap <leader>gt :call SelectaIdentifier()<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Git integration
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! GitGrep(...)
+  let save = &grepprg
+  set grepprg=git\ grep\ -n\ $*
+  let s = 'grep'
+  for i in a:000
+    let s = s . ' ' . i
+  endfor
+  exe s
+  let &grepprg = save
+endfun
+command! -nargs=? GG call GitGrep(<f-args>)
+
+function! GitGrepIdentifier()
+  " Yank the word under the cursor into the z register
+  normal "zyiw
+  call GitGrep('-w -e ', @z)
+endfunction
+
+function! GitAddFile()
+  :w
+  let path = expand('%')
+  exec ':silent !git add ' . path
+  redraw!
+endfunction
+
+nnoremap <leader>gg :call GitGrepIdentifier()<cr>
+nnoremap <leader>ga :call GitAddFile()<cr>
+nnoremap <Leader>gs :Gstatus<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " OPEN FILES IN DIRECTORY OF CURRENT FILE
