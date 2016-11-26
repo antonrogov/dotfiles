@@ -345,47 +345,56 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-au FileType ruby,cucumber map <leader>t :call RunTestFile("")<cr>
-au FileType ruby,cucumber map <leader>w :call RunScenarios("", "--profile wip")<cr>
-au FileType ruby,cucumber map <leader>st :call RunTestFile("spring ")<cr>
-au FileType ruby,cucumber map <leader>dt :call RunTestFile("LOG_LEVEL=DEBUG ")<cr>
-au FileType ruby,cucumber map <leader>sw :call RunScenarios("spring ", "--profile wip")<cr>
-au FileType ruby,cucumber map <leader>dw :call RunScenarios("LOG_LEVEL=DEBUG ", "--profile wip")<cr>
+au FileType ruby,cucumber,javascript map <leader>t :call RunTestFile()<cr>
+au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
+au FileType javascript map <leader>st :call RunTestFile(0, 'browser')<cr>
+au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'LOG_LEVEL=DEBUG ')<cr>
+" au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
+" au FileType ruby,cucumber map <leader>sr :call RunTestFile(1, 'spring ')<cr>
+au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<cr>
+au FileType ruby,cucumber map <leader>sw :call RunScenarios('spring ', '--profile wip')<cr>
+au FileType ruby,cucumber map <leader>dw :call RunScenarios('LOG_LEVEL=DEBUG ', '--profile wip')<cr>
 
-au FileType ruby map <leader>T :call RunNearestTest()<cr>
-au FileType ruby map <leader>a :call RunTests('')<cr>
+au FileType ruby,javascript map <leader>T :call RunNearestTest('')<cr>
+au FileType ruby map <leader>dT :call RunNearestTest('LOG_LEVEL=DEBUG ')<cr>
+au FileType ruby map <leader>sT :call RunNearestTest('spring ')<cr>
+au FileType javascript map <leader>sT :call RunNearestTest('browser')<cr>
+au FileType ruby,javascript map <leader>a :call RunTests(0, '', '')<cr>
 au FileType ruby map <leader>c :call RunScenarios()<cr>
 
-function! RunTestFile(prefix)
-  if a:0
-    let command_suffix = a:1
-  else
-    let command_suffix = ""
-  endif
+function! RunTestFile(...)
+  let async = a:0 > 0 ? a:1 : 0
+  let prefix = a:0 > 1 ? a:2 : ''
+  let suffix = a:0 > 2 ? a:3 : ''
 
   " Run the tests for the previously-marked file.
-  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\|.spec.coffee\)$') != -1
+  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\|.spec.coffee\|-test.js\)$') != -1
   if in_test_file
-    call SetTestFile()
+    call SetTestFile(suffix)
   elseif !exists("t:grb_test_file")
     return
   end
 
-  call RunTests(a:prefix, t:grb_test_file . command_suffix)
+  call RunTests(async, prefix, t:grb_test_file)
 endfunction
 
-function! RunNearestTest()
+function! RunNearestTest(prefix)
   let spec_line_number = line('.')
-  call RunTestFile("", ":" . spec_line_number . " -b")
+  call RunTestFile(0, a:prefix, ':' . spec_line_number . ' -b')
 endfunction
 
-function! SetTestFile()
+function! SetTestFile(suffix)
   " Set the spec file that tests will be run for.
-  let t:grb_test_file=@%
+  let t:grb_test_file=@% . a:suffix
 endfunction
 
-function! RunTests(prefix, filename)
-  if match(a:filename, '\.feature$') != -1
+function! RunTests(async, prefix, filename)
+  if filereadable("script/run-test")
+    :w
+    exec ":!script/run-test " . a:prefix . " " . a:filename
+  elseif a:async
+    call RunRSpecAsync(a:prefix, a:filename)
+  elseif match(a:filename, '\.feature$') != -1
     call RunScenarios(a:prefix, a:filename)
   elseif match(a:filename, '_spec.coffee$') != -1
     call RunKonacha(a:filename)
@@ -394,6 +403,53 @@ function! RunTests(prefix, filename)
   else
     call RunRSpec(a:prefix, a:filename)
   end
+endfunction
+
+function! JumpToError()
+  let has_valid_error = 0
+  for error in getqflist()
+    if error['valid']
+      let has_valid_error = 1
+      break
+    endif
+  endfor
+  if has_valid_error
+    let error_message = error['text']
+    silent cc!
+    redraw!
+    return [1, error_message]
+  else
+    redraw!
+    return [0, " All tests passed"]
+  endif
+endfunction
+
+function! RedBar(message)
+  hi RedBar ctermfg=white ctermbg=167
+  echohl RedBar
+  echon repeat(' ', &columns - 12) . "\r" . a:message
+  echohl
+endfunction
+
+function! GreenBar(message)
+  hi GreenBar ctermfg=black ctermbg=2
+  echohl GreenBar
+  echon repeat(' ', &columns - 12) . "\r" . a:message
+  echohl
+endfunction
+
+function! ShowBar(response)
+  if a:response[0]
+    call RedBar(a:response[1])
+  else
+    call GreenBar(a:response[1])
+  endif
+endfunction
+
+function! RunRSpecAsync(prefix, filename)
+  :w
+  cexpr system(a:prefix . 'rspec --color --require "~/.vim/rspec_formatter" --format VimFormatter ' . a:filename)
+  call ShowBar(JumpToError())
 endfunction
 
 function! RunScenarios(prefix, ...)
@@ -436,3 +492,47 @@ endfunction
 if filereadable(glob("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Test quickfix list management
+"
+" If the tests write a tmp/quickfix file, these mappings will navigate through
+" it
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! GetBufferList()
+  redir =>buflist
+  silent! ls
+  redir END
+  return buflist
+endfunction
+
+function! BufferIsOpen(bufname)
+  let buflist = GetBufferList()
+  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+    if bufwinnr(bufnum) != -1
+      return 1
+    endif
+  endfor
+  return 0
+endfunction
+
+function! ToggleQuickfix()
+  if BufferIsOpen("Quickfix List")
+    cclose
+  else
+    call OpenQuickfix()
+  endif
+endfunction
+
+function! OpenQuickfix()
+  cgetfile tmp/quickfix
+  topleft cwindow
+  if &ft == "qf"
+    cc
+  endif
+endfunction
+
+nnoremap <leader>Q :call ToggleQuickfix()<cr>
+nnoremap <leader>q :cc<cr>
+nnoremap <leader>j :cnext<cr>
+nnoremap <leader>k :cprev<cr>
