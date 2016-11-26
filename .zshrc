@@ -41,16 +41,6 @@ gla() { pretty_git_log --all $* }
 alias reload!='. ~/.zshrc'
 alias fetch='curl -L -C - -O'
 
-if [[ -n $SSH_CONNECTION ]]; then
-  export PS1=$'%{\e]0;%n@%m\a%}%{\e[0;31m%}%m:%3~$%{\e[0m%} '
-else
-  if [[ -n $VIMRUNTIME ]]; then
-    export PS1=$'%3~$ '
-  else
-    export PS1=$'%{\e[0;32m%}%3~$%{\e[0m%} '
-  fi
-fi
-
 export EDITOR='vim'
 export CLICOLOR='1'
 export LSCOLORS='exfxcxdxbxexexexexexhx'
@@ -76,6 +66,23 @@ setopt EXTENDED_HISTORY
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt COMPLETE_IN_WORD
+setopt PROMPT_SUBST
+
+escape() { echo "%{\e[0${1}m%}" }
+color() { escape ";3${1}" }
+black() { color 0 }
+green() { color 2 }
+separator() { repeat $COLUMNS printf '-' ; end }
+
+if [[ -n $SSH_CONNECTION ]]; then
+  export PROMPT="$(black)\$(separator)$(red)%m:%3~$ $(escape)"
+else
+  if [[ -n $VIMRUNTIME ]]; then
+    export PROMPT="%3~$ "
+  else
+    export PROMPT="$(black)\$(separator)$(green)%3~$ $(escape)"
+  fi
+fi
 
 bindkey '^p' q-history-search-backward
 bindkey '^n' q-history-search-forward
