@@ -76,6 +76,11 @@ set showcmd
 set autoread
 set nojoinspaces
 
+" Use the old vim regex engine (version 1, as opposed to version 2, which was
+" introduced in Vim 7.3.969). The Ruby syntax highlighting is significantly
+" slower with the new regex engine.
+set re=1
+
 augroup vimrcEx
   au!
 
