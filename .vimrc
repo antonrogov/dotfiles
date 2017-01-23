@@ -192,23 +192,23 @@ function! SelectaCommand(choice_command, selecta_args, vim_command)
 endfunction
 
 function! SelectaFile(path)
-  let exclude = ["'*.git*'",
-               \ "'*node_modules*'",
-               \ "'*/tmp/*'",
-               \ "'*vendor/gems*'",
-               \ "'*vendor/ruby*'",
-               \ "'*bower_components*'"]
-  let args = "-not -path " . join(exclude, " -not -path ")
-  call SelectaCommand("find " . a:path . " -type f " . args . " | sed 's|\\./||'", "", ":e")
+  let exclude = ["./.git",
+               \ "./node_modules",
+               \ "./tmp",
+               \ "./vendor/gems",
+               \ "./vendor/ruby",
+               \ "./bower_components"]
+  let args = "\\( -path " . join(exclude, " -o -path ") . " \\) -prune"
+  call SelectaCommand("find " . a:path . " -type f -o " . args . " | sed 's|\\./||'", "", ":e")
 endfunction
 
 function! SelectaNodeModule(path)
-  call SelectaCommand("find " . a:path . " -type f -path '*node_modules*'",
+  call SelectaCommand("find " . a:path . " -type f -path ./node_modules",
                     \ "", ":e")
 endfunction
 
 function! SelectaBowerComponent(path)
-  call SelectaCommand("find " . a:path . "/* -type f -path '*bower_components*'",
+  call SelectaCommand("find " . a:path . " -type f -path ./bower_components",
                     \ "", ":e")
 endfunction
 
