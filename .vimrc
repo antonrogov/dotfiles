@@ -58,8 +58,36 @@ set modelines=10
 
 " Default color scheme
 set t_Co=256
-set background=dark
-color railscasts
+
+function! SetDarkBg()
+  let g:bg_type = "dark"
+  set background=dark
+  color railscasts
+endfunction
+
+function! SetLightBg()
+  let g:bg_type = "light"
+  set background=light
+  color solarized
+  hi User1 term=reverse cterm=reverse ctermfg=246 ctermbg=7 gui=bold,reverse
+  hi User2 term=reverse cterm=reverse ctermfg=10 ctermbg=246 gui=bold,reverse
+endfunction
+
+if $ITERM_PROFILE == "Dark"
+  call SetDarkBg()
+else
+  call SetLightBg()
+end
+
+function! ToggleBg()
+  if g:bg_type == "light"
+    call SetDarkBg()
+  else
+    call SetLightBg()
+  end
+endfunction
+
+map <leader>bg :call ToggleBg()<cr>
 
 " https://groups.google.com/forum/#!msg/vim_dev/r3CPPl6AVRM/wCgbD4PU5NAJ
 set timeout timeoutlen=1000 ttimeoutlen=100
