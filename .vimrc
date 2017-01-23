@@ -377,6 +377,7 @@ au FileType ruby,cucumber,javascript map <leader>t :call RunTestFile()<cr>
 au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
 au FileType javascript map <leader>st :call RunTestFile(0, 'browser')<cr>
 au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'LOG_LEVEL=DEBUG ')<cr>
+au FileType ruby,cucumber map <leader>dsT :call RunNearestTest('LOG_LEVEL=DEBUG spring ')<cr>
 " au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
 " au FileType ruby,cucumber map <leader>sr :call RunTestFile(1, 'spring ')<cr>
 au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<cr>
