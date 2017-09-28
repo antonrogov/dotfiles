@@ -1,7 +1,6 @@
 # .zshrc
 
 PATH="$HOME/bin:$PATH"
-PATH="$HOME/.rbenv/shims:$PATH"
 PATH="node_modules/.bin:$PATH"
 export PATH
 
@@ -120,5 +119,8 @@ function insert-selecta-path-in-command-line() {
 zle -N insert-selecta-path-in-command-line
 # Bind the key to the newly created widget
 bindkey "^S" "insert-selecta-path-in-command-line"
+
+source /usr/local/opt/chruby/share/chruby/chruby.sh
+source /usr/local/opt/gem_home/share/gem_home/gem_home.sh
 
 [[ -s ~/.zshrc.local ]] && . ~/.zshrc.local
