@@ -71,8 +71,10 @@ setopt PROMPT_SUBST
 escape() { echo "%{\e[0${1}m%}" }
 color() { escape ";3${1}" }
 black() { color 0 }
+red() { color 1 }
 green() { color 2 }
-separator() { repeat $COLUMNS printf '-' ; end }
+separator() { repeat $COLUMNS printf -- - ; end }
+remove_separator() { export PROMPT="$(red)%m:%3~$ $(escape)" }
 
 if [[ -n $SSH_CONNECTION ]]; then
   export PROMPT="$(black)\$(separator)$(red)%m:%3~$ $(escape)"
