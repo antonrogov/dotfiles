@@ -1,0 +1,145 @@
+#!/bin/bash
+
+notify_pending() {
+  echo -n " * $1..."
+}
+
+notify_command() {
+  notify_pending "$1"
+  echo
+}
+
+notify_install() {
+  notify_command "installing $1"
+}
+
+ask_for_action() {
+  notify_pending "$1"
+  read
+}
+
+notify_command "changing shell to zsh"
+chsh -s /bin/zsh
+
+notify_command "showing Library directory"
+chflags nohidden ~/Library/
+
+notify_command "disabling local TimeMachine backups"
+sudo tmutil disablelocal
+
+notify_command "disabling press and hold"
+defaults write -g ApplePressAndHoldEnabled -bool false
+
+notify_command "disabling auto correction"
+defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
+
+notify_command "setting key repeat rate"
+defaults write -g KeyRepeat -int 1
+defaults write -g InitialKeyRepeat -int 12
+
+notify_command "increasing trackpad speed"
+defaults write -g com.apple.trackpad.scaling -int 3
+
+notify_command "enabling double tap four fingers to jump back to previous space"
+defaults write com.apple.dock double-tap-jump-back -bool TRUE;killall Dock
+
+notify_command "turning on auto-hide for dock"
+defaults write com.apple.dock autohide -bool true
+
+notify_command "disabling extension change warning"
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+notify_command "disabling warning before emptying the trash"
+defaults write com.apple.finder WarnOnEmptyTrash -bool false
+
+notify_command "updating desktop icon sizes"
+/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 128" ~/Library/Preferences/com.apple.finder.plist
+/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:textSize 15" ~/Library/Preferences/com.apple.finder.plist
+/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:gridSpacing 100" ~/Library/Preferences/com.apple.finder.plist
+/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+notify_command "enabling password immediately after screen saver"
+defaults write com.apple.screensaver askForPassword -int 1
+defaults write com.apple.screensaver askForPasswordDelay -int 0
+
+notify_command "enabling full keyboard access for all controls"
+defaults write -g AppleKeyboardUIMode -int 3
+
+notify_command "enabling zoom on ctrl + scroll"
+defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
+defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
+
+# notify_command "adding russian input source"
+# defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{InputSourceKind="Keyboard Layout"; "KeyboardLayout Name"="Russian"; "KeyboardLayout ID"=19456;}'
+
+notify_command "speeding up expose animation"
+defaults write com.apple.dock expose-animation-duration -float 0.1
+
+notify_command "hiding dashboard from mission control"
+defaults write com.apple.dock dashboard-in-overlay -bool true
+
+notify_command "enabling AirDrop over every interface"
+defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
+
+notify_command "setting up Safari for development"
+defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+
+# Nlsv - list view, clmv - column view
+notify_command "setting default finder view"
+defaults write com.apple.Finder FXPreferredViewStyle clmv
+
+killall Dock Finder SystemUIServer
+
+notify_install "homebrew"
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew doctor
+
+brew install git \
+             postgresql \
+             imagemagick \
+             tmux \
+             phantomjs \
+             heroku \
+             python3 \
+             reattach-to-user-namespace \
+             chruby \
+             ruby-install \
+             selecta
+
+brew install vim --with-python3
+brew install --HEAD https://raw.github.com/postmodern/gem_home/master/homebrew/gem_home.rb
+
+ruby-install ruby 2.2.5
+
+notify_install "dotfiles"
+cd
+git clone --bare https://github.com/antonrogov/dotfiles.git dotfiles
+mv dotfiles/.git dotfiles/.gitignore .
+rm -rf dotfiles
+git checkout .
+git submodule update --init
+
+ask_for_action "change input source and spotlight keybindings and press return"
+
+ask_for_action "map caps lock to control and press return"
+
+ask_for_action "turn bluetooth off and hide menu icon and press return"
+
+ask_for_action "configure finder sidebar and press return"
+
+ask_for_action "install apps from app store and press return"
+
+ask_for_action "install dropbox from https://www.dropbox.com/install and press return"
+
+ask_for_action "install iTerm2 from http://iterm2.com/downloads.html and press return"
+
+ask_for_action "install Propane from http://propaneapp.com and press return"
+
+ask_for_action "install Skype from http://www.skype.com/en/download-skype/skype-for-computer/ and press return"
+
+ask_for_action "install Things from https://culturedcode.com/things/ and press return"
+
+ask_for_action "install Alfred 2 from https://www.alfredapp.com and press return"
+
+ask_for_action "install f.lux from https://justgetflux.com/ and press return"
