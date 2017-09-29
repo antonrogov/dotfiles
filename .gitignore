@@ -30,6 +30,7 @@
 /.npm
 /.pry_history
 /.psql_history
+/.pyenv
 /.rbenv
 /.rdebug_hist
 /.rnd
