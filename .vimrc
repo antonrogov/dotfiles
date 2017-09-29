@@ -375,20 +375,23 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 au FileType ruby,cucumber,javascript map <leader>t :call RunTestFile()<cr>
 au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
 au FileType javascript map <leader>st :call RunTestFile(0, 'browser')<cr>
-au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'LOG_LEVEL=DEBUG ')<cr>
-au FileType ruby,cucumber map <leader>dsT :call RunNearestTest('LOG_LEVEL=DEBUG spring ')<cr>
-" au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
-" au FileType ruby,cucumber map <leader>sr :call RunTestFile(1, 'spring ')<cr>
+au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'STDOUT=1 ')<cr>
+au FileType ruby,cucumber map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
+au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
+au FileType ruby,cucumber map <leader>sr :call RunTestFile(1, 'spring ')<cr>
+au FileType ruby,cucumber map <leader>ar :call RunRSpecAsync('', '')<cr>
 au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<cr>
 au FileType ruby,cucumber map <leader>sw :call RunScenarios('spring ', '--profile wip')<cr>
-au FileType ruby,cucumber map <leader>dw :call RunScenarios('LOG_LEVEL=DEBUG ', '--profile wip')<cr>
+au FileType ruby,cucumber map <leader>dw :call RunScenarios('STDOUT=1 ', '--profile wip')<cr>
 
 au FileType ruby,javascript map <leader>T :call RunNearestTest('')<cr>
-au FileType ruby map <leader>dT :call RunNearestTest('LOG_LEVEL=DEBUG ')<cr>
+au FileType ruby map <leader>dT :call RunNearestTest('STDOUT=1 ')<cr>
 au FileType ruby map <leader>sT :call RunNearestTest('spring ')<cr>
+au FileType ruby map <leader>sdT :call RunNearestTest('STDOUT=1 spring ')<cr>
+au FileType ruby map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
 au FileType javascript map <leader>sT :call RunNearestTest('browser')<cr>
-au FileType ruby,javascript map <leader>a :call RunTests(0, '', '')<cr>
-au FileType ruby map <leader>c :call RunScenarios()<cr>
+" au FileType ruby,javascript map <leader>a :call RunTests(0, '', '')<cr>
+" au FileType ruby map <leader>c :call RunScenarios()<cr>
 
 function! RunTestFile(...)
   let async = a:0 > 0 ? a:1 : 0
