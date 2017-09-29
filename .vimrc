@@ -420,8 +420,11 @@ function! SetTestFile(suffix)
 endfunction
 
 function! RunTests(async, prefix, filename)
-  if filereadable("script/run-test")
-    :w
+  :w
+
+  if filereadable("bin/run-test")
+    exec ":!bin/run-test " . a:prefix . " " . a:filename
+  elseif filereadable("script/run-test")
     exec ":!script/run-test " . a:prefix . " " . a:filename
   elseif a:async
     call RunRSpecAsync(a:prefix, a:filename)
