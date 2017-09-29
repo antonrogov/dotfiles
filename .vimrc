@@ -269,7 +269,8 @@ endfunction
 
 nnoremap <leader>gg :call GitGrepIdentifier()<cr>
 nnoremap <leader>ga :call GitAddFile()<cr>
-nnoremap <Leader>gs :Gstatus<CR>
+nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gu :cexpr system('git diff --name-only --diff-filter=U \| sed -E "s/\$/:1: merge conflict/"')<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " OPEN FILES IN DIRECTORY OF CURRENT FILE
@@ -553,7 +554,7 @@ endfunction
 
 function! OpenQuickfix()
   cgetfile tmp/quickfix
-  topleft cwindow
+  belowright cwindow
   if &ft == "qf"
     cc
   endif
