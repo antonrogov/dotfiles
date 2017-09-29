@@ -33,6 +33,7 @@
 /.rbenv
 /.rdebug_hist
 /.rnd
+/.rubies
 /.s3cfg
 /.sqlite_history
 /.ssh
