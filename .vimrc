@@ -192,7 +192,8 @@ function! SelectaCommand(choice_command, selecta_args, vim_command)
 endfunction
 
 function! SelectaFile(path)
-  let exclude = ["'*/.git'",
+  let exclude = ["'*/.gem'",
+               \ "'*/.git'",
                \ "'*/node_modules'",
                \ "'*/tmp'",
                \ "'*/vendor/gems'",
