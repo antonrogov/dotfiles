@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# ffmpeg -f avfoundation -i 1 -an -f mpegts -vcodec mpeg2video -b:v 6000k -qscale:v 2 -vf crop=2240:1120:0:0 udp://224.0.0.1:9999
+ffmpeg -f avfoundation -i 1 -an -f mpegts -vcodec libx264 -b:v 5000k -bufsize 3000k -qscale:v 2 -vf crop=2240:1120:0:0 udp://239.255.0.123:9999
