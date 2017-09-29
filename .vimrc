@@ -192,12 +192,12 @@ function! SelectaCommand(choice_command, selecta_args, vim_command)
 endfunction
 
 function! SelectaFile(path)
-  let exclude = ["./.git",
-               \ "./node_modules",
-               \ "./tmp",
-               \ "./vendor/gems",
-               \ "./vendor/ruby",
-               \ "./bower_components"]
+  let exclude = ["'*/.git'",
+               \ "'*/node_modules'",
+               \ "'*/tmp'",
+               \ "'*/vendor/gems'",
+               \ "'*/vendor/ruby'",
+               \ "'*/bower_components'"]
   let args = "\\( -path " . join(exclude, " -o -path ") . " \\) -prune"
   call SelectaCommand("find " . a:path . " -type f -o " . args . " | sed 's|\\./||'", "", ":e")
 endfunction
