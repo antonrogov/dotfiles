@@ -499,23 +499,7 @@ function! RunScenarios(prefix, ...)
 endfunction
 
 function! RunRSpec(prefix, filename)
-  :w
   call RunCommand(a:prefix . "rspec --color " . a:filename)
-endfunction
-
-function! RunJasmine(filename)
-  :w
-  call RunCommand("guard-jasmine -s none -u http://localhost:8888/jasmine " . a:filename)
-endfunction
-
-function! RunKonacha(filename)
-  :w
-  call RunCommand("konacha " . a:filename)
-endfunction
-
-function! RunJasmineNode(filename)
-  :w
-  call RunCommand("jasmine-node --coffee " . a:filename)
 endfunction
 
 function! RunCommand(command)
