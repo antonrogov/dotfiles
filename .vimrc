@@ -199,17 +199,18 @@ function! SelectaFile(path)
                \ "'*/vendor/ruby'",
                \ "'*/bower_components'"]
   let args = "\\( -path " . join(exclude, " -o -path ") . " \\) -prune"
-  call SelectaCommand("find " . a:path . " -type f -o " . args . " | sed 's|\\./||'", "", ":e")
+  let command = "find " . a:path . " -type f -o " . args . " | sed 's|\\./||'"
+  call SelectaCommand(command, "", ":e")
 endfunction
 
 function! SelectaNodeModule(path)
-  call SelectaCommand("find " . a:path . " -type f -path ./node_modules",
-                    \ "", ":e")
+  let command = "find " . a:path . "/node_modules -type d"
+  call SelectaCommand(command, "", ":e")
 endfunction
 
 function! SelectaBowerComponent(path)
-  call SelectaCommand("find " . a:path . " -type f -path ./bower_components",
-                    \ "", ":e")
+  let command = "find " . a:path . " -type f -path " . a:path : "/bower_components"
+  call SelectaCommand(command, "", ":e")
 endfunction
 
 " map <leader>ga :CommandTFlush<cr>\|:CommandT app/assets<cr>
