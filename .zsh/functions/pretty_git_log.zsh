@@ -12,10 +12,10 @@
 # break this.
 
 function pretty_git_log() {
-  HASH="%C(yellow)%h%Creset"
-  RELATIVE_TIME="%Cgreen(%ar)%Creset"
-  AUTHOR="%C(bold blue)<%an>%Creset"
-  REFS="%C(red)%d%Creset"
+  HASH="%CC(yellow)%h%CC(reset)"
+  RELATIVE_TIME="%CC(green)(%ar)%CC(reset)"
+  AUTHOR="%CC(blue)<%an>%CC(reset)"
+  REFS="%CC(red)%d%CC(reset)"
   SUBJECT="%s"
 
   FORMAT="$HASH}$RELATIVE_TIME}$AUTHOR}$REFS $SUBJECT"
@@ -27,6 +27,11 @@ function pretty_git_log() {
     sed -Ee 's/(^[^<]*), [[:digit:]]+ .*months?\)/\1\)/' |
     # Line columns up based on } delimiter
     column -s '}' -t |
+    sed "s/%CC(red)/$(printf '\e[31m')/" |
+    sed "s/%CC(green)/$(printf '\e[32m')/" |
+    sed "s/%CC(yellow)/$(printf '\e[33m')/" |
+    sed "s/%CC(blue)/$(printf '\e[34m')/" |
+    sed "s/%CC(reset)/$(printf '\e[0m')/g" |
     # Page only if we need to
     less -FXRS
 }
