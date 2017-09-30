@@ -69,8 +69,8 @@ notify_command "enabling zoom on ctrl + scroll"
 defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
 defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
 
-# notify_command "adding russian input source"
-# defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{InputSourceKind="Keyboard Layout"; "KeyboardLayout Name"="Russian"; "KeyboardLayout ID"=19456;}'
+notify_command "adding russian input source"
+defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{InputSourceKind="Keyboard Layout"; "KeyboardLayout Name"="Russian"; "KeyboardLayout ID"=19456;}'
 
 notify_command "speeding up expose animation"
 defaults write com.apple.dock expose-animation-duration -float 0.1
@@ -88,6 +88,10 @@ defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 # Nlsv - list view, clmv - column view
 notify_command "setting default finder view"
 defaults write com.apple.Finder FXPreferredViewStyle clmv
+
+# ask_for_action "map caps lock to control and press return"
+notify_command "mapping caps lock to control"
+defaults -currentHost write -g "com.apple.keyboard.modifiermapping.1452-628-0" -array-add '{ HIDKeyboardModifierMappingDst = 30064771296; HIDKeyboardModifierMappingSrc = 30064771129; }'
 
 killall Dock Finder SystemUIServer
 
@@ -121,25 +125,20 @@ git checkout .
 git submodule update --init
 
 ask_for_action "change input source and spotlight keybindings and press return"
+# defaults import com.apple.symbolichotkeys symbolichotkeys.plist
 
-ask_for_action "map caps lock to control and press return"
-
-ask_for_action "turn bluetooth off and hide menu icon and press return"
+ask_for_action "map caps lock to control and switch option and command for the external keyboard and press return"
 
 ask_for_action "configure finder sidebar and press return"
 
 ask_for_action "install apps from app store and press return"
 
-ask_for_action "install dropbox from https://www.dropbox.com/install and press return"
+ask_for_action "install Dropbox from https://www.dropbox.com/install and press return"
 
 ask_for_action "install iTerm2 from http://iterm2.com/downloads.html and press return"
-
-ask_for_action "install Propane from http://propaneapp.com and press return"
-
-ask_for_action "install Skype from http://www.skype.com/en/download-skype/skype-for-computer/ and press return"
-
-ask_for_action "install Things from https://culturedcode.com/things/ and press return"
 
 ask_for_action "install Alfred 2 from https://www.alfredapp.com and press return"
 
 ask_for_action "install f.lux from https://justgetflux.com/ and press return"
+
+ask_for_action "install inconsolata-g font from Dropbox/inconsolata-g.otf"
