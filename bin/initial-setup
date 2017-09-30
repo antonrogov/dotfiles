@@ -119,7 +119,7 @@ ruby-install ruby 2.2.5
 
 notify_install "dotfiles"
 cd
-git clone --bare https://github.com/antonrogov/dotfiles.git dotfiles
+git clone https://github.com/antonrogov/dotfiles.git dotfiles
 mv dotfiles/.git dotfiles/.gitignore .
 rm -rf dotfiles
 git checkout .
