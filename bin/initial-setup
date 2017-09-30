@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 notify_pending() {
   echo -n " * $1..."
 }
@@ -89,7 +91,6 @@ defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 notify_command "setting default finder view"
 defaults write com.apple.Finder FXPreferredViewStyle clmv
 
-# ask_for_action "map caps lock to control and press return"
 notify_command "mapping caps lock to control"
 defaults -currentHost write -g "com.apple.keyboard.modifiermapping.1452-628-0" -array-add '{ HIDKeyboardModifierMappingDst = 30064771296; HIDKeyboardModifierMappingSrc = 30064771129; }'
 
@@ -124,8 +125,19 @@ rm -rf dotfiles
 git checkout .
 git submodule update --init
 
+ask_for_action "install Dropbox from https://www.dropbox.com/install and press return"
+
+notify_install "symlinking application configs"
+for name in 'Application Support' 'Preferences'; do
+  cd "$HOME/Library/$name"
+  prefix="$HOME/Dropbox/config/$name"
+  for dir in "$prefix"/*; do
+    ln -sF "$dir"
+  done
+done
+
 ask_for_action "change input source and spotlight keybindings and press return"
-# defaults import com.apple.symbolichotkeys symbolichotkeys.plist
+defaults import com.apple.symbolichotkeys ~/Dropbox/config/symbolichotkeys.plist
 
 ask_for_action "map caps lock to control and switch option and command for the external keyboard and press return"
 
@@ -133,12 +145,20 @@ ask_for_action "configure finder sidebar and press return"
 
 ask_for_action "install apps from app store and press return"
 
-ask_for_action "install Dropbox from https://www.dropbox.com/install and press return"
-
 ask_for_action "install iTerm2 from http://iterm2.com/downloads.html and press return"
 
 ask_for_action "install Alfred 2 from https://www.alfredapp.com and press return"
 
+notify_install "symlinking Alfred config"
+name='Alfred 2'
+cd "$HOME/Library/Application Support"
+mkdir -p "$name"
+cd "$name"
+prefix="$HOME/Dropbox/config/$name"
+for path in "$prefix"/*; do
+  ln -s "$path"
+done
+
 ask_for_action "install f.lux from https://justgetflux.com/ and press return"
 
-ask_for_action "install inconsolata-g font from Dropbox/inconsolata-g.otf"
+ask_for_action "install inconsolata-g font from Dropbox/config/Inconsolata-g.otf"
