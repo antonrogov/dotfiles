@@ -94,6 +94,18 @@ defaults write com.apple.Finder FXPreferredViewStyle clmv
 notify_command "mapping caps lock to control"
 defaults -currentHost write -g "com.apple.keyboard.modifiermapping.1452-628-0" -array-add '{ HIDKeyboardModifierMappingDst = 30064771296; HIDKeyboardModifierMappingSrc = 30064771129; }'
 
+notify_command "disabling creation of .DS_Store files on network volumes"
+defaults write com.apple.desktopservices DSDontWriteNetworkStores true
+
+notify_command "enabling Web Inspector in web views" do
+defaults write -g WebKitDeveloperExtras -bool true
+
+notify_command "enabling Web Inspector in web views" do
+defaults write com.apple.finder ShowStatusBar -bool true
+
+notify_command "increasing sound quality for Bluetooth audio" do
+defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 41
+
 killall Dock Finder SystemUIServer
 
 notify_install "homebrew"
