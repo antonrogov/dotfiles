@@ -5,6 +5,8 @@
     "~<" = "moveToBeginningOfDocument:";
     "~>" = "moveToEndOfDocument:";
     "~v" = "pageUp:";
+    "^f" = "pageDown:";
+    "^b" = "pageUp:";
     "~d" = "deleteWordForward:";
     "^w" = "deleteWordBackward:";
     "~а" = "moveWordForward:";
@@ -12,4 +14,8 @@
     "~в" = "deleteWordForward:";
     "^ц" = "deleteWordBackward:";
     "^р" = "deleteBackward:";
+    "^а" = "pageDown:";
+    "^и" = "pageUp:";
+    "^ф" = "moveToBeginningOfLine:";
+    "^у" = "moveToEndOfLine:";
 }
