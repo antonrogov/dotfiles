@@ -1,6 +1,7 @@
 let mapleader = ","
 let g:mapleader = ","
 
+let g:fireplace_no_maps = 1
 let g:NERDCreateDefaultMappings = 0
 
 set nocompatible
@@ -557,3 +558,46 @@ nnoremap <leader>Q :call ToggleQuickfix()<cr>
 nnoremap <leader>q :cc<cr>
 nnoremap <leader>j :cnext<cr>
 nnoremap <leader>k :cprev<cr>
+
+
+function! ClojureRepl(cmd)
+  try
+    call fireplace#session_eval(a:cmd, {'ns': fireplace#client().user_ns()})
+    return ''
+  catch /^Clojure:.*/
+    return ''
+  endtry
+endfunction
+
+function! ClojureReload()
+  let ns = fireplace#ns()
+  let cmd = "(clojure.core/require '" . ns . " :reload-all)"
+  call ClojureRepl(cmd)
+endfunction
+
+function! ClojureUnload()
+  let ns = fireplace#ns()
+  let cmd = "(remove-ns '" . ns . ")"
+  call ClojureRepl(cmd)
+endfunction
+
+function! ClojureTest()
+  silent! w
+
+  let ns = fireplace#ns()
+  let test_ns = ns
+
+  if match(ns, '-test$') == -1
+    let test_ns = ns . '-test'
+  endif
+
+  let cmd = "(do (clojure.core/require '" . ns . " :reload) (clojure.test/run-tests '" . test_ns . "))"
+
+  call ClojureRepl(cmd)
+endfunction
+
+au FileType clojure nnoremap <cr> :call ClojureTest()<cr>
+au FileType clojure nmap <leader>cc :FireplaceConnect 8889<cr>
+au FileType clojure map <leader>re :Eval<cr>
+au FileType clojure map <leader>rr :call ClojureReload()<cr>
+au FileType clojure map <leader>ru :call ClojureUnload()<cr>
