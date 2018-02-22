@@ -1,6 +1,8 @@
 let mapleader = ","
 let g:mapleader = ","
 
+let g:NERDCreateDefaultMappings = 0
+
 set nocompatible
 
 " allow unsaved background buffers and remember marks/undo for them
@@ -155,7 +157,7 @@ nnoremap <c-l> <c-w>l
 map <leader>y "*y
 map <leader>p "*p
 map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
-map <Leader>/ <plug>NERDCommenterToggle<CR>
+map <Leader>/ <plug>NERDCommenterToggle
 map <Leader>l :w\|:!reload-safari<CR><CR>
 vmap > >gv
 vmap < <gv
