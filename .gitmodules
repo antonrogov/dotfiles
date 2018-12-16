@@ -49,3 +49,6 @@
 [submodule ".emacs.d"]
 	path = .emacs.d
 	url = https://github.com/syl20bnr/spacemacs
+[submodule ".vim/bundle/vim-plugin-ruscmd"]
+	path = .vim/bundle/vim-plugin-ruscmd
+	url = https://github.com/powerman/vim-plugin-ruscmd
