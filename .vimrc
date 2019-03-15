@@ -390,6 +390,9 @@ au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<
 au FileType ruby,cucumber map <leader>sw :call RunScenarios('spring ', '--profile wip')<cr>
 au FileType ruby,cucumber map <leader>dw :call RunScenarios('STDOUT=1 ', '--profile wip')<cr>
 
+au FileType javascript map <leader>l :call RunLinter("eslint -f unix FILENAME \| grep '^/'")<cr>
+au FileType scss map <leader>l :call RunLinter("stylelint -f compact FILENAME \| perl -pe 's/^\\s+(.*)$/\\1/' \| perl -pe 's/([^:]+): line ([0-9]+), col ([0-9]+), [^ ]+ -[ \\n]+(.*)/\\1:\\2:\\3: \\4/'")<cr>
+
 au FileType ruby,javascript map <leader>T :call RunNearestTest('')<cr>
 au FileType ruby map <leader>dT :call RunNearestTest('STDOUT=1 ')<cr>
 au FileType ruby map <leader>sT :call RunNearestTest('spring ')<cr>
@@ -445,22 +448,26 @@ function! RunTests(async, prefix, filename)
   end
 endfunction
 
-function! JumpToError()
+function! JumpToError(...)
   let has_valid_error = 0
+
   for error in getqflist()
     if error['valid']
       let has_valid_error = 1
       break
     endif
   endfor
+
   if has_valid_error
     let error_message = error['text']
     silent cc!
     redraw!
     return [1, error_message]
   else
+    :echo 'ok'
+    let message = a:0 > 0 ? a:1 : 'All tests passed'
     redraw!
-    return [0, " All tests passed"]
+    return [0, ' ' . message]
   endif
 endfunction
 
@@ -486,11 +493,21 @@ function! ShowBar(response)
   endif
 endfunction
 
-function! RunRSpecAsync(prefix, filename)
+function! RunCommandWithBar(command, success)
   :w
-  cexpr system(a:prefix . 'rspec --color --require "~/.vim/rspec_formatter" --format VimFormatter ' . a:filename)
-  call ShowBar(JumpToError())
+  cexpr system(a:command)
+  call ShowBar(JumpToError(a:success))
 endfunction
+
+function! RunRSpecAsync(prefix, filename)
+  call RunCommandWithBar(a:prefix . 'rspec --color --require "~/.vim/rspec_formatter" --format VimFormatter ' . a:filename)
+endfunction
+
+function! RunLinter(command)
+  let cmd = substitute(a:command, 'FILENAME', @%, 'g')
+  call RunCommandWithBar(cmd, 'All checks passed')
+endfunction
+
 
 function! RunScenarios(prefix, ...)
   :w
