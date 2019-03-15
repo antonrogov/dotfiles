@@ -29,6 +29,7 @@ set incsearch
 set ignorecase
 set smartcase
 nnoremap <CR> :nohlsearch<CR>/<BS>
+nnoremap <leader>h :nohlsearch<cr>
 
 " Tab completion
 set wildmode=list:longest,list:full
@@ -376,6 +377,7 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+au FileType ruby nnoremap <cr> :call RunTestFile()<cr>
 au FileType ruby,cucumber,javascript map <leader>t :call RunTestFile()<cr>
 au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
 au FileType javascript map <leader>st :call RunTestFile(0, 'browser')<cr>
