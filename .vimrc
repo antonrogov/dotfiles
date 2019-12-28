@@ -400,6 +400,7 @@ au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<
 au FileType ruby,cucumber map <leader>sw :call RunScenarios('spring ', '--profile wip')<cr>
 au FileType ruby,cucumber map <leader>dw :call RunScenarios('STDOUT=1 ', '--profile wip')<cr>
 
+au FileType ruby map <leader>l :call RunLinter("rubocop -f e FILENAME \| grep '^/'")<cr>
 au FileType javascript map <leader>l :call RunLinter("eslint -f unix FILENAME \| grep '^/'")<cr>
 au FileType scss map <leader>l :call RunLinter("stylelint -f compact FILENAME \| perl -pe 's/^\\s+(.*)$/\\1/' \| perl -pe 's/([^:]+): line ([0-9]+), col ([0-9]+), [^ ]+ -[ \\n]+(.*)/\\1:\\2:\\3: \\4/'")<cr>
 
