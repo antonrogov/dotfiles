@@ -269,6 +269,11 @@ function! GitGrepIdentifier()
   call GitGrep('-w -e ', @z)
 endfunction
 
+function! GitGrepSelected()
+  normal gv"zy
+  call GitGrep('-e ', @z)
+endfunction
+
 function! GitAddFile()
   :w
   let path = expand('%')
@@ -277,6 +282,7 @@ function! GitAddFile()
 endfunction
 
 nnoremap <leader>gg :call GitGrepIdentifier()<cr>
+vnoremap <leader>gg :call GitGrepSelected()<cr>
 nnoremap <leader>ga :call GitAddFile()<cr>
 nnoremap <leader>gs :Gstatus<CR>
 nnoremap <leader>gu :cexpr system('git diff --name-only --diff-filter=U \| sed -E "s/\$/:1: merge conflict/"')<cr>
