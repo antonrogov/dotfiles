@@ -1,39 +1,61 @@
 [user]
-    name = Anton Rogov
-    email = anton@blackbits.pro
+  name = Anton Rogov
+  email = anton@blackbits.pro
 [alias]
-    aa = add --all
-    amend = commit --amend
-    b = branch
-    ba = branch --all
-    c = commit -v
-    changes = whatchanged -p --abbrev-commit --pretty=medium
-    co = checkout
-    d = diff
-    dc = diff --cached
-    fa = fetch --all
-    la = !. ~/.zsh/functions/pretty_git_log.zsh && pretty_git_log --all
-    lr = !git la -30
-    p = push
-    pick = cherry-pick
-    st = status
+  aa = add --all
+  amend = commit --amend
+  b = branch
+  ba = branch --all
+  c = commit -v
+  changes = log --abbrev-commit --pretty=medium -p
+  ch = log --abbrev-commit --pretty=medium -p
+  cm = commit -m
+  co = checkout
+  d = diff
+  dc = diff --cached
+  f = fetch
+  fa = fetch --all
+  l = pull
+  la = !pretty-git-log --all
+  lr = !pretty-git-log --all -25
+  lrb = !pretty-git-log -25
+  p = push
+  pf = push -f
+  pb = !git push --set-upstream origin $(git where)
+  pu = push --set-upstream
+  pick = cherry-pick
+  r = rebase
+  ra = rebase --abort
+  rc = rebase --continue
+  ri = rebase -i
+  ril = rebase -i HEAD~20
+  sd = stash drop
+  sl = stash list
+  sc = stash save
+  ss = stash show -p
+  sp = stash pop
+  st = status
+  where = symbolic-ref --short HEAD
 [color]
-    branch = auto
-    status = auto
-    diff = auto
-    log = auto
-    grep = auto
+  branch = auto
+  status = auto
+  ; diff = false
+  log = auto
+  grep = auto
 [core]
-    editor = vim
-    excludesfile = ~/.gitignore
+  editor = vim
+  excludesfile = ~/.gitignore
+[pager]
+  ; diff = vim -R -
+  ; whatchanged = vim -R -
 [apply]
-    whitespace = nowarn
+  whitespace = nowarn
 [heroku]
-    account = blackbits
+  account = blackbits
 [credential]
-    helper = osxkeychain
+  helper = osxkeychain
 [push]
-    default = simple
+  default = simple
 [filter "lfs"]
 	clean = git lfs clean %f
 	smudge = git lfs smudge %f
