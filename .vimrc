@@ -603,14 +603,48 @@ nnoremap <leader>q :cc<cr>
 nnoremap <leader>j :cnext<cr>
 nnoremap <leader>k :cprev<cr>
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" CLOJURE STUFF
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! ClojureRepl(cmd)
-  try
-    call fireplace#session_eval(a:cmd, {'ns': fireplace#client().user_ns()})
-    return ''
-  catch /^Clojure:.*/
-    return ''
-  endtry
+  " try
+  "   call fireplace#session_eval(a:cmd, {'ns': fireplace#client().user_ns()})
+  " catch /^Clojure:.*/
+  "   return ''
+  " endtry
+
+  let response = fireplace#ns_eval(a:cmd)
+  let substitution_pat =  '\e\[[0-9;]*m\|\r\|\n$'
+
+  if get(response, 'err', '') !=# ''
+    return { 'err': substitute(response.err, substitution_pat, '', 'g') }
+  elseif get(response, 'ex', '') !=# ''
+    return { 'err': 'Clojure: ' . response.ex }
+  elseif get(response, 'out', '') =~# '[\n^]FAIL '
+    let lines = split(response.out, "\r\\=\n")
+    let errors = []
+    let i = 0
+
+    while i < len(lines)
+      if lines[i] =~# '^FAIL'
+        let mm = split(lines[i], "(")[2]
+        let mm = split(strpart(mm, 0, len(mm) - 1), ":")
+        let error = {'type': 'E', 'lnum': mm[1], 'text': lines[i + 1] . lines[i + 2]}
+        let error.filename = fireplace#findresource(mm[0], fireplace#path())
+        call add(errors, error)
+        let i += 3
+      else
+        let i += 1
+      endif
+    endwhile
+
+    return { 'errors': errors }
+  elseif has_key(response, 'out') || has_key(response, 'value')
+    return { 'out': get(response, 'out', ''), 'value': get(response, 'value', 'nil') }
+  else
+    return { 'err': 'Clojure: Something went wrong: ' . string(response) }
+  endif
 endfunction
 
 function! ClojureReload()
@@ -635,13 +669,27 @@ function! ClojureTest()
     let test_ns = ns . '-test'
   endif
 
-  let cmd = "(do (clojure.core/require '" . ns . " :reload) (clojure.test/run-tests '" . test_ns . "))"
+  let cmd = "(do (clojure.core/require '" . ns . " :reload) (when (clojure.core/find-ns '" . test_ns . ") (clojure.test/run-tests '" . test_ns . ")))"
 
-  call ClojureRepl(cmd)
+  let res = ClojureRepl(cmd)
+
+  if has_key(res, 'err')
+    call RedBar(res.err)
+  else
+    let message = get(res, 'out', '')
+    if message !=# ''
+      let substitution_pat =  '\e\[[0-9;]*m\|\r\|\n$'
+      echo substitute(message, substitution_pat, '', 'g')
+    else
+      call setqflist(get(res, 'errors', []))
+      call ShowBar(JumpToError('Everything works.'))
+    endif
+  endif
 endfunction
 
 au FileType clojure nnoremap <cr> :call ClojureTest()<cr>
 au FileType clojure nmap <leader>cc :FireplaceConnect 8889<cr>
-au FileType clojure map <leader>re :Eval<cr>
-au FileType clojure map <leader>rr :call ClojureReload()<cr>
-au FileType clojure map <leader>ru :call ClojureUnload()<cr>
+au FileType clojure map <leader>cl :Eval<cr>
+au FileType clojure vmap <cr> :Eval<cr>
+au FileType clojure map <leader>cr :w\|:call ClojureReload()<cr>
+au FileType clojure map <leader>cu :call ClojureUnload()<cr>
