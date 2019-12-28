@@ -1,9 +1,5 @@
 # .zshrc
 
-PATH="$HOME/bin:$PATH"
-PATH="node_modules/.bin:$PATH"
-export PATH
-
 alias h='history 25'
 alias j='jobs -l'
 alias la='ls -a'
@@ -11,6 +7,7 @@ alias ll='ls -lA'
 alias ff='find . -name'
 alias view='vim -R'
 alias v='view -'
+alias config='vim "~/iCloud/Config/"'
 
 alias sst='svn status'
 sd() { svn diff $* | v }
