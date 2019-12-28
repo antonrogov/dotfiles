@@ -192,15 +192,22 @@ function! SelectaCommand(choice_command, selecta_args, vim_command)
 endfunction
 
 function! SelectaFile(path)
-  let exclude = ["'*/.gem'",
-               \ "'*/.git'",
-               \ "'*/node_modules'",
-               \ "'*/tmp'",
-               \ "'*/vendor/gems'",
-               \ "'*/vendor/ruby'",
-               \ "'*/bower_components'"]
-  let args = "\\( -path " . join(exclude, " -o -path ") . " \\) -prune"
-  let command = "find " . a:path . " -type f -o " . args . " | sed 's|\\./||'"
+  let exclude_paths = ["'*/.gem'",
+                     \ "'*/.git'",
+                     \ "'*/node_modules'",
+                     \ "'*/tmp'",
+                     \ "'*/vendor/gems'",
+                     \ "'*/vendor/ruby'",
+                     \ "'*/bower_components'"]
+  let exclude_names = ["'*.png'",
+                     \ "'*.gif'",
+                     \ "'*.svg'",
+                     \ "'*.jpg'",
+                     \ "'*.pdf'",
+                     \ "'*.ttf'"]
+  let path_args = " -o \\( -path " . join(exclude_paths, " -o -path ") . " \\) -prune"
+  let name_args = " -and -not -iname " . join(exclude_names, " -and -not -iname ")
+  let command = "find " . a:path . " -type f" . name_args . path_args . " | sed 's|\\./||'"
   call SelectaCommand(command, "", ":e")
 endfunction
 
