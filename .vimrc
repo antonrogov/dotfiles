@@ -122,7 +122,7 @@ augroup vimrcEx
     \   exe "normal g'\"" |
     \ endif
 
-  au FileType text setlocal textwidth=78
+  au FileType text setlocal textwidth=80
 
   au BufRead,BufNewFile *.rabl set ft=ruby
   au BufNewFile,BufRead *.json set ft=javascript
