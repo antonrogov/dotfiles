@@ -151,7 +151,9 @@ vnoremap   <Left>   <NOP>
 vnoremap   <Right>  <NOP>
 
 map <leader>y "*y
+map <leader>н "*y
 map <leader>p "*p
+map <leader>з "*p
 map <leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
 map <leader>/ <plug>NERDCommenterToggle
 map <leader>i :w\|:!reload-safari<CR><CR>
@@ -219,6 +221,7 @@ function! SelectaBundle()
 endfunction
 
 nnoremap <leader>f :call SelectaFile(".")<cr>
+nnoremap <leader>а :call SelectaFile(".")<cr>
 nnoremap <leader>gv :call SelectaFile("app/views")<cr>
 nnoremap <leader>gc :call SelectaFile("app/controllers")<cr>
 nnoremap <leader>gm :call SelectaFile("app/models")<cr>
