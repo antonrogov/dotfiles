@@ -1,0 +1,26 @@
+#!/bin/bash
+
+styles="
+body {
+  max-width: 94ex;
+  margin: 50px auto;
+  font-family: Georgia;
+  font-size: 18px;
+  line-height: 28px;
+}
+
+div.sourceCode {
+  padding: 12px 20px;
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  border-radius: 5px;
+  font-size: 16px;
+  line-height: 24px;
+}
+"
+
+file="$(mktemp).html"
+pandoc "$1" -t html5 -so - | \
+sed -e "s/<\/head>/<style type=\"text\/css\">${styles//$'\n'/}<\/style><\/head>/" | \
+sed -E "s/src=\"(..\/)+/src=\"file:\/\/\/Users\/anton\/notes\//" > $file
+open $file

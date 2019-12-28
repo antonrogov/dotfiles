@@ -693,3 +693,6 @@ au FileType clojure map <leader>cl :Eval<cr>
 au FileType clojure vmap <cr> :Eval<cr>
 au FileType clojure map <leader>cr :w\|:call ClojureReload()<cr>
 au FileType clojure map <leader>cu :call ClojureUnload()<cr>
+
+au BufRead ~/notes/**/*.md setlocal tw=80
+au FileType markdown nmap <cr> :w\|!markdown "%"<cr>
