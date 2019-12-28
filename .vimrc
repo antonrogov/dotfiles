@@ -387,10 +387,10 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-au FileType ruby nnoremap <cr> :call RunTestFile()<cr>
+au FileType ruby nnoremap <cr> :call RunCurrentTests()<cr>
 au FileType ruby,cucumber,javascript map <leader>t :call RunTestFile()<cr>
 au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
-au FileType javascript map <leader>st :call RunTestFile(0, 'browser')<cr>
+au FileType javascript map <leader>st :call RunTestFile(0, 'browser ')<cr>
 au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'STDOUT=1 ')<cr>
 au FileType ruby,cucumber map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
 au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
@@ -408,43 +408,57 @@ au FileType ruby map <leader>dT :call RunNearestTest('STDOUT=1 ')<cr>
 au FileType ruby map <leader>sT :call RunNearestTest('spring ')<cr>
 au FileType ruby map <leader>sdT :call RunNearestTest('STDOUT=1 spring ')<cr>
 au FileType ruby map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
-au FileType javascript map <leader>sT :call RunNearestTest('browser')<cr>
+au FileType javascript map <leader>sT :call RunNearestTest('browser ')<cr>
 " au FileType ruby,javascript map <leader>a :call RunTests(0, '', '')<cr>
 " au FileType ruby map <leader>c :call RunScenarios()<cr>
 
-function! RunTestFile(...)
-  let async = a:0 > 0 ? a:1 : 0
-  let prefix = a:0 > 1 ? a:2 : ''
-  let suffix = a:0 > 2 ? a:3 : ''
+function! RunCurrentTests()
+  call RunTests(t:test_is_async, t:test_file_prefix, t:test_file_path, t:test_file_suffix)
+endfunction
 
+function! ChangeFileAndRunCurrentTests()
+  if t:test_file_path != @%
+    call SetTestFile(0, '', '')
+  end
+
+  call RunCurrentTests()
+endfunction
+
+function! RunTestFile(...)
   " Run the tests for the previously-marked file.
   let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\|.spec.coffee\|-test.js\)$') != -1
   if in_test_file
-    call SetTestFile(suffix)
-  elseif !exists("t:grb_test_file")
+    let async = a:0 > 0 ? a:1 : 0
+    let prefix = a:0 > 1 ? a:2 : ''
+    let suffix = a:0 > 2 ? a:3 : ''
+    call SetTestFile(async, prefix, suffix)
+  elseif !exists("t:test_file_path")
     return
   end
 
-  call RunTests(async, prefix, t:grb_test_file)
+  call RunCurrentTests()
 endfunction
 
 function! RunNearestTest(prefix)
   let spec_line_number = line('.')
-  call RunTestFile(0, a:prefix, ':' . spec_line_number . ' -b')
+  call RunTestFile(0, a:prefix, ':' . spec_line_number)
 endfunction
 
-function! SetTestFile(suffix)
+function! SetTestFile(async, prefix, suffix)
   " Set the spec file that tests will be run for.
-  let t:grb_test_file=@% . a:suffix
+  let t:test_file_path = @%
+  let t:test_is_async = a:async
+  let t:test_file_prefix = a:prefix
+  let t:test_file_suffix = a:suffix
 endfunction
 
-function! RunTests(async, prefix, filename)
+function! RunTests(async, prefix, filename, suffix)
   :w
 
   if filereadable("bin/run-test")
-    exec ":!bin/run-test " . a:prefix . " " . a:filename
+    exec ":!bin/run-test " . a:prefix . a:filename . a:suffix
   elseif filereadable("script/run-test")
-    exec ":!script/run-test " . a:prefix . " " . a:filename
+    exec ":!script/run-test " . a:prefix . a:filename . a:suffix
   elseif a:async
     call RunRSpecAsync(a:prefix, a:filename)
   elseif match(a:filename, '\.feature$') != -1
@@ -454,7 +468,7 @@ function! RunTests(async, prefix, filename)
   elseif match(a:filename, '\.js.coffee$') != -1
     call RunJasmine(a:filename)
   else
-    call RunRSpec(a:prefix, a:filename)
+    call RunRSpec(a:prefix, a:filename, a:suffix)
   end
 endfunction
 
@@ -474,7 +488,7 @@ function! JumpToError(...)
     redraw!
     return [1, error_message]
   else
-    :echo 'ok'
+    echo 'ok'
     let message = a:0 > 0 ? a:1 : 'All tests passed'
     redraw!
     return [0, ' ' . message]
@@ -531,8 +545,8 @@ function! RunScenarios(prefix, ...)
   call RunCommand(a:prefix . "cucumber --color -r features " . args)
 endfunction
 
-function! RunRSpec(prefix, filename)
-  call RunCommand(a:prefix . "rspec --color " . a:filename)
+function! RunRSpec(prefix, filename, suffix)
+  call RunCommand(a:prefix . "rspec --color " . a:filename . a:suffix)
 endfunction
 
 function! RunCommand(command)
