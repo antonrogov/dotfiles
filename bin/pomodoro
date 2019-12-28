@@ -1,0 +1,53 @@
+#!/bin/bash
+
+time_file=/tmp/pomodoro-stop
+ring_file="$HOME/iCloud/Config/ring.mp3"
+duration=${2:-$((25 * 60))}
+break_duration=${3:-$((5 * 60))}
+now=$(date +%s)
+
+case $1 in
+  start)
+    if test -f $time_file; then
+      echo "Already running."
+    else
+      echo $((now + duration)) > $time_file
+      echo pomodoro >> $time_file
+      ( sleep $duration && rm $time_file && date >> ~/.pomodoro.log && pomodoro break && afplay "$ring_file" )&
+    fi
+    ;;
+
+  break)
+    if test -f $time_file; then
+      echo "Already running."
+    else
+      echo $((now + break_duration)) > $time_file
+      echo break >> $time_file
+      ( sleep $break_duration && rm $time_file && afplay "$ring_file" )&
+    fi
+    ;;
+
+  time)
+    if test -f $time_file; then
+      timer_stop=$(head -n 1 $time_file)
+      left=$((timer_stop - now))
+      printf "%02d:%02d" $((left / 60)) $((left % 60))
+    fi
+    ;;
+
+  tmux-status)
+    color="red"
+
+    if test -f $time_file; then
+      if [ "$(tail -n 1 $time_file 2>/dev/null)" = "break" ]; then
+        color="green"
+      fi
+
+      text=$(pomodoro time)
+    else
+      text="READY"
+    fi
+
+    echo -n "#[fg=$color,bg=black]#[default]#[fg=black,bg=$color] $text #[default]"
+    ;;
+esac

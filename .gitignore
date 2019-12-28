@@ -29,6 +29,7 @@
 /.netrc
 /.node-gyp
 /.npm
+/.pomodoro.log
 /.pry_history
 /.psql_history
 /.pyenv
