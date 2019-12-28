@@ -152,9 +152,9 @@ vnoremap   <Right>  <NOP>
 
 map <leader>y "*y
 map <leader>p "*p
-map <Leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
-map <Leader>/ <plug>NERDCommenterToggle
-map <Leader>l :w\|:!reload-safari<CR><CR>
+map <leader>rt :!ctags --extra=+f --exclude=.git --exclude=log --exclude=tmp -R *<CR><CR>
+map <leader>/ <plug>NERDCommenterToggle
+map <leader>i :w\|:!reload-safari<CR><CR>
 vmap > >gv
 vmap < <gv
 nnoremap <leader><leader> <c-^>
@@ -168,8 +168,8 @@ let g:CommandTCursorRightMap = ['<Right>', '<C-f>']
 function! MyCalc(str)
   return system("echo 'scale=2 ; print " . a:str . "' | bc -l")
 endfunction
-map <silent> <Leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
-vmap <silent> <Leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
+map <silent> <leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
+vmap <silent> <leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
 command! -nargs=+ MyCalc :echo MyCalc("<args>")
 
 
