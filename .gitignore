@@ -4,6 +4,9 @@
 /.bash_history
 /.bundle
 /.cache
+/.cljs
+/.clojure
+/.clojure_history
 /.config
 /.dbshell
 /.dotfiles
