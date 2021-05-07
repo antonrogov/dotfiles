@@ -55,9 +55,9 @@
 [submodule ".vim/bundle/vim-vue"]
 	path = .vim/bundle/vim-vue
 	url = https://github.com/posva/vim-vue.git
-[submodule ".vim/bundle/vim-tsx"]
-	path = .vim/bundle/vim-tsx
-	url = https://github.com/ianks/vim-tsx.git
 [submodule ".vim/bundle/typescript-vim"]
-	path = .vim/bundle/typescript-vim
+	path = .vim/bundle/vim-typescript
 	url = https://github.com/leafgarland/typescript-vim.git
+[submodule ".vim/bundle/vim-jsx-pretty"]
+	path = .vim/bundle/vim-jsx-pretty
+	url = https://github.com/maxmellon/vim-jsx-pretty.git

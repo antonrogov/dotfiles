@@ -134,6 +134,9 @@ augroup vimrcEx
 
   " Don't syntax highlight markdown because it's often wrong
   au! FileType mkd setlocal syn=off
+
+  au BufNewfile,BufRead *.tsx set ft=typescript.tsx
+  au BufNewfile,BufRead *.jsx set ft=javascript.jsx
 augroup END
 
 " disable arrow keys
