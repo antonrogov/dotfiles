@@ -71,16 +71,14 @@ endfunction
 
 function! SetLightBg()
   let g:bg_type = "light"
-  set background=light
-  color solarized
-  hi User1 term=reverse cterm=reverse ctermfg=246 ctermbg=7 gui=bold,reverse
-  hi User2 term=reverse cterm=reverse ctermfg=10 ctermbg=246 gui=bold,reverse
+  color one-light
 endfunction
 
-if $ITERM_PROFILE == "Dark"
-  call SetDarkBg()
-else
+" if $ITERM_PROFILE == "Dark"
+if filereadable(expand("~/.light"))
   call SetLightBg()
+else
+  call SetDarkBg()
 end
 
 function! ToggleBg()
