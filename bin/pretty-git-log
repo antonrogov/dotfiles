@@ -13,21 +13,29 @@
 # used to split on them. A } in the commit subject or any other field will
 # break this.
 
-HASH="%CC(yellow)%h%CC(reset)"
-RELATIVE_TIME="%CC(green)(%ar)%CC(reset)"
-AUTHOR="%CC(blue)<%an>%CC(reset)"
-REFS="%CC(red)%d%CC(reset)"
+if [ -t 1 ]; then
+  HASH="%CC(yellow)%h%CC(reset)"
+  RELATIVE_TIME="%CC(green)(%ar)%CC(reset)"
+  AUTHOR="%CC(blue)<%an>%CC(reset)"
+  REFS="%CC(red)%d%CC(reset)"
+else
+  HASH="%h"
+  RELATIVE_TIME="(%ar)"
+  AUTHOR="<%an>"
+  REFS="%d"
+fi
+
 SUBJECT="%s"
 
-FORMAT="$HASH}$RELATIVE_TIME}$AUTHOR}$REFS $SUBJECT"
+FORMAT="$HASH^^^$RELATIVE_TIME^^^$AUTHOR^^^$REFS $SUBJECT"
 
 git log --graph --pretty="tformat:${FORMAT}" $* |
   # Replace (2 years ago) with (2 years)
   sed -Ee 's/(^[^<]*) ago\)/\1\)/' |
   # Replace (2 years, 5 months) with (2 years)
   sed -Ee 's/(^[^<]*), [[:digit:]]+ .*months?\)/\1\)/' |
-  # Line columns up based on } delimiter
-  column -s '}' -t |
+  # Line columns up based on ^^^ delimiter
+  column -s '^^^' -t |
   sed "s/%CC(red)/$(printf '\e[31m')/" |
   sed "s/%CC(green)/$(printf '\e[32m')/" |
   sed "s/%CC(yellow)/$(printf '\e[33m')/" |

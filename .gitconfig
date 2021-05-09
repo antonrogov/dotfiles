@@ -15,10 +15,9 @@
   dc = diff --cached
   f = fetch
   fa = fetch --all
-  l = pull
+  l = !pretty-git-log -25
   la = !pretty-git-log --all
   lr = !pretty-git-log --all -25
-  lrb = !pretty-git-log -25
   p = push
   pf = push -f
   pb = !git push --set-upstream origin $(git where)
