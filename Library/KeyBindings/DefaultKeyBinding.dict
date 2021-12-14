@@ -5,17 +5,19 @@
     "~<" = "moveToBeginningOfDocument:";
     "~>" = "moveToEndOfDocument:";
     "~v" = "pageUp:";
-    "^f" = "pageDown:";
-    "^b" = "pageUp:";
+    "^f" = "moveForward:";
+    "^b" = "moveBackward:";
     "~d" = "deleteWordForward:";
     "^w" = "deleteWordBackward:";
+    "^[" = "cancelOperation:";
     "~а" = "moveWordForward:";
     "~и" = "moveWordBackward:";
     "~в" = "deleteWordForward:";
     "^ц" = "deleteWordBackward:";
     "^р" = "deleteBackward:";
-    "^а" = "pageDown:";
-    "^и" = "pageUp:";
+    "^а" = "moveForward:";
+    "^и" = "moveBackward:";
     "^ф" = "moveToBeginningOfLine:";
     "^у" = "moveToEndOfLine:";
+    "^х" = "cancelOperation:";
 }
