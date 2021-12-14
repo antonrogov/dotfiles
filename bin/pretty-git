@@ -1,0 +1,56 @@
+#!/bin/zsh
+# Inspired by https://github.com/garybernhardt/dotfiles/blob/main/.githelpers
+
+format() {
+  sed -Ee 's/(^[^<]*) ago\)/\1\)/' |
+  # Replace (2 years, 5 months) with (2 years)
+  sed -Ee 's/(^[^<]*), [[:digit:]]+ .*months?\)/\1\)/' |
+  # Line columns up based on ^^^ delimiter
+  column -s '^^^' -t |
+  sed "s/%CC(red)/$(printf '\e[31m')/" |
+  sed "s/%CC(green)/$(printf '\e[32m')/" |
+  sed "s/%CC(yellow)/$(printf '\e[33m')/" |
+  sed "s/%CC(blue)/$(printf '\e[34m')/" |
+  sed "s/%CC(reset)/$(printf '\e[0m')/g" |
+  # Page only if we need to
+  less -FXRS
+}
+
+case "$1" in
+log)
+  if [ -t 1 ]; then
+    HASH="%CC(yellow)%h%CC(reset)"
+    RELATIVE_TIME="%CC(green)(%ar)%CC(reset)"
+    AUTHOR="%CC(blue)<%an>%CC(reset)"
+    REFS="%CC(red)%d%CC(reset)"
+  else
+    HASH="%h"
+    RELATIVE_TIME="(%ar)"
+    AUTHOR="<%an>"
+    REFS="%d"
+  fi
+
+  SUBJECT="%s"
+  FORMAT="$HASH^^^$RELATIVE_TIME^^^$AUTHOR^^^$REFS $SUBJECT"
+  git log --graph --pretty="tformat:${FORMAT}" ${@:2} | format
+  ;;
+
+branch)
+  if [ -t 1 ]; then
+    REF="%(color:red)%(color:bold)%(refname:short)%(color:reset)"
+    HASH="%(color:yellow)%(objectname:short)%(color:reset)"
+    DATE="%(color:green)(%(committerdate:relative))%(color:reset)"
+    AUTHOR="%(color:blue)%(color:bold)<%(authorname)>%(color:reset)"
+  else
+    REF="%(refname:short)"
+    HASH="%(objectname:short)"
+    DATE="(%(committerdate:relative))"
+    AUTHOR="<%(authorname)>"
+  fi
+
+  PREFIX="%(HEAD)"
+  CONTENTS="%(contents:subject)"
+  FORMAT="$PREFIX^^^$REF^^^$HASH^^^$DATE^^^$AUTHOR^^^$CONTENTS"
+  git branch -v --color=always --format=${FORMAT} ${@:2} | format
+  ;;
+esac
