@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+remote_path="$HOME/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/"
+
+cd ~/org
+
+case "$1" in
+  push)
+    git add --all
+    git commit -m save
+    rsync -tr --exclude '.git' . $remote_path
+    ;;
+  pull)
+    rsync -tr --exclude '.git' $remote_path .
+    git add --all
+    git commit -m sync
+    ;;
+  *)
+    echo "Usage: $0 push|pull"
+    exit 1
+esac

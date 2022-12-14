@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+if test -z "$(ps ax|grep -i offlineimap|grep -v grep)"; then
+  /opt/homebrew/bin/offlineimap -qo
+else
+  echo "offlineimap is already running..."
+fi
+
+~/bin/send-mail >> ~/.mail/msmtp.log 2>&1

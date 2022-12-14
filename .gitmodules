@@ -58,3 +58,6 @@
 [submodule ".vim/bundle/vim-jsx-pretty"]
 	path = .vim/bundle/vim-jsx-pretty
 	url = https://github.com/maxmellon/vim-jsx-pretty.git
+[submodule ".emacs.d"]
+	path = .emacs.d
+	url = https://github.com/hlissner/doom-emacs
