@@ -2,11 +2,30 @@
 
 styles="
 body {
-  max-width: 94ex;
-  margin: 50px auto;
+  max-width: 60rem;
+  margin: 4rem auto;
   font-family: Georgia;
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 1.4em;
+  line-height: 2rem;
+  letter-spacing: -0.02rem;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+  letter-spacing: -0.03rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+ul {
+  margin-left: 1em;
+  padding: 0;
 }
 
 div.sourceCode {

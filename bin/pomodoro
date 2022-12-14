@@ -35,7 +35,7 @@ case $1 in
     fi
     ;;
 
-  tmux-status)
+  tmux)
     color="red"
 
     if test -f $time_file; then
@@ -48,6 +48,6 @@ case $1 in
       text="READY"
     fi
 
-    echo -n "#[fg=$color,bg=black]#[default]#[fg=black,bg=$color] $text #[default]"
+    echo -n "#[fg=$color,bg=black]#[default]#[fg=white,bg=$color] $text #[default]"
     ;;
 esac

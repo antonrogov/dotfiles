@@ -13,7 +13,7 @@ set number
 set numberwidth=5
 set ruler
 syntax on
-set statusline=%1*\ %<%f\ %*%2*%*\ %h%m%r%=\ %l,%c%V\ \ %P
+set statusline=%1*%3*\ %<%f\ %*%2*%*\ %h%m%r%=\ %l,%c%V\ \ %P
 
 set encoding=utf-8
 
@@ -28,8 +28,6 @@ set hlsearch
 set incsearch
 set ignorecase
 set smartcase
-nnoremap <CR> :nohlsearch<CR>/<BS>
-nnoremap <leader>h :nohlsearch<cr>
 
 " Tab completion
 set wildmode=list:longest,list:full
@@ -46,7 +44,7 @@ set colorcolumn=81
 " Without setting this, ZoomWin restores windows in a way that causes
 " equalalways behavior to be triggered the next time CommandT is used.
 " This is likely a bludgeon to solve some other issue, but it works
-set noequalalways
+" set noequalalways
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
@@ -63,33 +61,15 @@ set modelines=10
 " Default color scheme
 set t_Co=256
 
-function! SetDarkBg()
-  let g:bg_type = "dark"
-  set background=dark
-  color railscasts
-endfunction
-
-function! SetLightBg()
-  let g:bg_type = "light"
-  color one-light
-endfunction
-
 " if $ITERM_PROFILE == "Dark"
 if filereadable(expand("~/.light"))
-  call SetLightBg()
+  set background=light
 else
-  call SetDarkBg()
+  set background=dark
 end
+color AR
 
-function! ToggleBg()
-  if g:bg_type == "light"
-    call SetDarkBg()
-  else
-    call SetLightBg()
-  end
-endfunction
-
-map <leader>bg :call ToggleBg()<cr>
+set fillchars+=vert:│
 
 " https://groups.google.com/forum/#!msg/vim_dev/r3CPPl6AVRM/wCgbD4PU5NAJ
 set timeout timeoutlen=1000 ttimeoutlen=100
@@ -109,7 +89,7 @@ set nojoinspaces
 " Use the old vim regex engine (version 1, as opposed to version 2, which was
 " introduced in Vim 7.3.969). The Ruby syntax highlighting is significantly
 " slower with the new regex engine.
-set re=1
+" set re=1
 
 augroup vimrcEx
   au!
@@ -175,41 +155,40 @@ map <silent> <leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:no
 vmap <silent> <leader>= :s/.*/\=submatch(0) . " = " . MyCalc(submatch(0))/<CR>:noh<CR>
 command! -nargs=+ MyCalc :echo MyCalc("<args>")
 
+" %:h alias
+cnoremap <expr> %% expand('%:h').'/'
+nnoremap <leader>d :e %:h<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Selecta mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! SelectaCommand(choice_command, selecta_args, vim_command)
-  try
-    let selection = system(a:choice_command . " | selecta " . a:selecta_args)
-  catch /Vim:Interrupt/
-    " Swallow the ^C so that the redraw below happens; otherwise there will be
-    " leftovers from selecta on the screen
-    redraw!
-    return
-  endtry
+  let res_file = tempname()
+  let command = a:choice_command . " | fzf --no-height > " . res_file
+  silent! !clear 2> /dev/null
+  exec "silent !" . command
+  " call system(printf('tput cup %d > /dev/tty; %s < /dev/tty 2> /dev/tty', height, command))
   redraw!
-  exec a:vim_command . " " . selection
+  let selection = readfile(res_file)
+
+  if len(selection) > 0
+    exec a:vim_command . " " . selection[0]
+  endif
+
+  " try
+  "   let selection = system(a:choice_command . " | selecta " . a:selecta_args)
+  " catch /Vim:Interrupt/
+  "   " Swallow the ^C so that the redraw below happens; otherwise there will be
+  "   " leftovers from selecta on the screen
+  "   redraw!
+  "   return
+  " endtry
+  " redraw!
+  " exec a:vim_command . " " . selection
 endfunction
 
 function! SelectaFile(path)
-  let exclude_paths = ["'*/.gem'",
-                     \ "'*/.git'",
-                     \ "'*/node_modules'",
-                     \ "'*/tmp'",
-                     \ "'*/vendor/gems'",
-                     \ "'*/vendor/ruby'",
-                     \ "'*/bower_components'"]
-  let exclude_names = ["'*.png'",
-                     \ "'*.gif'",
-                     \ "'*.svg'",
-                     \ "'*.jpg'",
-                     \ "'*.pdf'",
-                     \ "'*.ttf'"]
-  let path_args = " -o \\( -path " . join(exclude_paths, " -o -path ") . " \\) -prune"
-  let name_args = " -and -not -iname " . join(exclude_names, " -and -not -iname ")
-  let command = "find " . a:path . " -type f" . name_args . path_args . " | sed 's|\\./||'"
-  call SelectaCommand(command, "", ":e")
+  call SelectaCommand("fd -t f -E '*.gif' " . a:path, "", ":e")
 endfunction
 
 function! SelectaNodeModule(path)
@@ -222,10 +201,10 @@ function! SelectaBowerComponent(path)
   call SelectaCommand(command, "", ":e")
 endfunction
 
-command! -nargs=+ OpenBundledGem :exec "e `bundle show " . substitute("<args>", "\n", '', '')  . "`"
+command! -nargs=+ OpenBundledGem :exec "e `bundle show " . substitute("<args>", "\n", '', '')  . " 2>/dev/null`"
 
 function! SelectaBundle()
-  call SelectaCommand("bundle list | grep '^  *' | cut -d ' ' -f 4", "", ":OpenBundledGem")
+  call SelectaCommand("bundle list 2>/dev/null| grep '^  *' | cut -d ' ' -f 4", "", ":OpenBundledGem")
 endfunction
 
 nnoremap <leader>f :call SelectaFile(".")<cr>
@@ -239,13 +218,14 @@ nnoremap <leader>gf :call SelectaFile("features")<cr>
 nnoremap <leader>gn :call SelectaNodeModule(".")<cr>
 nnoremap <leader>gbc :call SelectaBowerComponent(".")<cr>
 nnoremap <leader>gbu :call SelectaBundle()<cr>
+nnoremap <leader>e :call SelectaFile(expand('%:h'))<cr>
 
 function! SelectaIdentifier()
   " Yank the word under the cursor into the z register
   normal "zyiw
   " Fuzzy match files in the current directory, starting with the word under
   " the cursor
-  call SelectaCommand("find * -type f", "-s " . @z, ":e")
+  call SelectaCommand("fd -t f .", "-s " . @z, ":e")
 endfunction
 nnoremap <leader>gt :call SelectaIdentifier()<cr>
 
@@ -287,13 +267,6 @@ vnoremap <leader>gg :call GitGrepSelected()<cr>
 nnoremap <leader>ga :call GitAddFile()<cr>
 nnoremap <leader>gs :Gstatus<CR>
 nnoremap <leader>gu :cexpr system('git diff --name-only --diff-filter=U \| sed -E "s/\$/:1: merge conflict/"')<cr>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" OPEN FILES IN DIRECTORY OF CURRENT FILE
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-cnoremap %% <C-R>=expand('%:h').'/'<cr>
-map <leader>e :edit %%
-map <leader>v :view %%
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MULTIPURPOSE TAB KEY
@@ -387,80 +360,135 @@ nnoremap <leader>. :call OpenTestAlternate()<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RUNNING TESTS
+"
+" Pressing these hotkeys will do the following depending on the file:
+" * in test files it will remember the file, change the run options, and run it
+" * in production files it will change the run options and run remembered test
+"   file
+"
+" Run options are changed depending on the hotkey:
+" * <cr> does not change the options when pressed in production code or in the
+"   same test file, resets (or not?) the options when pressed in a different test file
+" * <leader>tt reset the options (no spring, no debug, no async)
+" * <leader>ts toggles spring
+" * <leader>td toggles debug
+" * <leader>ta toggles async
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-au FileType ruby nnoremap <cr> :call RunCurrentTests()<cr>
-au FileType ruby,cucumber,javascript map <leader>t :call RunTestFile()<cr>
-au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
-au FileType javascript map <leader>st :call RunTestFile(0, 'browser ')<cr>
-au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'STDOUT=1 ')<cr>
-au FileType ruby,cucumber map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
-au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
-au FileType ruby,cucumber map <leader>sr :call RunTestFile(1, 'spring ')<cr>
-au FileType ruby,cucumber map <leader>ar :call RunRSpecAsync('', '')<cr>
-au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<cr>
-au FileType ruby,cucumber map <leader>sw :call RunScenarios('spring ', '--profile wip')<cr>
-au FileType ruby,cucumber map <leader>dw :call RunScenarios('STDOUT=1 ', '--profile wip')<cr>
+au FileType ruby nnoremap <cr> :call RunTests()<cr>
+au FileType ruby,javascript map <leader>T :call RunNearestTest()<cr>
+au FileType ruby,javascript map <leader>tt :call ResetTestOptionsAndRunTests()<cr>
+au FileType ruby map <leader>ts :call ToggleTestSpring()<cr>
+au FileType ruby map <leader>td :call ToggleTestDebug()<cr>
+au FileType ruby map <leader>ta :call ToggleTestAsync()<cr>
+" au FileType ruby,cucumber map <leader>st :call RunTestFile(0, 'spring ')<cr>
+" au FileType javascript map <leader>st :call RunTestFile(0, 'browser ')<cr>
+" au FileType ruby,cucumber map <leader>dt :call RunTestFile(0, 'STDOUT=1 ')<cr>
+" au FileType ruby,cucumber map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
+" au FileType ruby,cucumber map <leader>r :call RunTestFile(1)<cr>
+" au FileType ruby,cucumber map <leader>sr :call RunTestFile(1, 'spring ')<cr>
+" au FileType ruby,cucumber map <leader>ar :call RunRSpecAsync('', '')<cr>
+" au FileType ruby,cucumber map <leader>w :call RunScenarios('', '--profile wip')<cr>
+" au FileType ruby,cucumber map <leader>sw :call RunScenarios('spring ', '--profile wip')<cr>
+" au FileType ruby,cucumber map <leader>dw :call RunScenarios('STDOUT=1 ', '--profile wip')<cr>
 
 au FileType ruby map <leader>l :call RunLinter("rubocop -f e FILENAME \| grep '^/'")<cr>
 au FileType javascript map <leader>l :call RunLinter("eslint -f unix FILENAME \| grep '^/'")<cr>
 au FileType scss map <leader>l :call RunLinter("stylelint -f compact FILENAME \| perl -pe 's/^\\s+(.*)$/\\1/' \| perl -pe 's/([^:]+): line ([0-9]+), col ([0-9]+), [^ ]+ -[ \\n]+(.*)/\\1:\\2:\\3: \\4/'")<cr>
 
-au FileType ruby,javascript map <leader>T :call RunNearestTest('')<cr>
-au FileType ruby map <leader>dT :call RunNearestTest('STDOUT=1 ')<cr>
-au FileType ruby map <leader>sT :call RunNearestTest('spring ')<cr>
-au FileType ruby map <leader>sdT :call RunNearestTest('STDOUT=1 spring ')<cr>
-au FileType ruby map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
-au FileType javascript map <leader>sT :call RunNearestTest('browser ')<cr>
+" au FileType ruby map <leader>dT :call RunNearestTest('STDOUT=1 ')<cr>
+" au FileType ruby map <leader>sT :call RunNearestTest('spring ')<cr>
+" au FileType ruby map <leader>sdT :call RunNearestTest('STDOUT=1 spring ')<cr>
+" au FileType ruby map <leader>dsT :call RunNearestTest('STDOUT=1 spring ')<cr>
+" au FileType javascript map <leader>sT :call RunNearestTest('browser ')<cr>
+"
 " au FileType ruby,javascript map <leader>a :call RunTests(0, '', '')<cr>
 " au FileType ruby map <leader>c :call RunScenarios()<cr>
 
-function! RunCurrentTests()
-  call RunTests(t:test_is_async, t:test_file_prefix, t:test_file_path, t:test_file_suffix)
-endfunction
-
-function! ChangeFileAndRunCurrentTests()
-  if t:test_file_path != @%
-    call SetTestFile(0, '', '')
+function! RunTests()
+  if IsTestFile() && (!exists("t:test_file_path") || t:test_file_path != @%)
+    let t:test_file_suffix = ''
   end
 
-  call RunCurrentTests()
+  call RunCurrentOrLatestTests()
 endfunction
 
-function! RunTestFile(...)
-  " Run the tests for the previously-marked file.
-  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\|.spec.coffee\|-test.js\)$') != -1
-  if in_test_file
-    let async = a:0 > 0 ? a:1 : 0
-    let prefix = a:0 > 1 ? a:2 : ''
-    let suffix = a:0 > 2 ? a:3 : ''
-    call SetTestFile(async, prefix, suffix)
+function! RunNearestTest()
+  if !IsTestFile()
+    return
+  end
+
+  if t:test_file_suffix != ''
+    let t:test_file_suffix = ''
+  else
+    let t:test_file_suffix = ':' . line('.')
+  end
+
+  call RunCurrentOrLatestTests()
+endfunction
+
+function! ResetOptionsAndRunTests()
+  call ResetTestOptions()
+  call RunCurrentOrLatestTests()
+endfunction
+
+function! ToggleTestSpring()
+  if match(t:test_file_prefix, 'spring ') != -1
+    let t:test_file_prefix = substitute(t:test_file_prefix, 'DISABLE_SPRING=1 ', '', '')
+    let t:test_file_prefix = substitute(t:test_file_prefix, 'spring ', '', '')
+    let t:test_file_prefix = t:test_file_prefix . 'DISABLE_SPRING=1 '
+    echo 'Spring disabled.'
+  else
+    let t:test_file_prefix = substitute(t:test_file_prefix, 'DISABLE_SPRING=1 ', '', '')
+    let t:test_file_prefix = t:test_file_prefix . 'spring '
+    echo 'Spring enabled.'
+  end
+endfunction
+
+function! ToggleTestDebug()
+  call ToggleTestPreifxOption('STDOUT=1 ')
+endfunction
+
+function! ToggleTestAsync()
+  let t:test_file_async = t:test_file_async == 0 ? 1 : 0
+endfunction
+
+function! ToggleTestPreifxOption(option)
+  if match(t:test_file_prefix, a:option) != -1
+    let t:test_file_prefix = substitute(t:test_file_prefix, a:option, '', '')
+  else
+    let t:test_file_prefix = t:test_file_prefix . a:option
+  end
+endfunction
+
+function! ResetTestOptions()
+  let t:test_is_async = 0
+  let t:test_file_prefix = ''
+  let t:test_file_suffix = ''
+endfunction
+
+call ResetTestOptions()
+
+function! IsTestFile()
+  return match(expand("%"), '\(.feature\|_spec.rb\|_spec.js.coffee\|.spec.coffee\|-test.js\)$') != -1
+endfunction
+
+function! RunCurrentOrLatestTests()
+  if IsTestFile()
+    let t:test_file_path = @%
   elseif !exists("t:test_file_path")
     return
   end
 
-  call RunCurrentTests()
+  call RunTestsWithOptions(t:test_is_async, t:test_file_prefix, t:test_file_path, t:test_file_suffix)
 endfunction
 
-function! RunNearestTest(prefix)
-  let spec_line_number = line('.')
-  call RunTestFile(0, a:prefix, ':' . spec_line_number)
-endfunction
-
-function! SetTestFile(async, prefix, suffix)
-  " Set the spec file that tests will be run for.
-  let t:test_file_path = @%
-  let t:test_is_async = a:async
-  let t:test_file_prefix = a:prefix
-  let t:test_file_suffix = a:suffix
-endfunction
-
-function! RunTests(async, prefix, filename, suffix)
+function! RunTestsWithOptions(async, prefix, filename, suffix)
   :w
 
   if filereadable("bin/run-test")
-    exec ":!bin/run-test " . a:prefix . a:filename . a:suffix
-  elseif filereadable("script/run-test")
-    exec ":!script/run-test " . a:prefix . a:filename . a:suffix
+    call RunCommand(a:prefix . "bin/run-test " . a:filename . a:suffix)
+  elseif filereadable("bin/rspec")
+    call RunCommand(a:prefix . "bin/rspec " . a:filename . a:suffix)
   elseif a:async
     call RunRSpecAsync(a:prefix, a:filename)
   elseif match(a:filename, '\.feature$') != -1
@@ -490,24 +518,28 @@ function! JumpToError(...)
     redraw!
     return [1, error_message]
   else
-    echo 'ok'
     let message = a:0 > 0 ? a:1 : 'All tests passed'
     redraw!
     return [0, ' ' . message]
   endif
 endfunction
 
+function! DrawBar(message)
+  let w = &columns - 13
+  echon repeat(' ', w) . "\r " . a:message[0:w - 1]
+endfunction
+
 function! RedBar(message)
-  hi RedBar ctermfg=white ctermbg=167
+  hi RedBar ctermbg=167 ctermfg=white
   echohl RedBar
-  echon repeat(' ', &columns - 12) . "\r" . a:message
+  call DrawBar(a:message)
   echohl
 endfunction
 
 function! GreenBar(message)
-  hi GreenBar ctermfg=black ctermbg=2
+  hi GreenBar ctermbg=2 ctermfg=white
   echohl GreenBar
-  echon repeat(' ', &columns - 12) . "\r" . a:message
+  call DrawBar(a:message)
   echohl
 endfunction
 
@@ -532,6 +564,11 @@ endfunction
 function! RunLinter(command)
   let cmd = substitute(a:command, 'FILENAME', @%, 'g')
   call RunCommandWithBar(cmd, 'All checks passed')
+endfunction
+
+function! RunCompiler(command)
+  let cmd = substitute(a:command, 'FILENAME', @%, 'g')
+  call RunCommandWithBar(cmd, 'Compiled successfully')
 endfunction
 
 
@@ -592,17 +629,32 @@ function! ToggleQuickfix()
 endfunction
 
 function! OpenQuickfix()
-  cgetfile tmp/quickfix
-  belowright cwindow
+  " cgetfile tmp/quickfix
+  belowright cwindow 10
   if &ft == "qf"
     cc
   endif
 endfunction
 
-nnoremap <leader>Q :call ToggleQuickfix()<cr>
-nnoremap <leader>q :cc<cr>
+nnoremap <leader>q :call ToggleQuickfix()<cr>
+" nnoremap <leader>q :cc<cr>
 nnoremap <leader>j :cnext<cr>
 nnoremap <leader>k :cprev<cr>
+" nnoremap <leader>gj :lnext<cr>
+" nnoremap <leader>gk :lprev<cr>
+"
+
+function! ToggleScratch()
+  if BufferIsOpen("Scratch")
+    bun "Scratch"
+  else
+    botright 10new
+    setlocal buftype=nofile bufhidden=wipe noswapfile nowrap
+    put=@s
+  endif
+endfunction
+
+nnoremap <leader>s :call ToggleScratch()<cr>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CLOJURE STUFF
@@ -615,8 +667,12 @@ function! ClojureRepl(cmd)
   "   return ''
   " endtry
 
-  let response = fireplace#ns_eval(a:cmd)
+  let client = fireplace#client()
+  let response = client.eval(a:cmd, {'ns': client.user_ns()}) "fireplace#ns()})
+  " let response = fireplace#ns_eval(a:cmd)
   let substitution_pat =  '\e\[[0-9;]*m\|\r\|\n$'
+
+  let @s = get(response, 'out', '') . get(response, 'err', '') . get(response, 'ex', '')
 
   if get(response, 'err', '') !=# ''
     return { 'err': substitute(response.err, substitution_pat, '', 'g') }
@@ -675,16 +731,26 @@ function! ClojureTest()
   let res = ClojureRepl(cmd)
 
   if has_key(res, 'err')
-    call RedBar(res.err)
+    let lines = split(res.err, "\n")
+    call RedBar(lines[0])
+  elseif has_key(res, 'errors')
+    call setqflist(res.errors)
+    call ShowBar(JumpToError())
   else
-    let message = get(res, 'out', '')
+    let message = get(res, 'out', 'OK')
     if message !=# ''
-      let substitution_pat =  '\e\[[0-9;]*m\|\r\|\n$'
-      echo substitute(message, substitution_pat, '', 'g')
+      let lines = split(message, "\n")
+      call GreenBar(lines[0])
     else
-      call setqflist(get(res, 'errors', []))
-      call ShowBar(JumpToError('Everything works.'))
+      call GreenBar('OK')
     endif
+    " if message !=# ''
+    "   let substitution_pat =  '\e\[[0-9;]*m\|\r\|\n$'
+    "   echo substitute(message, substitution_pat, '', 'g')
+    " else
+    "   call setqflist(get(res, 'errors', []))
+    "   call ShowBar(JumpToError('OK'))
+    " endif
   endif
 endfunction
 
@@ -697,3 +763,33 @@ au FileType clojure map <leader>cu :call ClojureUnload()<cr>
 
 au BufRead ~/notes/**/*.md setlocal tw=80
 au FileType markdown nmap <cr> :w\|!markdown "%"<cr>
+
+au FileType typescript nmap <cr> :call RunCompiler('tsc -m amd --outFile vendor/game.js src/game/*.ts')<cr>
+au FileType typescript set errorformat=%+A\ %#%f\ %#(%l\\\,%c):\ %m,%C%m
+
+
+function! SynStack()
+  for ss in synstack(line('.'), col('.'))
+    echo synIDattr(ss, 'name') . ' -> ' . synIDattr(synIDtrans(ss), 'name')
+  endfor
+endfunction
+command! SynStack :call SynStack()
+
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
+" let g:ale_lint_on_enter = 0
+let g:ale_javascript_eslint_options = '--cache --no-ignore'
+let g:ale_sign_error = 'E'
+let g:ale_sign_warning = 'W'
+let g:ale_sign_info = 'I'
+let g:ale_sign_highlight_linenrs = 1
+" let g:ale_set_quickfix = 1
+" let g:ale_set_loclist = 1
+let g:ale_linters = {'ruby': ['rubocop'], 'javascript': ['eslint'], 'typescript': ['tsserver', 'eslint'], 'typescript.tsx': ['tsserver', 'eslint']}
+let g:ale_fixers = {'ruby': ['rubocop'], 'javascript': ['prettier'], 'typescript': ['prettier'], 'typescript.tsx': ['prettier']}
+nnoremap <leader>d :ALEGoToDefinition<cr>
+" nnoremap <leader>D :TsuTypeDefinition<cr>
+nmap <silent> <leader>gk <Plug>(ale_previous_wrap)
+nmap <silent> <leader>gj <Plug>(ale_next_wrap)
+
+let g:vim_markdown_folding_disabled = 1

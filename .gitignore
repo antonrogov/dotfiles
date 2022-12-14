@@ -1,14 +1,16 @@
 /.CFUserTextEncoding
-/.DS_Store
+.DS_Store
 /.Trash
 /.bash_history
 /.bundle
+/.byebug_hist
 /.cache
 /.cljs
 /.clojure
 /.clojure_history
 /.config
 /.dbshell
+/.docker*
 /.dotfiles
 /.dropbox
 /.dropbox-master
@@ -37,14 +39,17 @@
 /.pry_history
 /.psql_history
 /.pyenv
+/.python_history
 /.rbenv
 /.rdebug_hist
+/.rediscli_history
 /.rnd
 /.rubies
 /.s3cfg
 /.sqlite_history
 /.ssh
 /.subversion
+/.tmux-projects
 /.vagrant.d
 /.vim/.netrwhist
 /.vim/backup
@@ -56,6 +61,7 @@
 /.zcompdump
 /.zshrc.local
 
+/bin/arrange-window
 /Desktop
 /Documents
 /Downloads

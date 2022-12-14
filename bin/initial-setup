@@ -26,9 +26,6 @@ chsh -s /bin/zsh
 notify_command "showing Library directory"
 chflags nohidden ~/Library/
 
-notify_command "disabling local TimeMachine backups"
-sudo tmutil disablelocal
-
 notify_command "disabling press and hold"
 defaults write -g ApplePressAndHoldEnabled -bool false
 
@@ -39,11 +36,11 @@ notify_command "setting key repeat rate"
 defaults write -g KeyRepeat -int 1
 defaults write -g InitialKeyRepeat -int 12
 
+notify_command "disabling window opening animation"
+defaults write -g NSAutomaticWindowAnimationsEnabled -bool NO
+
 notify_command "increasing trackpad speed"
 defaults write -g com.apple.trackpad.scaling -int 3
-
-notify_command "enabling double tap four fingers to jump back to previous space"
-defaults write com.apple.dock double-tap-jump-back -bool TRUE;killall Dock
 
 notify_command "turning on auto-hide for dock"
 defaults write com.apple.dock autohide -bool true
@@ -68,20 +65,15 @@ notify_command "enabling full keyboard access for all controls"
 defaults write -g AppleKeyboardUIMode -int 3
 
 notify_command "enabling zoom on ctrl + scroll"
-defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
-defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
-
-notify_command "adding russian input source"
-defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{InputSourceKind="Keyboard Layout"; "KeyboardLayout Name"="Russian"; "KeyboardLayout ID"=19456;}'
-
-notify_command "speeding up expose animation"
-defaults write com.apple.dock expose-animation-duration -float 0.1
-
-notify_command "hiding dashboard from mission control"
-defaults write com.apple.dock dashboard-in-overlay -bool true
+# defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
+# defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
 
 notify_command "enabling AirDrop over every interface"
 defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
+
+notify_command "disabling .DS_Store on USB and network volumes"
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
 notify_command "setting up Safari for development"
 defaults write com.apple.Safari IncludeDevelopMenu -bool true
@@ -91,86 +83,47 @@ defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 notify_command "setting default finder view"
 defaults write com.apple.Finder FXPreferredViewStyle clmv
 
-notify_command "mapping caps lock to control"
-defaults -currentHost write -g "com.apple.keyboard.modifiermapping.1452-628-0" -array-add '{ HIDKeyboardModifierMappingDst = 30064771296; HIDKeyboardModifierMappingSrc = 30064771129; }'
-
-notify_command "disabling creation of .DS_Store files on network volumes"
-defaults write com.apple.desktopservices DSDontWriteNetworkStores true
-
 notify_command "enabling Web Inspector in web views" do
 defaults write -g WebKitDeveloperExtras -bool true
 
 notify_command "enabling Web Inspector in web views" do
 defaults write com.apple.finder ShowStatusBar -bool true
 
-notify_command "increasing sound quality for Bluetooth audio" do
-defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 41
-
 killall Dock Finder SystemUIServer
 
 notify_install "homebrew"
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+export PATH=/opt/homebrew/bin:$PATH
 brew doctor
 
 brew install git \
              postgresql \
-             imagemagick \
              tmux \
-             phantomjs \
-             heroku \
-             python3 \
-             reattach-to-user-namespace \
-             chruby \
+             mysql \
+             # chruby \
              ruby-install \
-             selecta
+             cmake \
+             direnv \
+             overmind \
+             fzf \
+             fd \
+             ripgrep \
+             terminal-notifier \
+             redis \
+             geoip \
+             libmaxminddb \
+             imagemagick@6 \
+             ruby@2.7 \
+             ruby@3.1
 
-brew install vim --with-python3
-brew install --HEAD https://raw.github.com/postmodern/gem_home/master/homebrew/gem_home.rb
+# brew install --HEAD https://raw.github.com/postmodern/gem_home/master/homebrew/gem_home.rb
 
-ruby-install ruby 2.2.5
+# ruby-install 2.7.3
+# ruby-install 2.5.5 -- CFLAGS="-Wno-error=implicit-function-declaration"
+# ruby-install 2.7.5 -- --enable-shared
 
-notify_install "dotfiles"
-cd
-git clone https://github.com/antonrogov/dotfiles.git dotfiles
-mv dotfiles/.git dotfiles/.gitignore .
-rm -rf dotfiles
-git checkout .
-git submodule update --init
+brew tap d12frosted/emacs-plus
+brew install --with-no-titlebar --with-native-comp --with-no-frame-refocus --with-nobu417-big-sur-icon --with-xwidgets emacs-plus@28
+.emacs.d/bin/doom sync
 
-ask_for_action "install Dropbox from https://www.dropbox.com/install and press return"
-
-notify_install "symlinking application configs"
-for name in 'Application Support' 'Preferences'; do
-  cd "$HOME/Library/$name"
-  prefix="$HOME/Dropbox/config/$name"
-  for dir in "$prefix"/*; do
-    ln -sF "$dir"
-  done
-done
-
-ask_for_action "change input source and spotlight keybindings and press return"
-defaults import com.apple.symbolichotkeys ~/Dropbox/config/symbolichotkeys.plist
-
-ask_for_action "map caps lock to control and switch option and command for the external keyboard and press return"
-
-ask_for_action "configure finder sidebar and press return"
-
-ask_for_action "install apps from app store and press return"
-
-ask_for_action "install iTerm2 from http://iterm2.com/downloads.html and press return"
-
-ask_for_action "install Alfred 2 from https://www.alfredapp.com and press return"
-
-notify_install "symlinking Alfred config"
-name='Alfred 2'
-cd "$HOME/Library/Application Support"
-mkdir -p "$name"
-cd "$name"
-prefix="$HOME/Dropbox/config/$name"
-for path in "$prefix"/*; do
-  ln -s "$path"
-done
-
-ask_for_action "install f.lux from https://justgetflux.com/ and press return"
-
-ask_for_action "install inconsolata-g font from Dropbox/config/Inconsolata-g.otf"
+# cat iCloud/Config/arrange-window.m| gcc -o ~/bin/arrange-window -framework Cocoa -x objective-c -

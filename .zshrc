@@ -1,5 +1,19 @@
 # .zshrc
 
+export HOMEBREW_PREFIX="/opt/homebrew";
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+export HOMEBREW_REPOSITORY="/opt/homebrew";
+export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
+export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
+
+PATH="/usr/local/bin:$PATH"
+PATH="/usr/local/opt/node@18/bin:$PATH"
+PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
+PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+PATH="$HOME/.cargo/bin:$PATH"
+PATH="$HOME/bin:$PATH"
+export PATH
+
 alias h='history 25'
 alias j='jobs -l'
 alias la='ls -a'
@@ -7,43 +21,20 @@ alias ll='ls -lA'
 alias ff='find . -name'
 alias view='vim -R'
 alias v='view -'
+alias vg="view -c 'set filetype=git nowrap' -"
 alias config='vim "~/iCloud/Config/"'
-
-alias sst='svn status'
-sd() { svn diff $* | v }
-alias sca='svn commit'
-alias scam='svn commit -m'
-
-alias gst='git status'
-alias gaa='git add --all'
-alias gl='git pull'
-alias gp='git push'
-alias gpu='git push --set-upstream'
-alias gpb='git push --set-upstream origin `this`'
-alias gc='git commit -v'
-alias gcm='git commit -m'
-alias gb='git branch'
-alias gba='git branch -a'
-gbl() { git blame $* | v }
-gd() { git diff $* | v }
-gdc() { git diff --cached $* | v }
-gsl() { git stash list }
-gss() { git stash show -p "stash@{$*}" | v }
-gsd() { git stash drop "stash@{$*}" }
-gsp() { git stash pop "stash@{$*}" }
-glr() { pretty_git_log --all -30 $* }
-gla() { pretty_git_log --all $* }
 
 alias reload!='. ~/.zshrc'
 alias fetch='curl -L -C - -O'
+bgrep() { grep -R "${@:1:-1}" $(bundle show ${@: -1}) }
 
 export EDITOR='vim'
 export CLICOLOR='1'
-export LSCOLORS='exfxcxdxbxexexexexexhx'
+export LSCOLORS='exfxcxdxbxexexexexAxAx'
 export LC_CTYPE=en_US.UTF-8
+export LANG=en_US.UTF-8
 export ACK_COLOR_MATCH='red'
 export GREP_OPTIONS='--color'
-export HOMEBREW_CASK_OPTS='--appdir=/Applications --caskroom=/usr/local/Caskroom'
 set -o emacs
 
 HISTFILE=~/.history
@@ -78,7 +69,7 @@ else
   if [[ -n $VIMRUNTIME ]]; then
     export PROMPT="%3~$ "
   else
-    export PROMPT="$(black)\$(separator)$(green)%3~$ $(escape)"
+    export PROMPT="$(green)%3~$ $(escape)"
   fi
 fi
 
@@ -117,7 +108,9 @@ zle -N insert-selecta-path-in-command-line
 # Bind the key to the newly created widget
 bindkey "^S" "insert-selecta-path-in-command-line"
 
-source /usr/local/opt/chruby/share/chruby/chruby.sh
-source /usr/local/opt/gem_home/share/gem_home/gem_home.sh
+# source /usr/local/opt/chruby/share/chruby/chruby.sh
+source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
+# source /usr/local/opt/gem_home/share/gem_home/gem_home.sh
+source /opt/homebrew/opt/gem_home/share/gem_home/gem_home.sh
 
 [[ -s ~/.zshrc.local ]] && . ~/.zshrc.local

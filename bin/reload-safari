@@ -1,8 +1,7 @@
 osascript -e '
 tell application "Safari"
   activate
-  tell current tab of front window
-    do JavaScript "window.location.reload()"
-  end tell
+  set sameURL to URL of current tab of front window
+  set URL of current tab of front window to sameURL
 end tell
 ' > /dev/null

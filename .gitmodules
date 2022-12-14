@@ -58,6 +58,15 @@
 [submodule ".vim/bundle/vim-jsx-pretty"]
 	path = .vim/bundle/vim-jsx-pretty
 	url = https://github.com/maxmellon/vim-jsx-pretty.git
+[submodule ".vim/bundle/ale"]
+	path = .vim/bundle/ale
+	url = https://github.com/dense-analysis/ale.git
+[submodule ".vim/bundle/vim-cool"]
+	path = .vim/bundle/vim-cool
+	url = https://github.com/romainl/vim-cool.git
 [submodule ".emacs.d"]
 	path = .emacs.d
 	url = https://github.com/hlissner/doom-emacs
+[submodule ".vim/bundle/vim-markdown"]
+	path = .vim/bundle/vim-markdown
+	url = https://github.com/plasticboy/vim-markdown.git
