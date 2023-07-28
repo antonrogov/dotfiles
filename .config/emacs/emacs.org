@@ -1,0 +1,342 @@
+#+property: header-args:emacs-lisp :tangle init.el
+#+startup: overview
+#+title: Emacs Config
+
+* Early Init
+
+#+begin_src emacs-lisp :tangle early-init.el
+;;; early-init.el -*- lexical-binding: t; -*-
+
+;; (setq gc-cons-threshold most-positive-fixnum)
+(setq gc-cons-threshold (* 50 1000 1000))
+
+(setq load-prefer-newer t)
+
+(setq package-enable-at-startup nil)
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(push '(menu-bar-lines . 0)   default-frame-alist)
+(push '(tool-bar-lines . 0)   default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
+
+;; And set these to nil so users don't have to toggle the modes twice to
+;; reactivate them.
+(setq menu-bar-mode nil
+      tool-bar-mode nil
+      scroll-bar-mode nil)
+#+end_src
+
+* Init
+
+#+begin_src emacs-lisp
+;;; init.el -*- lexical-binding: t; -*-
+
+;; (straight-use-package 'use-package)
+#+end_src
+
+* Mac
+
+#+begin_src emacs-lisp
+(setq mac-command-modifier      'super
+      ns-command-modifier       'super
+      mac-option-modifier       'meta
+      ns-option-modifier        'meta
+      ;; Free up the right option for character composition
+      mac-right-option-modifier 'none
+      ns-right-option-modifier  'none)
+
+(setq ns-use-native-fullscreen nil)
+
+;; Visit files opened outside of Emacs in existing frame, not a new one
+(setq ns-pop-up-frames nil)
+
+;; (setq mac-redisplay-dont-reset-vscroll t
+;;       mac-mouse-wheel-smooth-scroll nil)
+
+;; (require 'ns-auto-titlebar nil t)
+;; (ns-auto-titlebar-mode +1)
+#+end_src
+
+* Frame
+
+#+begin_src emacs-lisp
+(set-frame-size nil 200 50)
+
+;; Don't resize the frames in steps; it looks weird, especially in tiling window
+;; managers, where it can leave unseemly gaps.
+(setq frame-resize-pixelwise t)
+
+;; But do not resize windows pixelwise, this can cause crashes in some cases
+;; when resizing too many windows at once or rapidly.
+(setq window-resize-pixelwise nil)
+
+;;; Scrolling
+
+(setq hscroll-margin 2
+      hscroll-step 1
+      fast-but-imprecise-scrolling t
+      ;; Emacs spends too much effort recentering the screen if you scroll the
+      ;; cursor more than N lines past window edges (where N is the settings of
+      ;; `scroll-conservatively'). This is especially slow in larger files
+      ;; during large-scale scrolling commands. If kept over 100, the window is
+      ;; never automatically recentered.
+      scroll-conservatively 101
+      scroll-margin 0
+      scroll-preserve-screen-position t
+      ;; Reduce cursor lag by a tiny bit by not auto-adjusting `window-vscroll'
+      ;; for tall lines.
+      auto-window-vscroll nil
+      ;; mouse
+      mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
+      mouse-wheel-scroll-amount-horizontal 2)
+
+;; (add-to-list 'default-frame-alist '(selected-frame) 'name nil)
+;; (add-to-list 'default-frame-alist '(ns-appearance . dark))
+;; (customize-set-variable mac-right-option-modifier nil)
+;; (customize-set-variable mac-command-modifier 'super)
+;; (customize-set-variable ns-function-modifier 'hyper))
+#+end_src
+
+;; (when (featurep 'native-compile)
+;;   ;; Silence compiler warnings as they can be pretty disruptive
+;;   (setq native-comp-async-report-warnings-errors nil)
+
+;;   ;; Make native compilation happens asynchronously
+;;   (setq native-comp-deferred-compilation t)
+
+;;   ;; Set the right directory to store the native compilation cache
+;;   ;; NOTE the method for setting the eln-cache directory depends on the emacs version
+;;   (when (fboundp 'startup-redirect-eln-cache)
+;;     (if (version< emacs-version "29")
+;;         (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
+;;       (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
+
+;;   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
+* Theme
+
+#+begin_src emacs-lisp
+(straight-use-package 'doom-themes)
+(setq custom-safe-themes '("06dbe0c9973ce63c91676681d0f0d2db01fb7cef4d7cdb9f4153b64d3e8fb675" default))
+(load-theme 'ar-tomorrow-night)
+
+(set-face-attribute 'default nil :font "JetBrains Mono 14")
+(setq-default line-spacing 4)
+#+end_src
+* Icons
+
+#+begin_src emacs-lisp
+(straight-use-package 'all-the-icons)
+#+end_src
+
+* Editing
+
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t)
+
+(blink-cursor-mode -1)
+
+;; Don't blink the paren matching the one at point, it's too distracting.
+(setq blink-matching-paren nil)
+
+;; Typing yes/no is obnoxious when y/n will do
+(if (boundp 'use-short-answers)
+    (setq use-short-answers t)
+  ;; DEPRECATED: Remove when we drop 27.x support
+  (advice-add #'yes-or-no-p :override #'y-or-n-p))
+
+;; Explicitly define a width to reduce the cost of on-the-fly computation
+(setq-default display-line-numbers-width 3)
+
+;; Show absolute line numbers for narrowed regions to make it easier to tell the
+;; buffer is narrowed, and where you are, exactly.
+(setq-default display-line-numbers-widen t)
+
+(setq display-line-numbers-type 'relative)
+
+(dolist (mode '(prog-mode text-mode conf-mode))
+  (add-hook (intern (format "%s-hook" mode))
+            #'display-line-numbers-mode))
+
+;; Revert Dired and other buffers
+(setq global-auto-revert-non-file-buffers t)
+
+;; Revert buffers when the underlying file has changed
+(global-auto-revert-mode 1)
+
+;; Use spaces instead of tabs
+(setq-default indent-tabs-mode nil)
+
+;; Auto-insert matching bracket
+(electric-pair-mode 1)
+
+;; Turn on paren match highlighting
+(show-paren-mode 1)
+
+;; Enable savehist-mode for command history
+(savehist-mode 1)
+
+(setq tab-always-indent 'complete)
+
+;; Don't generate backups or lockfiles. While auto-save maintains a copy so long
+;; as a buffer is unsaved, backups create copies once, when the file is first
+;; written, and never again until it is killed and reopened. This is better
+;; suited to version control, and I don't want world-readable copies of
+;; potentially sensitive material floating around our filesystem.
+(setq create-lockfiles nil
+      make-backup-files nil
+      ;; But in case the user does enable it, some sensible defaults:
+      version-control t     ; number each backup file
+      backup-by-copying t   ; instead of renaming current file (clobbers links)
+      delete-old-versions t ; clean up after itself
+      kept-old-versions 5
+      kept-new-versions 5
+      backup-directory-alist (list (cons "." (concat user-emacs-directory "backup/")))
+      tramp-backup-directory-alist backup-directory-alist)
+
+;; Create missing directories when we open a file that doesn't exist under a
+;; directory tree that may not exist.
+(defun +doom-create-missing-directories-h ()
+  "Automatically create missing directories when creating new files."
+  (unless (file-remote-p buffer-file-name)
+    (let ((parent-directory (file-name-directory buffer-file-name)))
+      (and (not (file-directory-p parent-directory))
+           (y-or-n-p (format "Directory `%s' does not exist! Create it?"
+                             parent-directory))
+           (progn (make-directory parent-directory 'parents)
+                  t)))))
+(add-hook 'find-file-not-found-functions #'+doom-create-missing-directories-h)
+#+end_src
+
+* Evil
+
+#+begin_src emacs-lisp
+(straight-use-package 'evil)
+(straight-use-package 'evil-collection)
+(straight-use-package 'evil-nerd-commenter)
+
+(customize-set-variable 'evil-want-integration t)
+(customize-set-variable 'evil-want-keybinding nil)
+(customize-set-variable 'evil-want-C-i-jump nil)
+(customize-set-variable 'evil-respect-visual-line-mode t)
+;; C-h is backspace in insert state
+;; (customize-set-variable 'evil-want-C-h-delete t)
+
+(customize-set-variable 'evil-want-C-i-jump t)
+(customize-set-variable 'evil-want-Y-yank-to-eol t)
+(customize-set-variable 'evil-want-fine-undo t)
+
+;; Load Evil and enable it globally
+(require 'evil)
+(evil-mode 1)
+
+;; Make evil search more like vim
+(evil-select-search-module 'evil-search-module 'evil-search)
+
+;; Turn on Evil Nerd Commenter
+(evilnc-default-hotkeys)
+
+;; Make C-g revert to normal state
+;;(define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+
+;; Rebind `universal-argument' to 'C-M-u' since 'C-u' now scrolls the buffer
+;;(global-set-key (kbd "C-M-u") 'universal-argument)
+
+;; Use visual line motions even outside of visual-line-mode buffers
+;;(evil-global-set-key 'motion "j" 'evil-next-visual-line)
+;;(evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+;; Make sure some modes start in Emacs state
+(dolist (mode '(custom-mode vterm-mode))
+  (add-to-list 'evil-emacs-state-modes mode))
+
+(evil-collection-init)
+
+(defun +default-disable-delete-selection-mode-h ()
+  (delete-selection-mode -1))
+(add-hook 'evil-insert-state-entry-hook #'delete-selection-mode)
+(add-hook 'evil-insert-state-exit-hook  #'+default-disable-delete-selection-mode-h)
+#+end_src
+
+* Helpful
+
+#+begin_src emacs-lisp
+(straight-use-package 'helpful)
+(straight-use-package 'elisp-demos)
+(require 'helpful)
+(require 'elisp-demos)
+
+(advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update)
+#+end_src
+
+* Hide mode line
+
+#+begin_src emacs-lisp
+(straight-use-package 'hide-mode-line)
+(require 'hide-mode-line)
+#+end_src
+
+* Terminal
+
+#+begin_src emacs-lisp
+(straight-use-package 'vterm)
+
+(defun ar/setup-vterm-mode ()
+  (setq-local
+   ;; Don't prompt about dying processes when killing vterm
+   confirm-kill-processes nil
+   ;; Prevent premature horizontal scrolling
+   hscroll-margin 0)
+  (hide-mode-line-mode))
+(add-hook 'vterm-mode-hook #'ar/setup-vterm-mode)
+
+;; Once vterm is dead, the vterm buffer is useless. Why keep it around? We can
+;; spawn another if want one.
+(setq vterm-kill-buffer-on-exit t)
+
+;; 5000 lines of scrollback, instead of 1000
+(setq vterm-max-scrollback 5000)
+
+(defun ar/vterm ()
+  (interactive)
+  (require 'vterm)
+  (let (display-buffer-alist)
+    (vterm "*vterm*")))
+#+end_src
+
+* Keybindings
+
+#+begin_src emacs-lisp
+(straight-use-package 'general)
+(require 'general)
+
+(general-create-definer ar-leader-def
+  :prefix "SPC")
+
+(ar-leader-def
+  :keymaps 'normal
+  "h l" #'helpful-symbol
+  "h k" #'describe-keymap
+  "o t" #'ar/vterm)
+
+(global-set-key (kbd "s-h") #'evil-window-left)
+(global-set-key (kbd "s-j") #'evil-window-down)
+(global-set-key (kbd "s-k") #'evil-window-up)
+(global-set-key (kbd "s-l") #'evil-window-right)
+(global-set-key (kbd "M-s-h") #'evil-window-decrease-width)
+(global-set-key (kbd "M-s-j") #'evil-window-increase-height)
+(global-set-key (kbd "M-s-k") #'evil-window-decrease-height)
+(global-set-key (kbd "M-s-l") #'evil-window-increase-width)
+#+end_src
