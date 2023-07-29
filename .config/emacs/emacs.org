@@ -5,9 +5,8 @@
 * Early Init
 
 #+begin_src emacs-lisp :tangle early-init.el
-;;; early-init.el -*- lexical-binding: t; -*-
+;; -*- lexical-binding: t; -*-
 
-;; (setq gc-cons-threshold most-positive-fixnum)
 (setq gc-cons-threshold (* 50 1000 1000))
 
 (setq load-prefer-newer t)
@@ -42,9 +41,20 @@
 * Init
 
 #+begin_src emacs-lisp
-;;; init.el -*- lexical-binding: t; -*-
+;; -*- lexical-binding: t; -*-
 
-;; (straight-use-package 'use-package)
+(setq inhibit-startup-message t)
+
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs loaded in %s seconds with %d garbage collections."
+                     (emacs-init-time "%.2f")
+                     gcs-done)))
+
+(setq native-comp-async-report-warnings-errors nil)
+
+(straight-use-package 'use-package)
 #+end_src
 
 * Mac
@@ -128,13 +138,18 @@
 * Theme
 
 #+begin_src emacs-lisp
-(straight-use-package 'doom-themes)
-(setq custom-safe-themes '("06dbe0c9973ce63c91676681d0f0d2db01fb7cef4d7cdb9f4153b64d3e8fb675" default))
-(load-theme 'ar-tomorrow-night)
+(use-package doom-themes
+  :straight t
+  :config
+  (setq custom-safe-themes '("06dbe0c9973ce63c91676681d0f0d2db01fb7cef4d7cdb9f4153b64d3e8fb675" default))
+  (load-theme 'ar-tomorrow-night))
 
 (set-face-attribute 'default nil :font "JetBrains Mono 14")
 (setq-default line-spacing 4)
+
+(setq ring-bell-function 'ignore)
 #+end_src
+
 * Icons
 
 #+begin_src emacs-lisp
@@ -144,7 +159,7 @@
 * Editing
 
 #+begin_src emacs-lisp
-(setq inhibit-startup-message t)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (blink-cursor-mode -1)
 
@@ -189,7 +204,11 @@
 (savehist-mode 1)
 
 (setq tab-always-indent 'complete)
+#+end_src
 
+* Backup and auto-save
+
+#+begin_src emacs-lisp
 ;; Don't generate backups or lockfiles. While auto-save maintains a copy so long
 ;; as a buffer is unsaved, backups create copies once, when the file is first
 ;; written, and never again until it is killed and reopened. This is better
@@ -206,6 +225,12 @@
       backup-directory-alist (list (cons "." (concat user-emacs-directory "backup/")))
       tramp-backup-directory-alist backup-directory-alist)
 
+(setq auto-save-default nil)
+#+end_src
+
+* Create missing directories
+
+#+begin_src emacs-lisp
 ;; Create missing directories when we open a file that doesn't exist under a
 ;; directory tree that may not exist.
 (defun +doom-create-missing-directories-h ()
@@ -220,72 +245,510 @@
 (add-hook 'find-file-not-found-functions #'+doom-create-missing-directories-h)
 #+end_src
 
+* Hide mode line
+
+#+begin_src emacs-lisp
+(use-package hide-mode-line
+  :straight t)
+#+end_src
+
 * Evil
 
 #+begin_src emacs-lisp
-(straight-use-package 'evil)
-(straight-use-package 'evil-collection)
-(straight-use-package 'evil-nerd-commenter)
+(use-package evil
+  :straight t
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-i-jump nil)
+  (setq evil-respect-visual-line-mode t)
+  ;; C-h is backspace in insert state
+  ;; (customize-set-variable 'evil-want-C-h-delete t)
 
-(customize-set-variable 'evil-want-integration t)
-(customize-set-variable 'evil-want-keybinding nil)
-(customize-set-variable 'evil-want-C-i-jump nil)
-(customize-set-variable 'evil-respect-visual-line-mode t)
-;; C-h is backspace in insert state
-;; (customize-set-variable 'evil-want-C-h-delete t)
+  (setq evil-want-C-i-jump t)
+  (setq evil-want-Y-yank-to-eol t)
+  (setq evil-want-fine-undo t)
 
-(customize-set-variable 'evil-want-C-i-jump t)
-(customize-set-variable 'evil-want-Y-yank-to-eol t)
-(customize-set-variable 'evil-want-fine-undo t)
+  ;; (setq evil-collection-setup-minibuffer t)
+  (setq evil-collection-want-unimpaired-p nil)
+  ;; (setq evil-collection-want-find-usages-bindings-p nil)
+  :config
+  (evil-mode 1)
+  ;; Make evil search more like vim
+  (evil-select-search-module 'evil-search-module 'evil-search)
 
-;; Load Evil and enable it globally
-(require 'evil)
-(evil-mode 1)
+  ;; Make C-g revert to normal state
+  ;;(define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
 
-;; Make evil search more like vim
-(evil-select-search-module 'evil-search-module 'evil-search)
+  ;; Rebind `universal-argument' to 'C-M-u' since 'C-u' now scrolls the buffer
+  ;;(global-set-key (kbd "C-M-u") 'universal-argument)
 
-;; Turn on Evil Nerd Commenter
-(evilnc-default-hotkeys)
+  ;; Use visual line motions even outside of visual-line-mode buffers
+  ;;(evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  ;;(evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-;; Make C-g revert to normal state
-;;(define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  ;; Make sure some modes start in Emacs state
+  (dolist (mode '(custom-mode vterm-mode))
+    (add-to-list 'evil-emacs-state-modes mode))
 
-;; Rebind `universal-argument' to 'C-M-u' since 'C-u' now scrolls the buffer
-;;(global-set-key (kbd "C-M-u") 'universal-argument)
+  (defun +default-disable-delete-selection-mode-h ()
+    (delete-selection-mode -1))
+  (add-hook 'evil-insert-state-entry-hook #'delete-selection-mode)
+  (add-hook 'evil-insert-state-exit-hook  #'+default-disable-delete-selection-mode-h)
+  )
 
-;; Use visual line motions even outside of visual-line-mode buffers
-;;(evil-global-set-key 'motion "j" 'evil-next-visual-line)
-;;(evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+(use-package evil-collection
+  :straight t
+  :after evil
+  :config
+  (evil-collection-init))
 
-;; Make sure some modes start in Emacs state
-(dolist (mode '(custom-mode vterm-mode))
-  (add-to-list 'evil-emacs-state-modes mode))
+(use-package evil-nerd-commenter
+  :straight t
+  :after evil
+  :config
+  ;; Turn on Evil Nerd Commenter
+  (evilnc-default-hotkeys))
+#+end_src
 
-(evil-collection-init)
+* Keybindings
 
-(defun +default-disable-delete-selection-mode-h ()
-  (delete-selection-mode -1))
-(add-hook 'evil-insert-state-entry-hook #'delete-selection-mode)
-(add-hook 'evil-insert-state-exit-hook  #'+default-disable-delete-selection-mode-h)
+#+begin_src emacs-lisp
+(use-package general
+  :straight t
+  :config
+  (general-create-definer ar-leader-def
+    :prefix "SPC")
+
+  (ar-leader-def
+  :states '(normal visual)
+  :keymaps 'general-override-mode-map
+  ";" #'pp-eval-expression
+  "," #'evil-switch-to-windows-last-buffer
+  "." #'find-file
+  "b d" #'kill-current-buffer
+  "f f" #'find-file
+  "g b" #'magit-blame-addition
+  "g f" #'magit-find-file
+  "g g" #'magit-status
+  "h k" #'helpful-key
+  "h K" #'describe-keymap
+  "h m" #'describe-mode
+  "h o" #'helpful-symbol
+  "o t" #'ar/vterm
+  "p a" #'projectile-add-known-project
+  "p f" #'projectile-find-file
+  "p p" #'projectile-switch-project)
+
+  (general-override-mode 1))
+
+(global-set-key (kbd "s-h") #'evil-window-left)
+(global-set-key (kbd "s-j") #'evil-window-down)
+(global-set-key (kbd "s-k") #'evil-window-up)
+(global-set-key (kbd "s-l") #'evil-window-right)
+(global-set-key (kbd "M-s-h") #'evil-window-decrease-width)
+(global-set-key (kbd "M-s-j") #'evil-window-increase-height)
+(global-set-key (kbd "M-s-k") #'evil-window-decrease-height)
+(global-set-key (kbd "M-s-l") #'evil-window-increase-width)
+#+end_src
+
+* Workspaces
+
+#+begin_src emacs-lisp
+(defvar ar/persp-prev "main")
+
+(defun ar/persp-switch (name)
+  (setq ar/persp-prev (safe-persp-name (get-current-persp)))
+  (persp-switch name))
+
+(defun ar/persp-switch-to-main ()
+  (interactive)
+  (ar/persp-switch "main"))
+
+(defun ar/persp-switch-back ()
+  (interactive)
+  (ar/persp-switch ar/persp-prev))
+
+(use-package persp-mode
+  :straight t
+  :config
+  (setq persp-auto-resume-time -1 ; Don't auto-load on startup
+        persp-auto-save-opt 0 ; Don't auto-save
+        persp-nil-name ar/persp-prev
+        persp-set-last-persp-for-new-frames t
+        )
+
+  (global-set-key (kbd "s-1") #'ar/persp-switch-to-main)
+  (global-set-key (kbd "s-p") #'persp-switch)
+  (global-set-key (kbd "s-,") #'ar/persp-switch-back)
+  ;; Running `persp-mode' multiple times resets the perspective list...
+  (unless (equal persp-mode t)
+    (persp-mode)))
+#+end_src
+
+* Projectile
+
+#+begin_src emacs-lisp
+(defun ar/switch-project-action ()
+  (persp-switch (projectile-project-name))
+  (magit-status))
+
+(use-package projectile
+  :straight t
+  :init
+  (setq projectile-auto-discover nil
+        projectile-enable-caching (not noninteractive)
+        projectile-globally-ignored-files '(".DS_Store" "TAGS")
+        projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o")
+        projectile-kill-buffers-filter 'kill-only-files
+        projectile-ignored-projects '("~/")
+        projectile-git-submodule-command nil
+        projectile-enable-caching nil
+        projectile-indexing-method 'alien
+        projectile-switch-project-action #'ar/switch-project-action)
+  :config
+  (cl-letf (((symbol-function 'projectile--cleanup-known-projects) #'ignore))
+    (projectile-mode))
+
+  (setq projectile-project-root-files-bottom-up
+        '(".git")
+        ;; This will be filled by other modules. We build this list manually so
+        ;; projectile doesn't perform so many file checks every time it resolves
+        ;; a project's root -- particularly when a file has no project.
+        projectile-project-root-files '()
+        projectile-project-root-files-top-down-recurring '("Makefile"))
+
+  ;; Per-project compilation buffers
+  (setq compilation-buffer-name-function #'projectile-compilation-buffer-name
+        compilation-save-buffers-predicate #'projectile-current-project-buffer-p)
+  )
+#+end_src
+
+* Magit
+
+#+begin_src emacs-lisp
+(use-package magit
+  :straight t
+  :config
+  (setq transient-default-level 5
+        magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1
+        magit-diff-refine-hunk t ; show granular diffs in selected hunk
+        ;; Don't autosave repo buffers. This is too magical, and saving can
+        ;; trigger a bunch of unwanted side-effects, like save hooks and
+        ;; formatters. Trust the user to know what they're doing.
+        magit-save-repository-buffers nil
+        ;; Don't display parent/related refs in commit buffers; they are rarely
+        ;; helpful and only add to runtime costs.
+        magit-revision-insert-related-refs nil)
+  (add-hook 'magit-process-mode-hook #'goto-address-mode)
+  (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode)
+
+  (defun +magit/quit (&optional kill-buffer)
+    "Bury the current magit buffer.
+
+  If KILL-BUFFER, kill this buffer instead of burying it.
+  If the buried/killed magit buffer was the last magit buffer open for this repo,
+  kill all magit buffers for this repo."
+    (interactive "P")
+    (let ((topdir (magit-toplevel)))
+      (funcall magit-bury-buffer-function kill-buffer)
+      (or (cl-find-if (lambda (win)
+                        (with-selected-window win
+                          (and (derived-mode-p 'magit-mode)
+                              (equal magit--default-directory topdir))))
+                      (window-list))
+          (+magit/quit-all))))
+
+  (defun +magit--kill-buffer (buf)
+    "TODO"
+    (when (and (bufferp buf) (buffer-live-p buf))
+      (let ((process (get-buffer-process buf)))
+        (if (not (processp process))
+            (kill-buffer buf)
+          (with-current-buffer buf
+            (if (process-live-p process)
+                (run-with-timer 5 nil #'+magit--kill-buffer buf)
+              (kill-process process)
+              (kill-buffer buf)))))))
+
+  (defun +magit/quit-all ()
+    "Kill all magit buffers for the current repository."
+    (interactive)
+    (mapc #'+magit--kill-buffer (magit-mode-get-buffers))
+    (+magit-mark-stale-buffers-h))
+
+  ;; (define-key magit-mode-map "q" #'+magit/quit)
+  ;; (define-key magit-mode-map "Q" #'+magit/quit-all)
+
+  ;; Close transient with ESC
+  (define-key transient-map [escape] #'transient-quit-one)
+
+  (evil-define-key* 'normal magit-status-mode-map [escape] nil)
+
+  ;;(straight-use-package 'evil-collection-magit)
+  ;; (require 'evil-collection-magit)
+  ;; (evil-collection-magit-setup)
+  ;; (require 'evil-collection-magit-section)
+
+  (general-define-key
+  :states '(normal visual emacs)
+  :keymaps 'magit-mode-map
+  "q" #'+magit/quit
+  "Q" #'+magit/quit-all
+  "]" #'magit-section-forward-sibling
+  "[" #'magit-section-backward-sibling
+  "gr" #'magit-refresh
+  "gR" #'magit-refresh-all)
+  ;; (general-def 'normal emacs-lisp-mode-map
+  ;;   "K" 'elisp-slime-nav-describe-elisp-thing-at-point)
+
+  ;; (map! (:map magit-mode-map
+  ;;         :nv "q" #'+magit/quit
+  ;;         :nv "Q" #'+magit/quit-all
+  ;;         :nv "]" #'magit-section-forward-sibling
+  ;;         :nv "[" #'magit-section-backward-sibling
+  ;;         :nv "gr" #'magit-refresh
+  ;;         :nv "gR" #'magit-refresh-all)
+  ;;       (:map magit-status-mode-map
+  ;;         :nv "gz" #'magit-refresh)
+  ;;       (:map magit-diff-mode-map
+  ;;         :nv "gd" #'magit-jump-to-diffstat-or-diff))
+  )
+#+end_src
+
+* Javascript
+
+#+begin_src emacs-lisp
+;; (pushnew! projectile-project-root-files "package.json")
+;; (pushnew! projectile-globally-ignored-directories "^node_modules$" "^flow-typed$"))
+
+(use-package typescript-mode
+  :straight t
+  ;; :init
+  ;; (add-to-list 'auto-mode-alist
+  ;;              (cons "\\.tsx\\'" #'typescript-tsx-mode))
+  )
+
+(use-package rjsx-mode
+  :straight t
+  :config
+  (setq js-chain-indent t
+        ;; These have become standard in the JS community
+        js2-basic-offset 2
+        ;; Don't mishighlight shebang lines
+        js2-skip-preprocessor-directives t
+        ;; let flycheck handle this
+        js2-mode-show-parse-errors nil
+        js2-mode-show-strict-warnings nil
+        ;; Flycheck provides these features, so disable them: conflicting with
+        ;; the eslint settings.
+        js2-strict-missing-semi-warning nil
+        ;; maximum fontification
+        js2-highlight-level 3
+        js2-idle-timer-delay 0.15)
+  )
+#+end_src
+
+* Completion
+
+#+begin_src emacs-lisp
+;; (straight-use-package 'consult)
+;; (straight-use-package 'corfu-terminal)
+;; (straight-use-package 'wgrep)
+
+(use-package vertico
+  :straight t
+  :init
+  (add-to-list 'load-path
+              (expand-file-name "straight/build/vertico/extensions"
+                                straight-base-dir))
+  :config
+  (setq vertico-resize nil
+        vertico-count 17
+        vertico-cycle t)
+  ;; (require 'vertico-directory)
+  (vertico-mode))
+
+(use-package vertico-posframe
+  :straight t
+  :config
+  (vertico-posframe-mode))
+
+(use-package marginalia
+  :straight t
+  :config
+  (setq marginalia-annotators '(marginalia-annotators-heavy
+                                marginalia-annotators-light nil))
+
+  (marginalia-mode 1))
+
+;; (use-package orderless
+;;   :straight t
+;;   :config
+;;   (setq completion-styles '(orderless basic)
+;;         completion-category-defaults nil
+;;         completion-category-overrides nil) ;;'((file (styles . (partial-completion)))))
+;;   )
+
+(use-package fussy
+  :straight t
+  :config
+  (setq fussy-filter-fn #'fussy-filter-default
+        fussy-max-candidate-limit 5000
+        completion-styles '(fussy basic)
+        completion-category-defaults nil
+        completion-category-overrides nil))
+
+(use-package fzf-native
+  :straight
+  (:repo "dangduc/fzf-native"
+   :host github
+   :files (:defaults "*.c" "*.h" "*.txt"))
+  :init
+  (setq fzf-native-always-compile-module t)
+  :config
+  (setq fussy-score-fn 'fussy-fzf-native-score)
+  (fzf-native-load-own-build-dyn))
+
+(use-package embark
+  :straight t
+  :config
+  ;; Use Embark to show bindings in a key prefix with `C-h`
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  (global-set-key [remap describe-bindings] #'embark-bindings)
+  ;; (global-set-key (kbd "C-.") 'embark-act)
+  )
+
+(use-package embark-consult
+  :straight t
+  ;; :config
+  ;; (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode)
+  )
+
+;;; Dabbrev
+
+;; (require 'dabbrev)
+;; (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+
+;; (defun ar/smart-tab ()
+;;   (interactive)
+;;   (if (< (current-column) (current-indentation))
+;;       (funcall indent-line-function)
+;;     ;; TODO: use (line-beginning-position 0)
+;;     (let ((left (- (point) 1)))
+;;       (if (or (< left (point-min))
+;;               (= (char-after left) ?\n)
+;;               (and (memq (char-after left) '(?\s ?\t))
+;;                    (memq (char-after (- left 1)) '(?\n ?\s ?\t))))
+;;           (insert-tab)
+;;         (call-interactively 'dabbrev-expand)))))
+
+;; (general-define-key
+;;  :states '(insert)
+;;  "TAB" #'ar/smart-tab)
+
+;;; Cofru
+(use-package corfu
+  :straight t
+  :init
+  (add-to-list 'load-path
+              (expand-file-name "straight/build/corfu/extensions"
+                                straight-base-dir))
+  :config
+  (setq corfu-cycle t ;; Allows cycling through candidates
+        corfu-auto t ;; Enable auto completion
+        corfu-auto-prefix 3 ;; Complete with less prefix keys
+        corfu-auto-delay 0 ;; No delay for completion
+        corfu-preselect 'prompt ;; Always preselect the prompt
+        corfu-popupinfo-delay 0.1
+        corfu-popupinfo-hide nil
+        corfu-echo-documentation 0.1) ;; Echo docs for current completion option
+  (require 'corfu-popupinfo)
+  (corfu-popupinfo-mode)
+  (global-corfu-mode))
+
+;; (setq-local completion-styles '(basic))
+;; (kill-local-variable 'completion-styles)
+;; (setq completion-styles '(basic))
+;; (orderless basic)
+
+;; (define-key corfu-map (kbd "TAB") #'corfu-next)
+;; (define-key corfu-map [tab] #'corfu-next)
+
+
+(use-package kind-icon
+  :straight t
+  :config
+  (setq kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
+;; Cape for better completion-at-point support and more
+
+(use-package cape
+  :straight t
+  :config
+  (setq cape-dabbrev-min-length 2)
+
+  ;; Add useful defaults completion sources from cape
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+
+  ;; Silence the pcomplete capf, no errors or messages!
+  ;; Important for corfu
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+  ;; Ensure that pcomplete does not write to the buffer
+  ;; and behaves as a pure `completion-at-point-function'.
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
+#+end_src
+
+* LSP
+
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :straight t
+  :config
+  ;; Make breadcrumbs opt-in; they're redundant with the modeline and imenu
+  (setq lsp-headerline-breadcrumb-enable nil)
+
+  (setq lsp-eldoc-enable-hover nil)
+
+  (setq lsp-signature-function 'ignore)
+  (setq lsp-signature-render-documentation nil)
+
+  (setq lsp-completion-provider :none) ;; we use Corfu!
+
+  (defun ar/lsp-mode-setup-completion ()
+    (setq-local completion-at-point-functions
+                `(,(cape-super-capf
+                    #'lsp-completion-at-point
+                    #'cape-dabbrev)
+                  cape-file))
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(basic)))
+  (add-hook 'lsp-completion-mode-hook #'ar/lsp-mode-setup-completion)
+
+  (defun ar/elisp-mode-setup-completion ()
+    (setq-local completion-at-point-functions
+                `(,(cape-super-capf
+                    #'elisp-completion-at-point
+                    #'cape-dabbrev)
+                  cape-file)))
+  (add-hook 'emacs-lisp-mode-hook #'ar/elisp-mode-setup-completion))
 #+end_src
 
 * Helpful
 
 #+begin_src emacs-lisp
-(straight-use-package 'helpful)
-(straight-use-package 'elisp-demos)
-(require 'helpful)
-(require 'elisp-demos)
+(use-package helpful
+  :straight t)
 
-(advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update)
-#+end_src
-
-* Hide mode line
-
-#+begin_src emacs-lisp
-(straight-use-package 'hide-mode-line)
-(require 'hide-mode-line)
+(use-package elisp-demos
+  :straight t
+  :after helpful
+  :config
+  (advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update))
 #+end_src
 
 * Terminal
@@ -315,28 +778,55 @@
   (let (display-buffer-alist)
     (vterm "*vterm*")))
 #+end_src
-
-* Keybindings
+* Dired
 
 #+begin_src emacs-lisp
-(straight-use-package 'general)
-(require 'general)
+(use-package all-the-icons-dired
+  :straight t)
 
-(general-create-definer ar-leader-def
-  :prefix "SPC")
+(use-package dired
+  :config
+  (setq dired-dwim-target t
+        dired-hide-details-hide-symlink-targets nil
+        ;; don't prompt to revert, just do it
+        dired-auto-revert-buffer #'dired-buffer-stale-p
+        ;; Always copy/delete recursively
+        dired-recursive-copies  'always
+        dired-recursive-deletes 'top
+        ;; Ask whether destination dirs should get created when copying/removing files.
+        dired-create-destination-dirs 'ask
+        dired-listing-switches "-ahlo"
+        dired-omit-files "\\`[.]?#"
+        dired-kill-when-opening-new-dired-buffer t
+        dired-no-confirm t
+        dired-deletion-confirmer (lambda (x) t))
+  )
+#+end_src
 
-(ar-leader-def
-  :keymaps 'normal
-  "h l" #'helpful-symbol
-  "h k" #'describe-keymap
-  "o t" #'ar/vterm)
+* Modeline
 
-(global-set-key (kbd "s-h") #'evil-window-left)
-(global-set-key (kbd "s-j") #'evil-window-down)
-(global-set-key (kbd "s-k") #'evil-window-up)
-(global-set-key (kbd "s-l") #'evil-window-right)
-(global-set-key (kbd "M-s-h") #'evil-window-decrease-width)
-(global-set-key (kbd "M-s-j") #'evil-window-increase-height)
-(global-set-key (kbd "M-s-k") #'evil-window-decrease-height)
-(global-set-key (kbd "M-s-l") #'evil-window-increase-width)
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :straight t
+  :hook (after-init . doom-modeline-mode)
+  :hook (doom-modeline-mode . size-indication-mode) ; filesize in modeline
+  :hook (doom-modeline-mode . column-number-mode)   ; cursor column in modeline
+  :init
+  ;; We display project info in the modeline ourselves
+  ;; (setq projectile-dynamic-mode-line nil)
+  ;; Set these early so they don't trigger variable watchers
+  (setq doom-modeline-bar-width 3
+        doom-modeline-github nil
+        doom-modeline-mu4e nil
+        doom-modeline-persp-name nil
+        doom-modeline-minor-modes nil
+        doom-modeline-major-mode-icon nil
+        doom-modeline-buffer-state-icon nil
+        doom-modeline-buffer-modification-icon nil
+        doom-modeline-buffer-file-name-style 'relative-from-project
+        ;; Only show file encoding if it's non-UTF-8 and different line endings
+        ;; than the current OSes preference
+        doom-modeline-buffer-encoding 'nondefault
+        doom-modeline-default-eol-type 2))
+#+end_src
 #+end_src
