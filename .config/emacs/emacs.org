@@ -548,6 +548,20 @@
         js2-idle-timer-delay 0.15)
   )
 #+end_src
+* Ruby
+
+#+begin_src emacs-lisp
+(use-package ruby-mode)
+
+(use-package rspec-mode
+  :straight t
+  :config
+  (setq rspec-use-spring-when-possible nil)
+  )
+
+(use-package slim-mode
+  :straight t)
+#+end_src
 
 * Completion
 
