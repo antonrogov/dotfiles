@@ -150,6 +150,27 @@
 (setq ring-bell-function 'ignore)
 #+end_src
 
+* Font
+
+#+begin_src emacs-lisp
+(defvar ar/font-family)
+(defvar ar/font-size)
+
+(defun ar/set-font (family size)
+  (setq ar/font-family family
+        ar/font-size size)
+  ;; line-height: 1.5, line-spacing is added both above and below the text
+  (setq-default line-spacing (ceiling (* size 0.25)))
+  (set-face-attribute 'default nil
+                      :font (concat ar/font-family " "
+                                    (number-to-string ar/font-size))))
+
+(defun ar/change-font-size (inc)
+  (ar/set-font ar/font-family (+ ar/font-size inc)))
+
+(ar/set-font "JetBrains Mono" 12)
+#+end_src
+
 * Icons
 
 #+begin_src emacs-lisp
@@ -342,6 +363,8 @@
 
   (general-override-mode 1))
 
+(global-set-key (kbd "s--") (lambda () (interactive) (ar/change-font-size -2)))
+(global-set-key (kbd "s-=") (lambda () (interactive) (ar/change-font-size +2)))
 (global-set-key (kbd "s-h") #'evil-window-left)
 (global-set-key (kbd "s-j") #'evil-window-down)
 (global-set-key (kbd "s-k") #'evil-window-up)
