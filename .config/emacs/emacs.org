@@ -717,6 +717,18 @@ possible, or just one char if that's not possible."
   )
 #+end_src
 
+* Drag Stuff
+
+#+begin_src emacs-lisp
+(use-package drag-stuff
+  :straight t
+  :config
+  (general-define-key
+   :states '(normal)
+   "M-k" #'drag-stuff-up
+   "M-j" #'drag-stuff-down))
+#+end_src
+
 * Javascript
 
 #+begin_src emacs-lisp
