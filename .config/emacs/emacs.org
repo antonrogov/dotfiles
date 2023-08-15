@@ -858,6 +858,11 @@ possible, or just one char if that's not possible."
 
   (vertico-mode))
 
+(use-package consult-xref
+  :init
+  (setq xref-show-xrefs-function       #'consult-xref
+        xref-show-definitions-function #'consult-xref))
+
 (use-package vertico-posframe
   :straight t
   :init
