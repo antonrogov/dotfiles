@@ -410,7 +410,13 @@ possible, or just one char if that's not possible."
     (delete-selection-mode -1))
   (add-hook 'evil-insert-state-entry-hook #'delete-selection-mode)
   (add-hook 'evil-insert-state-exit-hook  #'+default-disable-delete-selection-mode-h)
-  )
+
+  ;; keep visual mode after shifting
+  (defun ar/evil-visual-restore (&rest r)
+    (evil-normal-state)
+    (evil-visual-restore))
+
+  (advice-add #'evil-shift-right :after #'ar/evil-visual-restore))
 
 (use-package evil-collection
   :straight t
