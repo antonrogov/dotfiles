@@ -864,21 +864,26 @@ possible, or just one char if that's not possible."
 ;;  "TAB" #'ar/smart-tab)
 
 ;;; Cofru
+
+(defun ar/set-basic-completion ()
+  (setq-local completion-styles '(basic)))
+
 (use-package corfu
   :straight t
   :init
   (add-to-list 'load-path
-              (expand-file-name "straight/build/corfu/extensions"
-                                straight-base-dir))
+               (expand-file-name "straight/build/corfu/extensions"
+                                 straight-base-dir))
   :config
   (setq corfu-cycle t ;; Allows cycling through candidates
-        corfu-auto t ;; Enable auto completion
+        corfu-auto nil ;; Enable auto completion
         corfu-auto-prefix 3 ;; Complete with less prefix keys
         corfu-auto-delay 0 ;; No delay for completion
         corfu-preselect 'prompt ;; Always preselect the prompt
         corfu-popupinfo-delay 0.1
         corfu-popupinfo-hide nil
         corfu-echo-documentation 0.1) ;; Echo docs for current completion option
+  (add-hook 'corfu-mode-hook #'ar/set-basic-completion)
   (require 'corfu-popupinfo)
   (corfu-popupinfo-mode)
   (global-corfu-mode))
@@ -916,6 +921,21 @@ possible, or just one char if that's not possible."
   ;; Ensure that pcomplete does not write to the buffer
   ;; and behaves as a pure `completion-at-point-function'.
   (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
+
+(defun ar/indent-or-complete ()
+  (interactive)
+  (if (< (current-column) (current-indentation))
+      (funcall indent-line-function)
+    (let ((syn (syntax-after (- (point) 1))))
+      (if (member 2 syn)
+          (progn
+            (completion-at-point)
+            (corfu-complete))
+        (insert-tab)))))
+
+(general-define-key
+ :states '(insert)
+ "TAB" #'ar/indent-or-complete)
 #+end_src
 
 * Navigation
