@@ -386,6 +386,8 @@ possible, or just one char if that's not possible."
   (setq evil-want-Y-yank-to-eol t)
   (setq evil-want-fine-undo t)
 
+  (setq evil-undo-system 'undo-fu)
+
   ;; (setq evil-collection-setup-minibuffer t)
   (setq evil-collection-want-unimpaired-p nil)
   ;; (setq evil-collection-want-find-usages-bindings-p nil)
@@ -469,6 +471,20 @@ possible, or just one char if that's not possible."
 (global-set-key (kbd "M-s-j") #'evil-window-increase-height)
 (global-set-key (kbd "M-s-k") #'evil-window-decrease-height)
 (global-set-key (kbd "M-s-l") #'evil-window-increase-width)
+#+end_src
+
+* Undo
+
+#+begin_src emacs-lisp
+(use-package undo-fu
+  :straight t
+  ;; :hook (doom-first-buffer . undo-fu-mode)
+  :config
+  ;; Increase undo history limits to reduce likelihood of data loss
+  (setq undo-limit 400000           ; 400kb (default is 160kb)
+        undo-strong-limit 3000000   ; 3mb   (default is 240kb)
+        undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
+  )
 #+end_src
 
 * Workspaces
