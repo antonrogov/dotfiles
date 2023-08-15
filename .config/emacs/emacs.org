@@ -393,11 +393,22 @@ possible, or just one char if that's not possible."
   ;; (setq evil-collection-want-find-usages-bindings-p nil)
   :config
   (evil-mode 1)
+
+  ;; Try to fix escape
+  (evil-set-command-properties 'evil-force-normal-state :suppress-operator t)
+
+  (defun +evil-disable-ex-highlights-h (&rest r)
+    (when (evil-ex-hl-active-p 'evil-ex-search)
+      (evil-ex-nohighlight)
+      t))
+
+  (advice-add `evil-force-normal-state :after #'+evil-disable-ex-highlights-h)
+
   ;; Make evil search more like vim
   (evil-select-search-module 'evil-search-module 'evil-search)
 
   ;; Make C-g revert to normal state
-  ;;(define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
 
   ;; Rebind `universal-argument' to 'C-M-u' since 'C-u' now scrolls the buffer
   ;;(global-set-key (kbd "C-M-u") 'universal-argument)
