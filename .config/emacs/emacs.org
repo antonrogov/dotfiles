@@ -153,22 +153,23 @@
 * Font
 
 #+begin_src emacs-lisp
-(defvar ar/font-family)
-(defvar ar/font-size)
+(defvar ar/font-size 12)
 
-(defun ar/set-font (family size)
-  (setq ar/font-family family
-        ar/font-size size)
+(defun ar/set-font-size (size)
+  (setq ar/font-size size)
   ;; line-height: 1.5, line-spacing is added both above and below the text
   (setq-default line-spacing (ceiling (* size 0.25)))
-  (set-face-attribute 'default nil
-                      :font (concat ar/font-family " "
-                                    (number-to-string ar/font-size))))
+  (dolist (face '(default fixed-pitch variable-pitch))
+    (set-face-attribute face nil :height (* size 10))))
 
 (defun ar/change-font-size (inc)
-  (ar/set-font ar/font-family (+ ar/font-size inc)))
+  (ar/set-font-size (+ ar/font-size inc)))
 
-(ar/set-font "JetBrains Mono" 12)
+(dolist (face '(default fixed-pitch))
+  (set-face-attribute face nil :family "JetBrains Mono"))
+(set-face-attribute 'variable-pitch nil :family "Inter")
+
+(ar/set-font-size 12)
 #+end_src
 
 * Icons
