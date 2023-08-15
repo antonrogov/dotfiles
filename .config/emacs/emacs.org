@@ -987,12 +987,16 @@ possible, or just one char if that's not possible."
 ;; 5000 lines of scrollback, instead of 1000
 (setq vterm-max-scrollback 5000)
 
-(defun ar/vterm ()
+(defun ar/vterm (&optional name)
   (interactive)
   (require 'vterm)
-  (let (display-buffer-alist)
-    (vterm "*vterm*")))
+  (let ((project-root (projectile-project-root))
+        (default-directory project-root)
+        display-buffer-alist)
+    (setenv "PROOT" project-root)
+    (vterm (or name "*vterm*"))))
 #+end_src
+
 * Dired
 
 #+begin_src emacs-lisp
