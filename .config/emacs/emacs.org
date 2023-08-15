@@ -754,11 +754,48 @@ possible, or just one char if that's not possible."
 #+begin_src emacs-lisp
 (use-package ruby-mode)
 
+(use-package rubocop
+  :straight t
+  :hook (ruby-mode . rubocop-mode))
+
+(defvar ar/rspec-file)
+
+(defun ar/rspec-run (&optional single)
+  (interactive "P")
+  (save-buffer)
+  (let ((file (buffer-file-name)))
+    (when (rspec-spec-file-p file)
+      (setq ar/rspec-file
+            (if single
+                (cons file
+                      (save-restriction
+                        (widen)
+                        (number-to-string (line-number-at-pos))))
+              file)))
+    (if ar/rspec-file
+        (rspec-run-single-file ar/rspec-file (rspec-core-options))
+      (message "No spec file"))))
+
 (use-package rspec-mode
   :straight t
   :config
-  (setq rspec-use-spring-when-possible nil)
-  )
+  (setq rspec-use-bundler-when-possible nil
+        rspec-use-spring-when-possible nil
+        rspec-spec-command "direnv exec . rspec"
+        rspec-command-options (concat "--require "
+                                      user-emacs-directory
+                                      "emacs_formatter.rb --format EmacsFormatter")
+        rspec-use-relative-path t)
+
+  (general-define-key
+   :states '(normal)
+   :keymaps '(rspec-verifiable-mode-map rspec-mode-map)
+   "RET" #'ar/rspec-run)
+
+  (ar-leader-def
+   :states '(normal)
+   :keymaps '(rspec-verifiable-mode-map rspec-mode-map)
+   "mtt" #'rspec-toggle-spec-and-target))
 
 (use-package slim-mode
   :straight t)
