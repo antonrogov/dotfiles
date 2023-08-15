@@ -797,33 +797,13 @@ possible, or just one char if that's not possible."
 
   (marginalia-mode 1))
 
-;; (use-package orderless
-;;   :straight t
-;;   :config
-;;   (setq completion-styles '(orderless basic)
-;;         completion-category-defaults nil
-;;         completion-category-overrides nil) ;;'((file (styles . (partial-completion)))))
-;;   )
-
-(use-package fussy
+(use-package orderless
   :straight t
   :config
-  (setq fussy-filter-fn #'fussy-filter-default
-        fussy-max-candidate-limit 5000
-        completion-styles '(fussy basic)
+  (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides nil))
 
-(use-package fzf-native
-  :straight
-  (:repo "dangduc/fzf-native"
-   :host github
-   :files (:defaults "*.c" "*.h" "*.txt"))
-  :init
-  (setq fzf-native-always-compile-module t)
-  :config
-  (setq fussy-score-fn 'fussy-fzf-native-score)
-  (fzf-native-load-own-build-dyn))
 
 (use-package embark
   :straight t
