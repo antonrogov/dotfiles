@@ -918,6 +918,17 @@ possible, or just one char if that's not possible."
   (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
 #+end_src
 
+* Navigation
+
+#+begin_src emacs-lisp
+(use-package dumb-jump
+  :straight t
+  :config
+  (setq dumb-jump-prefer-searcher 'rg
+        dumb-jump-aggressive nil)
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+#+end_src
+
 * LSP
 
 #+begin_src emacs-lisp
