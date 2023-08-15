@@ -550,18 +550,32 @@ possible, or just one char if that's not possible."
 
 #+begin_src emacs-lisp
 (defvar ar/persp-prev "main")
+(defvar ar/persp-binds `(1 . ,ar/persp-prev))
 
-(defun ar/persp-switch (name)
-  (setq ar/persp-prev (safe-persp-name (get-current-persp)))
-  (persp-switch name))
+(advice-add 'persp-activate
+            :before
+            (lambda (name &rest r)
+              (setq ar/persp-prev (or persp-last-persp-name name)))
+            '((name . "set-persp-prev")))
 
 (defun ar/persp-switch-to-main ()
   (interactive)
-  (ar/persp-switch "main"))
+  (persp-switch "main"))
 
 (defun ar/persp-switch-back ()
   (interactive)
-  (ar/persp-switch ar/persp-prev))
+  (persp-switch ar/persp-prev))
+
+(defun ar/persp-switch (number)
+  (when-let ((name (alist-get number ar/persp-binds)))
+    (persp-switch name)
+    (message "[%d] %s" number name)))
+
+(defun ar/persp-bind (number)
+  (let ((name (safe-persp-name (get-current-persp))))
+    (if-let ((entry (assoc number ar/persp-binds)))
+        (setcdr entry name)
+      (add-to-list 'ar/persp-binds (cons number name)))))
 
 (use-package persp-mode
   :straight t
@@ -569,12 +583,15 @@ possible, or just one char if that's not possible."
   (setq persp-auto-resume-time -1 ; Don't auto-load on startup
         persp-auto-save-opt 0 ; Don't auto-save
         persp-nil-name ar/persp-prev
-        persp-set-last-persp-for-new-frames t
-        )
+        persp-set-last-persp-for-new-frames t)
 
-  (global-set-key (kbd "s-1") #'ar/persp-switch-to-main)
   (global-set-key (kbd "s-p") #'persp-switch)
   (global-set-key (kbd "s-,") #'ar/persp-switch-back)
+  (dotimes (i 9)
+    (let ((key (concat "s-" (number-to-string i))))
+      (global-set-key (kbd key) (lambda () (interactive) (ar/persp-switch i)))
+      (global-set-key (kbd (concat "C-" key)) (lambda () (interactive) (ar/persp-bind i)))))
+
   ;; Running `persp-mode' multiple times resets the perspective list...
   (unless (equal persp-mode t)
     (persp-mode)))
