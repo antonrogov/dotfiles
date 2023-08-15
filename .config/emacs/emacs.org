@@ -444,31 +444,94 @@ possible, or just one char if that's not possible."
 * Keybindings
 
 #+begin_src emacs-lisp
+(defun ar/backward-kill-word (arg)
+  (interactive "p")
+  (let (kill-ring)
+    (ignore-errors (backward-kill-word arg))))
+
+(defun ar/project-vterm (name)
+  (ar/project-buffer name #'ar/vterm))
+
+(defvar ar/popup-buffers '())
+
+(defun ar/popup-toggle ()
+  (interactive)
+  (if-let ((window (cl-find-if (lambda (w)
+                                 (eq 'popup (window-parameter w 'window-slot)))
+                               (window-list))))
+      (delete-window window)
+    (let* ((name (safe-persp-name (get-current-persp)))
+           (buffer (nth 1 (cl-find-if (lambda (e) (string-equal name (car e)))
+                                      ar/popup-buffers))))
+      (unless buffer
+        (setq buffer (current-buffer))
+        (push (list name buffer) ar/popup-buffers))
+      (window--make-major-side-window buffer 'bottom 'popup))))
+
 (use-package general
   :straight t
   :config
-  (general-create-definer ar-leader-def
-    :prefix "SPC")
+  (general-create-definer ar-leader-def :prefix "SPC")
 
+  (general-define-key
+   :states '(normal visual)
+   "gc" #'evilnc-comment-operator)
+
+  (general-define-key
+   :states '(normal)
+   :keymaps '(prog-mode-map)
+   "[e" #'previous-error
+   "]e" #'next-error)
+
+
+  (setq compilation-ask-about-save nil)
+
+  (general-define-key
+   :states '(normal motion)
+   :keymaps '(prog-mode-map)
+   "RET" #'recompile)
+
+  ;; Minibuffer
+  (general-define-key
+   :keymaps '(minibuffer-local-map
+              minibuffer-local-ns-map
+              minibuffer-local-completion-map
+              minibuffer-local-must-match-map
+              minibuffer-local-isearch-map
+              read-expression-map)
+   [escape] #'abort-recursive-edit
+   "C-a"    #'move-beginning-of-line
+   "TAB"    #'completion-at-point
+   "C-w"    #'ar/backward-kill-word)
+
+  ;; Leader
   (ar-leader-def
-  :states '(normal visual)
-  :keymaps 'general-override-mode-map
-  ";" #'pp-eval-expression
-  "," #'evil-switch-to-windows-last-buffer
-  "." #'find-file
-  "b d" #'kill-current-buffer
-  "f f" #'find-file
-  "g b" #'magit-blame-addition
-  "g f" #'magit-find-file
-  "g g" #'magit-status
-  "h k" #'helpful-key
-  "h K" #'describe-keymap
-  "h m" #'describe-mode
-  "h o" #'helpful-symbol
-  "o t" #'ar/vterm
-  "p a" #'projectile-add-known-project
-  "p f" #'projectile-find-file
-  "p p" #'projectile-switch-project)
+   :states '(normal visual)
+   :keymaps 'general-override-mode-map
+   "`" #'consult-buffer
+   ";" #'pp-eval-expression
+   "," #'evil-switch-to-windows-last-buffer
+   "." #'find-file
+   "<" #'consult-project-buffer
+   "/" #'consult-ripgrep
+   "b d" #'kill-current-buffer
+   "f f" #'find-file
+   "g f" #'magit-find-file
+   "g g" #'magit-status
+   "h k" #'helpful-key
+   "h K" #'describe-keymap
+   "h m" #'describe-mode
+   "h o" #'helpful-symbol
+   "o t" #'ar/vterm
+   "p a" #'projectile-add-known-project
+   "p e" #'projectile-run-async-shell-command-in-root
+   "p f" #'projectile-find-file
+   "p p" #'projectile-switch-project
+   "p r" (lambda () (interactive) (ar/project-vterm "run"))
+   "p s" (lambda () (interactive) (ar/project-vterm "ssh"))
+   "p t" #'ar/popup-toggle
+   "w =" #'balance-windows
+   "w q" #'delete-window)
 
   (general-override-mode 1))
 
@@ -539,6 +602,13 @@ possible, or just one char if that's not possible."
   (persp-switch (projectile-project-name))
   (magit-status))
 
+(defun ar/project-buffer (name create-fn)
+  (let* ((name (concat "*" (projectile-project-name) ":" name "*"))
+         (buf (get-buffer name)))
+    (if buf
+        (switch-to-buffer buf)
+     (funcall create-fn name))))
+
 (use-package projectile
   :straight t
   :init
@@ -548,6 +618,7 @@ possible, or just one char if that's not possible."
         projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o")
         projectile-kill-buffers-filter 'kill-only-files
         projectile-ignored-projects '("~/")
+        projectile-git-use-fd nil
         projectile-git-submodule-command nil
         projectile-enable-caching nil
         projectile-indexing-method 'alien
@@ -566,8 +637,7 @@ possible, or just one char if that's not possible."
 
   ;; Per-project compilation buffers
   (setq compilation-buffer-name-function #'projectile-compilation-buffer-name
-        compilation-save-buffers-predicate #'projectile-current-project-buffer-p)
-  )
+        compilation-save-buffers-predicate #'projectile-current-project-buffer-p))
 #+end_src
 
 * Magit
