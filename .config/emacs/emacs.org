@@ -824,17 +824,30 @@ possible, or just one char if that's not possible."
   :straight t
   :init
   (add-to-list 'load-path
-              (expand-file-name "straight/build/vertico/extensions"
-                                straight-base-dir))
+               (expand-file-name "straight/build/vertico/extensions"
+                                 straight-base-dir))
   :config
   (setq vertico-resize nil
         vertico-count 17
         vertico-cycle t)
   ;; (require 'vertico-directory)
+
+  (setq-default completion-in-region-function
+                (lambda (&rest args)
+                  (apply (if vertico-mode
+                             #'consult-completion-in-region
+                           #'completion--in-region)
+                         args)))
+
   (vertico-mode))
 
 (use-package vertico-posframe
   :straight t
+  :init
+  (setq vertico-posframe-border-width 1
+        vertico-posframe-parameters '((left-fringe . 5)
+                                      (right-fringe . 5)))
+  (custom-set-faces '(vertico-posframe-border ((t (:background "#666")))))
   :config
   (vertico-posframe-mode))
 
@@ -866,9 +879,11 @@ possible, or just one char if that's not possible."
 
 (use-package embark-consult
   :straight t
-  ;; :config
+  :config
   ;; (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode)
-  )
+  (general-define-key
+   :keymaps '(minibuffer-local-map minibuffer-mode-map)
+   "C-c C-e" #'embark-export))
 
 ;;; Dabbrev
 
