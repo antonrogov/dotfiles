@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+vterm_cmd magit-status "${1:-$PWD}"

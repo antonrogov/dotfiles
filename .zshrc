@@ -6,13 +6,19 @@ export HOMEBREW_REPOSITORY="/opt/homebrew";
 export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
 export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
 
-PATH="/usr/local/bin:$PATH"
-PATH="/usr/local/opt/node@18/bin:$PATH"
-PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
-PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-PATH="$HOME/.cargo/bin:$PATH"
-PATH="$HOME/bin:$PATH"
-export PATH
+typeset -gU path fpath
+
+path=(
+  $HOME/bin(N)
+  $HOME/.cargo/bin(N)
+  /opt/homebrew/opt/imagemagick@6/bin(N)
+  /opt/homebrew/{,s}bin(N)
+  /usr/local/{,s}bin(N)
+  $path
+)
+
+fpath=(~/.zsh/functions $fpath)
+autoload -Uz $fpath[1]/*(.:t)
 
 alias h='history 25'
 alias j='jobs -l'
@@ -22,9 +28,6 @@ alias ff='find . -name'
 alias view='vim -R'
 alias v='view -'
 alias vg="view -c 'set filetype=git nowrap' -"
-alias config='vim "~/iCloud/Config/"'
-
-alias reload!='. ~/.zshrc'
 alias fetch='curl -L -C - -O'
 bgrep() { grep -R "${@:1:-1}" $(bundle show ${@: -1}) }
 
@@ -73,6 +76,29 @@ else
   fi
 fi
 
+function q-history-search-backward() {
+  if [[ ( $LASTWIDGET != 'q-history-search-backward' ) && ( $LASTWIDGET != 'q-history-search-forward' ) ]]; then
+    HIST_CURSOR=$CURSOR
+  else
+    CURSOR=$HIST_CURSOR
+  fi
+  zle .history-beginning-search-backward
+  zle .end-of-line
+}
+
+function q-history-search-forward() {
+  if [[ ( $LASTWIDGET != 'q-history-search-backward' ) && ( $LASTWIDGET != 'q-history-search-forward' ) ]]; then
+    HIST_CURSOR=$CURSOR
+  else
+    CURSOR=$HIST_CURSOR
+  fi
+  zle .history-beginning-search-forward
+  zle .end-of-line
+}
+
+zle -N q-history-search-backward
+zle -N q-history-search-forward
+
 bindkey '^p' q-history-search-backward
 bindkey '^n' q-history-search-forward
 
@@ -83,34 +109,8 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
 
-for config_file ($HOME/.zsh/functions/*.zsh); do
-  source $config_file
-done
-
 # By default, ^S freezes terminal output and ^Q resumes it. Disable that so
 # that those keys can be used for other things.
 unsetopt flowcontrol
-# Run Selecta in the current working directory, appending the selected path, if
-# any, to the current command.
-function insert-selecta-path-in-command-line() {
-    local selected_path
-    # Print a newline or we'll clobber the old prompt.
-    echo
-    # Find the path; abort if the user doesn't select anything.
-    selected_path=$(find * -type f | selecta) || return
-    # Append the selection to the current command buffer.
-    eval 'LBUFFER="$LBUFFER$selected_path"'
-    # Redraw the prompt since Selecta has drawn several new lines of text.
-    zle reset-prompt
-}
-# Create the zle widget
-zle -N insert-selecta-path-in-command-line
-# Bind the key to the newly created widget
-bindkey "^S" "insert-selecta-path-in-command-line"
-
-# source /usr/local/opt/chruby/share/chruby/chruby.sh
-source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
-# source /usr/local/opt/gem_home/share/gem_home/gem_home.sh
-source /opt/homebrew/opt/gem_home/share/gem_home/gem_home.sh
 
 [[ -s ~/.zshrc.local ]] && . ~/.zshrc.local
