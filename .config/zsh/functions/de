@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+direnv allow
+trap -- '' SIGINT
+eval "$(direnv export zsh)"
+trap - SIGINT
+
+if [ "$1" != "" ]; then
+  direnv exec . $*
+fi

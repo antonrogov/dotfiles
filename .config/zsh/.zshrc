@@ -17,13 +17,11 @@ path=(
   $path
 )
 
-fpath=(~/.zsh/functions $fpath)
-autoload -Uz $fpath[1]/*(.:t)
-
 alias h='history 25'
 alias j='jobs -l'
 alias la='ls -a'
 alias ll='ls -lA'
+alias pn='pnpm'
 alias ff='find . -name'
 alias view='vim -R'
 alias v='view -'
@@ -31,16 +29,16 @@ alias vg="view -c 'set filetype=git nowrap' -"
 alias fetch='curl -L -C - -O'
 bgrep() { grep -R "${@:1:-1}" $(bundle show ${@: -1}) }
 
-export EDITOR='vim'
-export CLICOLOR='1'
-export LSCOLORS='exfxcxdxbxexexexexAxAx'
+export EDITOR=${EDITOR:-vim}
+export CLICOLOR=1
+export LSCOLORS=exfxcxdxbxexexexexAxAx
 export LC_CTYPE=en_US.UTF-8
 export LANG=en_US.UTF-8
-export ACK_COLOR_MATCH='red'
-export GREP_OPTIONS='--color'
+export ACK_COLOR_MATCH=red
+export GREP_OPTIONS=--color
 set -o emacs
 
-HISTFILE=~/.history
+HISTFILE=${ZDOTDIR:-$HOME}/.history
 HISTSIZE=100000
 SAVEHIST=$HISTSIZE
 REPORTTIME=10 # print elapsed time when more than 10 seconds
