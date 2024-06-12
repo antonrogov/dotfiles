@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: HTML 5 Document
+# group : meta
+# --
+<!doctype html>
+<html lang="en">
+  <head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+    <title>${1:Title}</title>
+  </head>
+  <body>
+    $0
+  </body>
+</html>

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: elisp
+# expand-env: ((yas-after-exit-snippet-hook 'org-edit-src-code))
+# --
+#+begin_src emacs-lisp
+$0
+#+end_src

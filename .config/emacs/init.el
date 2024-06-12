@@ -1,52 +1,3 @@
-#+property: header-args:emacs-lisp :tangle init.el
-#+startup: overview
-#+title: Emacs Config
-
-* Early Init
-
-#+begin_src emacs-lisp :tangle early-init.el
-;; -*- lexical-binding: t; -*-
-
-(setq gc-cons-threshold (* 50 1000 1000))
-
-(setq init-emacs-directory "~/.config/emacs")
-(setq user-emacs-directory "~/.local/share/emacs")
-
-(setq load-prefer-newer t)
-
-(setq package-enable-at-startup nil)
-
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(undecorated . t))
-(push '(menu-bar-lines . 0)   default-frame-alist)
-(push '(tool-bar-lines . 0)   default-frame-alist)
-(push '(vertical-scroll-bars) default-frame-alist)
-
-(setenv "LSP_USE_PLISTS" "1")
-
-;; And set these to nil so users don't have to toggle the modes twice to
-;; reactivate them.
-(setq menu-bar-mode nil
-      tool-bar-mode nil
-      scroll-bar-mode nil)
-#+end_src
-
-* Init
-
-#+begin_src emacs-lisp
 ;; -*- lexical-binding: t; -*-
 
 (setq inhibit-startup-message t)
@@ -61,11 +12,7 @@
 (setq native-comp-async-report-warnings-errors nil)
 
 (straight-use-package 'use-package)
-#+end_src
 
-* Mac
-
-#+begin_src emacs-lisp
 (setq mac-command-modifier      'super
       ns-command-modifier       'super
       mac-option-modifier       'meta
@@ -84,11 +31,7 @@
 
 ;; (require 'ns-auto-titlebar nil t)
 ;; (ns-auto-titlebar-mode +1)
-#+end_src
 
-* Frame
-
-#+begin_src emacs-lisp
 (set-frame-size nil 200 50)
 
 ;; Don't resize the frames in steps; it looks weird, especially in tiling window
@@ -124,27 +67,7 @@
 ;; (customize-set-variable mac-right-option-modifier nil)
 ;; (customize-set-variable mac-command-modifier 'super)
 ;; (customize-set-variable ns-function-modifier 'hyper))
-#+end_src
 
-;; (when (featurep 'native-compile)
-;;   ;; Silence compiler warnings as they can be pretty disruptive
-;;   (setq native-comp-async-report-warnings-errors nil)
-
-;;   ;; Make native compilation happens asynchronously
-;;   (setq native-comp-deferred-compilation t)
-
-;;   ;; Set the right directory to store the native compilation cache
-;;   ;; NOTE the method for setting the eln-cache directory depends on the emacs version
-;;   (when (fboundp 'startup-redirect-eln-cache)
-;;     (if (version< emacs-version "29")
-;;         (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
-;;       (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
-
-;;   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
-
-* Font
-
-#+begin_src emacs-lisp
 (defvar ar/font-size 12)
 (defvar ar/font-fixed-width "Iosevka Code") ;;"JetBrains Mono")
 (defvar ar/font-variable-width "SF Pro") ;;Iosevka Quasi") ;;"Inter")
@@ -177,30 +100,18 @@
 
 (ar/set-font-size ar/font-size)
 (set-fontset-font t 'armenian (font-spec :family "SF Armenian"))
-#+end_src
 
-* Icons
-
-#+begin_src emacs-lisp
 (straight-use-package 'all-the-icons)
 
 ;; (use-package emojify
 ;;   :straight t
 ;;   :hook (erc-mode . emojify-mode)
 ;;   :commands emojify-mode)
-#+end_src
 
-* Display buffer
-
-#+begin_src emacs-lisp
 (push '("^\\*\\(\\(rspec-\\)\\?compilation\\|helpful \\|Help\\|Embark Export:\\)"
         (display-buffer-reuse-window display-buffer-same-window)
         (inhibit-switch-frame . t)) display-buffer-alist)
-#+end_src
 
-* Editing
-
-#+begin_src emacs-lisp
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (blink-cursor-mode -1)
@@ -265,63 +176,11 @@
 (setq tab-always-indent 'complete)
 
 (setq delete-by-moving-to-trash t)
-#+end_src
 
-;; (defun doom-point-in-string-p (&optional pos)
-;;   "Return non-nil if POS is in a string."
-;;   ;; REVIEW Should we cache `syntax-ppss'?
-;;   (let ((pos (or pos (point))))
-;;     ;; (if doom-point-in-string-functions
-;;     ;;     (run-hook-with-args-until-success 'doom-point-in-string-functions pos)
-;;     (nth 3 (syntax-ppss pos))))
-
-;; (defun doom/backward-delete-whitespace-to-column (&rest _r)
-;;   "Delete back to the previous column of whitespace, or as much whitespace as
-;; possible, or just one char if that's not possible."
-;;   (interactive)
-;;   (let* ((context
-;;           (if (bound-and-true-p smartparens-mode)
-;;               (ignore-errors (sp-get-thing))))
-;;          (op (plist-get context :op))
-;;          (cl (plist-get context :cl))
-;;          open-len close-len current-column)
-;;     (cond ;; When in strings (sp acts weird with quotes; this is the fix)
-;;           ;; Also, skip closing delimiters
-;;           ((and op cl
-;;                 (string= op cl)
-;;                 (and (string= (char-to-string (or (char-before) 0)) op)
-;;                      (setq open-len (length op)))
-;;                 (and (string= (char-to-string (or (char-after) 0)) cl)
-;;                      (setq close-len (length cl))))
-;;            (delete-char (- open-len))
-;;            (delete-char close-len))
-
-;;           ;; Delete up to the nearest tab column IF only whitespace between
-;;           ;; point and bol.
-;;           ((and (not indent-tabs-mode)
-;;                 (> tab-width 1)
-;;                 (not (bolp))
-;;                 (not (doom-point-in-string-p))
-;;                 (>= (abs (save-excursion (skip-chars-backward " \t")))
-;;                     (setq current-column (current-column))))
-;;            (delete-char (- (1+ (% (1- current-column) tab-width)))))
-
-;;           ;; Otherwise do a regular delete
-;;           ((delete-char -1)))))
-
-;; (advice-add #'delete-backward-char :override #'doom/backward-delete-whitespace-to-column)
-
-* Rainbow delimiters
-
-#+begin_src emacs-lisp
 (use-package rainbow-delimiters
   :straight t
   :hook (prog-mode . rainbow-delimiters-mode))
-#+end_src
 
-* Ligatures
-
-#+begin_src emacs-lisp
 (defvar +ligatures-composition-alist
   '((?!  . "\\(?:!\\(?:==\\|[!=]\\)\\)")                                      ; (regexp-opt '("!!" "!=" "!=="))
     (?#  . "\\(?:#\\(?:###?\\|_(\\|[#(:=?[_{]\\)\\)")                         ; (regexp-opt '("##" "###" "####" "#(" "#:" "#=" "#?" "#[" "#_" "#_(" "#{"))
@@ -368,11 +227,7 @@
       (setq-local composition-function-table +ligature--composition-table)))
 
 (add-hook 'after-change-major-mode-hook #'+ligatures-init-buffer-h)
-#+end_src
 
-* Backup and auto-save
-
-#+begin_src emacs-lisp
 ;; Don't generate backups or lockfiles. While auto-save maintains a copy so long
 ;; as a buffer is unsaved, backups create copies once, when the file is first
 ;; written, and never again until it is killed and reopened. This is better
@@ -403,12 +258,7 @@
 ;;                   ;; Prefix tramp autosaves to prevent conflicts with local ones
 ;;                   (concat auto-save-list-file-prefix "tramp-\\2") t)
 ;;             (list ".*" auto-save-list-file-prefix t)))
-#+end_src
 
-* Create missing directories
-
-elisp<
-#+begin_src emacs-lisp
 ;; Create missing directories when we open a file that doesn't exist under a
 ;; directory tree that may not exist.
 (defun +doom-create-missing-directories-h ()
@@ -421,18 +271,10 @@ elisp<
            (progn (make-directory parent-directory 'parents)
                   t)))))
 (add-hook 'find-file-not-found-functions #'+doom-create-missing-directories-h)
-#+end_src
 
-* Hide mode line
-
-#+begin_src emacs-lisp
 (use-package hide-mode-line
   :straight t)
-#+end_src
 
-* Keybindings
-
-#+begin_src emacs-lisp
 (defun ar/backward-kill-word (arg)
   (interactive "p")
   (let (kill-ring)
@@ -638,11 +480,7 @@ elisp<
 (global-set-key (kbd "M-s-j") #'evil-window-increase-height)
 (global-set-key (kbd "M-s-k") #'evil-window-decrease-height)
 (global-set-key (kbd "M-s-l") #'evil-window-increase-width)
-#+end_src
 
-* Evil
-
-#+begin_src emacs-lisp
 (defun ar/underscore-as-word (orig &rest args)
   (let ((table (copy-syntax-table (syntax-table))))
     (modify-syntax-entry ?_ "w" table)
@@ -753,11 +591,7 @@ elisp<
     "g n" #'evil-multiedit-match-and-next
     "g p" #'evil-multiedit-match-and-prev
     "g t" #'evil-multiedit-toggle-or-restrict-region))
-#+end_src
 
-* Tree sitter
-
-#+begin_src emacs-lisp
 (setq treesit-language-source-alist
       '((bash "https://github.com/tree-sitter/tree-sitter-bash")
         (c "https://github.com/tree-sitter/tree-sitter-c")
@@ -851,11 +685,7 @@ elisp<
 ;;    "[ f" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer" t))
 ;;    "] F" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer" nil t))
 ;;    "[ F" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer" t t))))
-#+end_src
 
-* Smartparens
-
-#+begin_src emacs-lisp
 (use-package smartparens
   :straight t
   :config
@@ -893,11 +723,7 @@ elisp<
    "] s" #'sp-forward-sexp
    "[ u" #'sp-backward-up-sexp
    "] u" #'sp-up-sexp))
-#+end_src
 
-* Org
-
-#+begin_src emacs-lisp
 (use-package org
   :straight t
   :init
@@ -1088,56 +914,7 @@ elisp<
   "s" #'org-narrow-to-subtree
   "t" #'org-todo
   "q" #'org-set-tags-command)
-#+end_src
 
-#+begin_src emacs-lisp :tangle no
-(defvar my/org-habit-show-graphs-everywhere nil
-  "If non-nil, show habit graphs in all types of agenda buffers.
-
-Normally, habits display consistency graphs only in
-\"agenda\"-type agenda buffers, not in other types of agenda
-buffers.  Set this variable to any non-nil variable to show
-consistency graphs in all Org mode agendas.")
-
-(defun my/org-agenda-mark-habits ()
-  "Mark all habits in current agenda for graph display.
-
-This function enforces `my/org-habit-show-graphs-everywhere' by
-marking all habits in the current agenda as such.  When run just
-before `org-agenda-finalize' (such as by advice; unfortunately,
-`org-agenda-finalize-hook' is run too late), this has the effect
-of displaying consistency graphs for these habits.
-
-When `my/org-habit-show-graphs-everywhere' is nil, this function
-has no effect."
-  (when (and my/org-habit-show-graphs-everywhere
-         (not (get-text-property (point) 'org-series)))
-    (let ((cursor (point))
-          item data)
-      (while (setq cursor (next-single-property-change cursor 'org-marker))
-        (setq item (get-text-property cursor 'org-marker))
-        (when (and item (org-is-habit-p item))
-          (with-current-buffer (marker-buffer item)
-            (setq data (org-habit-parse-todo item)))
-          (put-text-property cursor
-                             (next-single-property-change cursor 'org-marker)
-                             'org-habit-p data))))))
-
-(advice-add #'org-agenda-finalize :before #'my/org-agenda-mark-habits)
-
-You can display all habit graphs regardless of being due by setting (set 'org-habit-show-all-today t) or any non-nil value.
-
-If you'd prefer to have your habits separated from the full agenda (or not see the full list outside weekly review) you can use a todo-tags view such as ("h" "Habits" tags-todo "STYLE=\"habit\"" ((org-agenda-overriding-header "Habits"))) and the code from which Aaron Harris posted here to get habit graphs to show in tag and search views. Don't forget to change the variable my/org-habit-show-graphs-everywhere to non-nil on the first line. The comments there mention it but it's easy to miss.
-
-;; https://github.com/Somelauw/evil-org-mode
-;; https://redgreenrepeat.com/2021/04/09/org-mode-agenda-getting-started-scheduled-items-and-todos/
-;; https://redgreenrepeat.com
-;; https://orgmode.org/manual/Agenda-Commands.html
-#+end_src
-
-* ROAM
-
-#+begin_src emacs-lisp
 (defun ar/org-roam-node-slug (orig &rest args)
   (string-replace "_" "-" (apply orig args)))
 
@@ -1157,11 +934,7 @@ If you'd prefer to have your habits separated from the full agenda (or not see t
   :config
   (advice-add 'org-roam-node-slug :around #'ar/org-roam-node-slug)
   (org-roam-db-autosync-mode))
-#+end_src
 
-* File management
-
-#+begin_src emacs-lisp
 (defun ar/delete-file ()
   (interactive)
   (let ((path (buffer-file-name)))
@@ -1209,20 +982,12 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
     (set-visited-file-name new-path t t)
     ;; (doom-files--update-refs old-path new-path)
     (message "File moved to %S" (abbreviate-file-name new-path))))
-#+end_src
 
-* Envrc
-
-#+begin_src emacs-lisp
 (use-package envrc
   :straight t
   :config
   (envrc-global-mode))
-#+end_src
 
-* Compilation
-
-#+begin_src emacs-lisp
 (setq compilation-ask-about-save nil
       compilation-scroll-output t)
 
@@ -1314,11 +1079,7 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
  :states '(normal motion)
  :keymaps '(emacs-lisp-mode-map lisp-interaction-mode-map)
  "RET" #'eval-last-sexp)
-#+end_src
 
-* Undo
-
-#+begin_src emacs-lisp
 (use-package undo-fu
   :straight t
   ;; :hook (doom-first-buffer . undo-fu-mode)
@@ -1328,11 +1089,7 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
         undo-strong-limit 3000000   ; 3mb   (default is 240kb)
         undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
   )
-#+end_src
 
-* Workspaces
-
-#+begin_src emacs-lisp
 (defvar ar/persp-prev "main")
 (defvar ar/persp-binds `((1 . ,ar/persp-prev)))
 
@@ -1461,11 +1218,7 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
   (unless (equal persp-mode t)
     (persp-mode)
     (ar/persp-switch-to-main)))
-#+end_src
 
-* Buffer binds
-
-#+begin_src emacs-lisp
 (defvar ar/buffer-binds nil)
 
 (defun ar/buffer-switch (number)
@@ -1492,16 +1245,7 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
       :keymaps 'general-override-mode-map
       (concat "" n) (lambda () (interactive) (ar/buffer-switch i))
       (concat "b " n) (lambda () (interactive) (ar/buffer-bind i)))))
-#+end_src
 
-* Snippets
-
-https://github.com/rksm/emacs-rust-config/blob/master/snippets/rustic-mode/impl
-https://jdhao.github.io/2021/10/06/yasnippet_setup_emacs/
-https://github.com/AndreaCrotti/yasnippet-snippets/blob/master/snippets/
-http://joaotavora.github.io/yasnippet/snippet-development.html
-
-#+begin_src emacs-lisp
 (use-package yasnippet
   :straight t
   :config
@@ -1531,75 +1275,7 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
   (add-hook 'conf-mode-hook 'snippets-setup-capf)
   (add-hook 'prog-mode-hook 'snippets-setup-capf)
   (add-hook 'text-mode-hook 'snippets-setup-capf))
-#+end_src
 
-#+begin_src emacs-lisp :tangle no
-(use-package tempel
-  :straight t
-  :config
-  (setq tempel-path (expand-file-name "templates" init-emacs-directory))
-  :init
-  ;; Setup completion at point
-  (defun tempel-setup-capf ()
-    (setq-local completion-at-point-functions
-                (cons (cape-super-capf
-                        #'tempel-complete
-                        (car completion-at-point-functions))
-                      (cdr completion-at-point-functions))))
-
-  (add-hook 'conf-mode-hook 'tempel-setup-capf)
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
-
-  (general-def
-    :keymaps 'tempel-map
-    :states 'insert
-    [tab] #'tempel-next
-    [backtab] #'tempel-previous)
-
-  (defun tempel-complete (&optional interactive)
-    "Complete template name at point and expand.
-  This completion-at-point-function (Capf) returns a list of all
-  possible template names, which are then displayed in the
-  completion UI (e.g. Corfu) for selection.  See also
-  `tempel-expand'.  If INTERACTIVE is nil the function acts like a
-  Capf, otherwise like an interactive completion command."
-    (interactive (list t))
-    (if interactive
-        (progn
-          (when (and tempel-trigger-prefix (not (tempel--prefix-bounds)))
-            (insert tempel-trigger-prefix))
-          (tempel--interactive #'tempel-complete))
-      (let ((region (tempel--region))
-            (mode major-mode))
-        (when-let ((templates (tempel--templates))
-                  (bounds (or (and (not region) (tempel--prefix-bounds))
-                              (and (not tempel-trigger-prefix) (cons (point) (point))))))
-          (list (car bounds) (cdr bounds)
-                (tempel--completion-table templates)
-                :exclusive 'no
-                :company-kind (lambda (_) 'snippet)
-                :exit-function (apply-partially #'tempel--exit templates region)
-                :company-prefix-length (and tempel-trigger-prefix t)
-                :company-doc-buffer
-                (apply-partially #'tempel--info-buffer templates
-                                (lambda (elts)
-                                  (insert (tempel--print-template elts))
-                                  (delay-mode-hooks (funcall mode))
-                                  (current-buffer)))
-                :company-location
-                (apply-partially #'tempel--info-buffer templates
-                                (lambda (elts)
-                                  (pp elts (current-buffer))
-                                  (list (current-buffer))))
-                :annotation-function
-                (lambda (_) " snippet"))))))
-)
-#+end_src
-
-* Projectile
-
-#+begin_src emacs-lisp
 (defun ar/switch-project-action ()
   (persp-switch (projectile-project-name))
   (magit-status))
@@ -1647,11 +1323,7 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
   ;; Per-project compilation buffers
   (setq compilation-buffer-name-function #'projectile-compilation-buffer-name
         compilation-save-buffers-predicate #'projectile-current-project-buffer-p))
-#+end_src
 
-* Magit
-
-#+begin_src emacs-lisp
 (defun ar/magit-display-buffer (buffer)
   (display-buffer buffer '(display-buffer-same-window)))
 
@@ -1761,11 +1433,7 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
   ;;       (:map magit-diff-mode-map
   ;;         :nv "gd" #'magit-jump-to-diffstat-or-diff))
   )
-#+end_src
 
-* Drag Stuff
-
-#+begin_src emacs-lisp
 (use-package drag-stuff
   :straight t
   :config
@@ -1773,11 +1441,7 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
    :states '(normal)
    "M-k" #'drag-stuff-up
    "M-j" #'drag-stuff-down))
-#+end_src
 
-* C
-
-#+begin_src emacs-lisp
 (setq-default c-basic-offset 4
               c-default-style '((java-mode . "java")
                                 (awk-mode . "awk")
@@ -1786,25 +1450,13 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
 (add-hook 'c-mode-hook (lambda () (c-toggle-comment-style -1)))
 
 (add-to-list 'auto-mode-alist (cons "\\.keymap\\'" #'c-mode))
-#+end_src
 
-* Dockerfile
-
-#+begin_src emacs-lisp
 (use-package dockerfile-mode
   :straight t)
-#+end_src
 
-* Clojure
-
-#+begin_src emacs-lisp
 ;; (use-package clojure-mode
 ;;   :straight t)
-#+end_src
 
-* Web
-
-#+begin_src emacs-lisp
 (use-package web-mode
   :straight t
   :mode "\\.html\\'"
@@ -1833,11 +1485,7 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
   :states '(normal motion)
   :keymaps '(web-mode-map)
   "t" #'web-mode-navigate)
-#+end_src
 
-* Javascript
-
-#+begin_src emacs-lisp
 (setq js-chain-indent t
       js-indent-level tab-width)
 
@@ -1893,19 +1541,11 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
 ;;         js2-highlight-level 3
 ;;         js2-idle-timer-delay 0.15)
 ;;   )
-#+end_src
 
-* YAML
-
-#+begin_src emacs-lisp
 (use-package yaml-mode
   :straight t
   :mode "\\.yaml\\'")
-#+end_src
 
-* Ruby
-
-#+begin_src emacs-lisp
 ;; (add-hook 'ruby-ts-mode #'rainbow-delimiters-mode)
 ;; (add-hook 'ruby-ts-mode #'smartparens-mode)
 ;; (add-hook 'ruby-ts-mode #'lsp-deferred)
@@ -1994,23 +1634,7 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
   :keymaps '(rspec-verifiable-mode-map rspec-mode-map)
   "t b" #'ar/rspec-enter-toggle
   "t t" #'rspec-toggle-spec-and-target)
-#+end_src
 
-#+begin_src ruby :tangle rspec_formatter.rb
-#!/usr/bin/env ruby
-#
-Formatters = RSpec::Core::Formatters
-
-class EmacsRspecFormatter < Formatters::DocumentationFormatter
-  Formatters.register self, :dump_summary
-
-  def dump_summary(*); end
-end
-#+end_src
-
-* Realgud
-
-#+begin_src emacs-lisp
 (use-package realgud
   :straight t
   :config
@@ -2145,11 +1769,7 @@ end
                      (port (or (getenv "BYEBUG_PORT") "8989")))
                  (save-excursion (realgud:byebug (concat "byebug -R " port)))))
    "SPC d A" 'realgud:byebug-reset))
-#+end_src
 
-* Rust
-
-#+begin_src emacs-lisp
 (add-hook 'rust-ts-mode-hook (lambda () (setq-local tab-width 4)))
 
 (defvar rustc-compilation-location
@@ -2247,19 +1867,11 @@ the compilation window until the top of the error is visible."
 ;;   (setq rustic-lsp-client 'lsp-mode)
 ;;   ;; (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append)
 ;;   )
-#+end_src
 
-* Swift
-
-#+begin_src emacs-lisp
 (use-package swift-mode
   :straight t)
   ;; :hook (swift-mode . smartparens-mode))
-#+end_src
 
-* Consult
-
-#+begin_src emacs-lisp
 (use-package consult
   :straight t
   :init
@@ -2272,11 +1884,7 @@ the compilation window until the top of the error is visible."
   "g o" #'xref-find-definitions-other-window
   "g i" #'xref-find-references)
 )
-#+end_src
 
-* Xref
-
-#+begin_src emacs-lisp
 (defun ar/search-for-identifier-at-point ()
   (interactive)
   (consult-ripgrep projectile-project-root
@@ -2300,11 +1908,7 @@ the compilation window until the top of the error is visible."
  "g o" #'xref-find-definitions-other-window
  "[ i" (lambda () (interactive) (ar/jump-to-same-indent -1))
  "] i" #'ar/jump-to-same-indent)
-#+end_src
 
-* Vertico and stuff
-
-#+begin_src emacs-lisp
 (defun ar/vertico-select-other-window ()
   (interactive)
   (let* ((selected-item (vertico--candidate))
@@ -2414,11 +2018,7 @@ the compilation window until the top of the error is visible."
    :keymaps '(minibuffer-local-map minibuffer-mode-map)
    ;; "C-o" #'find-file-other-window
    "C-c C-e" #'embark-export))
-#+end_src
 
-* Corfu
-
-#+begin_src emacs-lisp
 (defun ar/set-basic-completion ()
   (setq-local completion-styles '(basic)))
 
@@ -2532,11 +2132,7 @@ A scroll bar is displayed from LO to LO+BAR."
 
 ;; (define-key corfu-map (kbd "TAB") #'corfu-next)
 ;; (define-key corfu-map [tab] #'corfu-next)
-#+end_src
 
-* Cape
-
-#+begin_src emacs-lisp
 (use-package cape
   :straight t
   :config
@@ -2671,11 +2267,7 @@ The functions `cape-wrap-super' and `cape-capf-super' are experimental."
                              :annotation-function :exit-function))))))
 ;;(advice-add #'cape-wrap-super :override #'ar/cape-wrap-super)
 )
-#+end_src
 
-* TAB
-
-#+begin_src emacs-lisp
 ;; (defun ar/indent-or-complete ()
 ;;   (interactive)
 ;;   (unless (yas-expand)
@@ -2711,80 +2303,14 @@ The functions `cape-wrap-super' and `cape-capf-super' are experimental."
 ;;  :keymaps 'minibuffer-local-map
 ;;  :states 'insert
 ;;  "TAB" #'vertico-insert)
-#+end_src
 
-* Dumb jump
-
-#+begin_src emacs-lisp
 (use-package dumb-jump
   :straight t
   :config
   (setq dumb-jump-prefer-searcher 'rg
         dumb-jump-aggressive nil)
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
-#+end_src
 
-* WIP find file under cursor
-
-#+begin_src emacs-lisp :tangle no
-;; (let ((be (xref-find-backend))) (xref--show-defs (xref-backend-definitions be (xref-backend-identifier-at-point be)) nil))
-
-;; This buffer is for text that is not saved, and for Lisp evaluation.
-;; To create a file, visit it with SPC . and enter text in its buffer.
-(defun +lookup-ffap-backend-fn (identifier)
-  "Tries to locate the file at point (or in active selection).
-Uses find-in-project functionality (provided by ivy, helm, or project),
-otherwise falling back to ffap.el (find-file-at-point)."
-  (let ((guess
-         (cond (identifier)
-               ((doom-region-active-p)
-                (buffer-substring-no-properties
-                 (doom-region-beginning)
-                 (doom-region-end)))
-               ((if (require 'ffap) (ffap-guesser)))
-               ((thing-at-point 'filename t)))))
-    (cond ((and (stringp guess)
-                (or (file-exists-p guess)
-                    (ffap-url-p guess)))
-           (find-file-at-point guess))
-          ((and (modulep! :completion ivy)
-                (doom-project-p))
-           (counsel-file-jump guess (doom-project-root)))
-          ((and (modulep! :completion vertico)
-                (doom-project-p))
-           (+vertico/find-file-in (doom-project-root) guess))
-          ((find-file-at-point (ffap-prompter guess))))
-    t))
-
-
-(find-file-at-point (ffap-prompter (thing-at-point 'filename t)))
-
-+vertico-consult-fd-args "fd --color=never -i -H -E .git --regex "
-
-
-(defun +vertico/find-file-in (&optional dir initial)
-  "Jump to file under DIR (recursive).
-If INITIAL is non-nil, use as initial input."
-  (interactive)
-  (require 'consult)
-  (let* ((default-directory (or dir default-directory))
-         (prompt-dir (consult--directory-prompt "Find" default-directory))
-         (cmd (split-string-and-unquote +vertico-consult-fd-args " ")))
-    (find-file
-     (consult--read
-      (split-string (cdr (apply #'doom-call-process cmd)) "\n" t)
-      :prompt default-directory
-      :sort nil
-      :initial (if initial (shell-quote-argument initial))
-      :add-history (thing-at-point 'filename)
-      :category 'file
-      :history '(:input +vertico/find-file-in--history)))))
-
-#+end_src
-
-* LSP
-
-#+begin_src emacs-lisp
 (setq lsp-use-plists t)
 
 (use-package lsp-mode
@@ -3045,254 +2571,7 @@ If INITIAL is non-nil, use as initial input."
 ;;    :keymaps '(lsp-mode-map)
 ;;    "g h" #'lsp-ui-doc-show
 ;;    "g H" #'lsp-ui-doc-focus-frame))
-#+end_src
 
-* WIP fast lsp
-
-#+begin_src emacs-lisp :tangle no
-;; https://github.com/minad/cape/issues/52
-(defvar-local lsp--begin nil)
-(defvar-local lsp--completions nil)
-(defvar-local lsp--buffer-tick 0)
-(defvar-local lsp--server-tick 0)
-(defvar-local lsp--waiting nil)
-(defvar-local lsp--timer nil)
-
-(defun lsp--capf ()
-  (lsp--wait)
-  (when lsp--completions
-    (list
-     lsp--begin (point)
-     (lambda (str _pred action)
-       (lsp--wait)
-       (pcase action
-         (`(boundaries . ,_) nil)
-         ('metadata
-          '(metadata
-            (category . lsp)
-            (display-sort-function . identity)
-            (cycle-sort-function . identity)))
-         ('t (copy-sequence lsp--completions))
-         ('nil (try-completion str lsp--completions))
-         (_ t))))))
-
-(defun lsp--wait () ;; Interruptible wait
-  (while (and (< lsp--server-tick lsp--buffer-tick) (not (input-pending-p)))
-    (unwind-protect
-        (let ((lsp--waiting t))
-          (sit-for 0.5))
-      (setq unread-command-events
-            (delete '(t . lsp--tick) (delq 'lsp--tick unread-command-events))))))
-
-(defun lsp--update (&rest _)
-  (cl-incf lsp--buffer-tick)
-  (when lsp--timer
-    (cancel-timer lsp--timer)
-    (setq lsp--timer nil))
-  (let ((tick lsp--buffer-tick))
-    ;; Simulate some server delay
-    (setq lsp--timer
-          (run-at-time
-           0.2 nil
-           (lambda ()
-             (setq lsp--timer nil)
-             (if-let (bounds (bounds-of-thing-at-point 'symbol))
-                 (setq lsp--begin (car bounds)
-                       lsp--completions (all-completions
-                                         (buffer-substring-no-properties lsp--begin (point))
-                                         '(alphaa1 alphaa2 alphaa3
-                                           alphab1 alphab2 alphab3
-                                           alphac1 alphac2 alphac3
-                                           betaa1 betaa2 betaa3
-                                           betab1 betab2 betab3
-                                           betac1 betac2 betac3
-                                           gammaa1 gammaa2 gammaa3
-                                           gammab1 gammab2 gammab3
-                                           gammac1 gammac2 gammac3)))
-               (setq lsp--completions nil))
-             (setq lsp--server-tick tick)
-             (when lsp--waiting
-               (push 'lsp--tick unread-command-events)))))))
-
-(add-hook 'after-change-functions 'lsp--update nil 'local)
-
-(defun lsp--passthrough-all-completions (str table _pred _pt)
-  (funcall table str nil t))
-
-(defun lsp--passthrough-try-completion (str table _pred _pt)
-  (let ((res (funcall table str nil nil)))
-    (if (stringp res)
-        (cons res (length res))
-      res)))
-
-(add-to-list 'completion-styles-alist
-             '(lsp--passthrough
-               lsp--passthrough-try-completion
-               lsp--passthrough-all-completions
-               "Passthrough style."))
-
-(setq-local completion-category-overrides '((lsp (styles lsp--passthrough)))
-            completion-at-point-functions '(lsp--capf)
-            corfu-auto t
-            corfu-auto-prefix 0
-            corfu-auto-delay 0)
-#+end_src
-
-* WIP async lsp
-
-#+begin_src emacs-lisp :tangle no
-(cl-defun lsp-request-while-no-input (method params)
-  "Send request METHOD with PARAMS and waits until there is no input.
-Return same value as `lsp--while-no-input' and respecting `non-essential'."
-  (if (or non-essential (not lsp-request-while-no-input-may-block))
-      (let* ((send-time (float-time))
-             ;; max time by which we must get a response
-             (expected-time
-              (and
-               lsp-response-timeout
-               (+ send-time lsp-response-timeout)))
-             resp-result resp-error done?)
-        (unwind-protect
-            (progn
-              (lsp-request-async method params
-                                 (lambda (res) (setf resp-result (or res :finished)) (throw 'lsp-done '_))
-                                 :error-handler (lambda (err) (setf resp-error err) (throw 'lsp-done '_))
-                                 :mode 'detached
-                                 :cancel-token :sync-request)
-              ;; (throw 'input :interrupted))
-              (while (not (or resp-error resp-result (input-pending-p)))
-                (catch 'lsp-done
-                  (sit-for
-                   (if expected-time (- expected-time send-time) 1)))
-                (setq send-time (float-time))
-                (when (and expected-time (< expected-time send-time))
-                  ;; (error "Timeout while waiting for response.  Method: %s" method)))
-                  (throw 'lsp-timeout :timeout-reached)))
-              (setq done? (or resp-error resp-result))
-              (cond
-               ((not done?) nil)
-               ((eq resp-result :finished) nil)
-               (resp-result resp-result)
-               ((lsp-json-error? resp-error) (error (lsp:json-error-message resp-error)))
-               ((lsp-json-error? (cl-first resp-error))
-                (error (lsp:json-error-message (cl-first resp-error))))))
-          (unless done?
-            (lsp-cancel-request-by-token :sync-request))
-          (when (and (input-pending-p) lsp--throw-on-input)
-            (throw 'input :interrupted)))
-        )
-    (lsp-request method params)))
-
-
-(defun lsp-completion-at-point ()
-  "Get lsp completions."
-  (when (or (--some (lsp--client-completion-in-comments? (lsp--workspace-client it))
-                    (lsp-workspaces))
-            (not (nth 4 (syntax-ppss))))
-    (let* ((trigger-chars (-> (lsp--capability-for-method "textDocument/completion")
-                              (lsp:completion-options-trigger-characters?)))
-           (bounds-start (or (cl-first (bounds-of-thing-at-point 'symbol))
-                             (point)))
-           result done?
-           (candidates
-            (lambda ()
-              (let ((rrr (catch 'lsp-timeout
-              (lsp--catch 'input
-                  (let ((lsp--throw-on-input lsp-completion-use-last-result)
-                        (same-session? (and lsp-completion--cache
-                                            ;; Special case for empty prefix and empty result
-                                            (or (cl-second lsp-completion--cache)
-                                                (not (string-empty-p
-                                                      (plist-get (cddr lsp-completion--cache) :prefix))))
-                                            (equal (cl-first lsp-completion--cache) bounds-start)
-                                            (s-prefix?
-                                             (plist-get (cddr lsp-completion--cache) :prefix)
-                                             (buffer-substring-no-properties bounds-start (point))))))
-                    (cond
-                     ((or done? result) result)
-                     ((and (not lsp-completion-no-cache)
-                           same-session?
-                           (listp (cl-second lsp-completion--cache)))
-                      (setf result (apply #'lsp-completion--filter-candidates
-                                          (cdr lsp-completion--cache))))
-                     (t
-                      (-let* ((resp (lsp-request-while-no-input
-                                     "textDocument/completion"
-                                     (plist-put (lsp--text-document-position-params)
-                                                :context (lsp-completion--get-context trigger-chars same-session?))))
-                              (completed (and resp
-                                              (not (and (lsp-completion-list? resp)
-                                                        (lsp:completion-list-is-incomplete resp)))))
-                              (items (lsp--while-no-input
-                                       (--> (cond
-                                             ((lsp-completion-list? resp)
-                                              (lsp:completion-list-items resp))
-                                             (t resp))
-                                            (if (or completed
-                                                    (seq-some #'lsp:completion-item-sort-text? it))
-                                                (lsp-completion--sort-completions it)
-                                              it)
-                                            (-map (lambda (item)
-                                                    (lsp-put item
-                                                             :_emacsStartPoint
-                                                             (or (lsp-completion--guess-prefix item)
-                                                                 bounds-start)))
-                                                  it))))
-                              (markers (list bounds-start (copy-marker (point) t)))
-                              (prefix (buffer-substring-no-properties bounds-start (point)))
-                              (lsp-completion--no-reordering (not lsp-completion-sort-initial-results)))
-                        (lsp-completion--clear-cache same-session?)
-                        (setf done? completed
-                              lsp-completion--cache (list bounds-start
-                                                          (cond
-                                                           ((and done? (not (seq-empty-p items)))
-                                                            (lsp-completion--to-internal items))
-                                                           ((not done?) :incomplete))
-                                                          :lsp-items nil
-                                                          :markers markers
-                                                          :prefix prefix)
-                              result (lsp-completion--filter-candidates
-                                      (cond (done?
-                                             (cl-second lsp-completion--cache))
-                                            (lsp-completion-filter-on-incomplete
-                                             (lsp-completion--to-internal items)))
-                                      :lsp-items items
-                                      :markers markers
-                                      :prefix prefix))))))
-                (:interrupted lsp-completion--last-result)
-                (`,res (setq lsp-completion--last-result res)))
-              )))
-                (if (eq rrr :timeout-reached) nil rrr))
-              )))
-      (list
-       bounds-start
-       (point)
-       (lambda (probe pred action)
-         (cond
-          ((eq action 'metadata)
-           '(metadata (category . lsp-capf)
-                      (display-sort-function . identity)
-                      (cycle-sort-function . identity)))
-          ((eq (car-safe action) 'boundaries) nil)
-          (t
-           (complete-with-action action (funcall candidates) probe pred))))
-       :annotation-function #'lsp-completion--annotate
-       :company-kind #'lsp-completion--candidate-kind
-       :company-deprecated #'lsp-completion--candidate-deprecated
-       :company-require-match 'never
-       :company-prefix-length
-       (save-excursion
-         (and (lsp-completion--looking-back-trigger-characterp trigger-chars) t))
-       :company-match #'lsp-completion--company-match
-       :company-doc-buffer (-compose #'lsp-doc-buffer
-                                     #'lsp-completion--get-documentation)
-       :exit-function
-       (-rpartial #'lsp-completion--exit-fn candidates)))))
-#+end_src
-
-* LSP hover
-
-#+begin_src emacs-lisp
 (defvar ar/lsp-hover-buf " *ar-lsp-hover*")
 
 (defun ar/lsp-hover-hide ()
@@ -3343,11 +2622,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
  :states '(normal motion emacs)
  :keymaps '(lsp-mode-map)
  "g h" #'ar/lsp-hover-show)
-#+end_src
 
-* Copilot
-
-#+begin_src emacs-lisp
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :ensure t
@@ -3376,11 +2651,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
          ("S-s-RET" . 'copilot-accept-completion-by-word)
          ("M-<tab>" . 'copilot-next-completion)
          ("M-TAB" . 'copilot-next-completion)))
-#+end_src
 
-* Flycheck
-
-#+begin_src emacs-lisp
 (defun ar/find-next-error (dir min-level)
   (let* ((start (point))
          (pos start)
@@ -3508,11 +2779,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
  "] u" #'sp-up-sexp)
  ;; "[ e" #'ar/prev-error
  ;; "] e" #'ar/next-error)
-#+end_src
 
-* Helpful
-
-#+begin_src emacs-lisp
 (use-package helpful
   :straight t)
 
@@ -3526,11 +2793,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
      (inhibit-switch-frame . t))
    display-buffer-alist)
   (advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update))
-#+end_src
 
-* Terminal
-
-#+begin_src emacs-lisp
 (defun ar/setup-vterm-mode ()
   (setq-local confirm-kill-processes nil ;; Don't prompt about dying processes when killing vterm
               hscroll-margin 0)          ;; Prevent premature horizontal scrolling
@@ -3667,11 +2930,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
 
 ;; (evil-define-key 'insert 'vterm-mode-map (kbd "M-b") #'vterm--self-insert
 ;;                                          (kbd "M-f") #'vterm--self-insert)
-#+end_src
 
-* Pair layout
-
-#+begin_src emacs-lisp
 (defun ar/pair-layout ()
   (interactive)
   (delete-other-windows)
@@ -3680,11 +2939,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
       (split-window-vertically h))
     (when (> (window-width) (+ w window-min-width))
       (split-window-horizontally w))))
-#+end_src
 
-* Dired
-
-#+begin_src emacs-lisp
 (use-package all-the-icons-dired
   :straight t)
 
@@ -3739,11 +2994,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
 (use-package dired-hide-dotfiles
   :straight t
   :hook (dired-mode . dired-hide-dotfiles-mode))
-#+end_src
 
-* Modeline
-
-#+begin_src emacs-lisp
 (setq delighted-modes '((tsx-ts-mode . ("TSX"))))
 
 (use-package doom-modeline
@@ -3787,21 +3038,13 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
         doom-modeline-default-eol-type 2)
   :config
   (add-to-list 'doom-modeline-mode-alist '(magit-mode . nil)))
-#+end_src
 
-* Which key
-
-#+begin_src emacs-lisp
 (use-package which-key
   :straight t
   :config
   (which-key-mode)
   (setq which-key-idle-delay 1.0))
-#+end_src
 
-* Mu4e
-
-#+begin_src emacs-lisp
 (defun ar/mu4e-action-toggle-tag (msg tag)
   (let* ((tags (mu4e-message-field msg :tags))
          (docid (mu4e-message-field msg :docid))
@@ -3990,11 +3233,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
   ;; (set-face-attribute 'mu4e-header-highlight-face nil :underline nil)
   ;; (set-face-attribute 'mu4e-unread-face nil :bold nil)
   )
-#+end_src
 
-* PDF
-
-#+begin_src emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
@@ -4011,11 +3250,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
 
 (use-package saveplace-pdf-view
   :straight t)
-#+end_src
 
-* Theme
-
-#+begin_src emacs-lisp
 (use-package doom-themes
   :straight t
   :config
@@ -4055,462 +3290,7 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
 
 (setq ring-bell-function 'ignore
       visible-bell nil)
-#+end_src
 
-* Dark Theme
-
-#+begin_src emacs-lisp :tangle ar-tomorrow-night-theme.el
-;;; ar-tomorrow-night-theme.el -*- lexical-binding: t; -*-
-
-(require 'doom-themes)
-
-(def-doom-theme
- ar-tomorrow-night
- "A theme based off of Chris Kempson's Tomorrow Dark."
-
- ;; name        gui       256       16
- ((bg         '("#161719" nil       nil          ))
- ;; ((bg         '("#121314" nil       nil          ))
- ;; ((bg         '("#0d0d0d" nil       nil          ))
-  ;; (bg-alt     '("#1d1f21" nil       nil          ))
-  (bg-alt     '("#1b1b1b" nil       nil          ))
-  (base0      '("#0d0d0d" "black"   "black"      ))
-  (base1      '("#1b1b1b" "#1b1b1b"              ))
-  (base2      '("#212122" "#1e1e1e"              ))
-  (base3      '("#292b2b" "#292929" "brightblack"))
-  (base4      '("#3f4040" "#3f3f3f" "brightblack"))
-  (base5      '("#5c5e5e" "#525252" "brightblack"))
-  (base6      '("#757878" "#6b6b6b" "brightblack"))
-  (base7      '("#969896" "#979797" "brightblack"))
-  (base8      '("#ffffff" "#ffffff" "white"      ))
-  (fg         '("#c5c8c6" "#c5c5c5" "white"))
-  (fg-alt     (doom-darken fg 0.4))
-
-  (grey       '("#5a5b5a" "#5a5a5a" "brightblack"))
-  (dark-red   '("#cc6666" "#cc6666" "red"))
-  (red        '("#dac1c1" "#cc6666" "red"))
-  (orange     '("#de935f" "#dd9955" "brightred"))
-  (yellow     '("#f0c674" "#f0c674" "yellow"))
-  (green      '("#b5bd68" "#b5bd68" "green"))
-  ;; (blue       '("#81a2be" "#88aabb" "brightblue"))
-  (blue       '("#b0b8bf" "#88aabb" "brightblue"))
-  (dark-blue  '("#41728e" "#41728e" "blue"))
-  (teal       blue) ; FIXME replace with real teal
-  (magenta    '("#c9b4cf" "#c9b4cf" "magenta"))
-  (violet     '("#b294bb" "#b294bb" "brightmagenta"))
-  (cyan       '("#8abeb7" "#8abeb7" "cyan"))
-  (dark-cyan  (doom-darken cyan 0.4))
-
-  ;; (grey       '("#5a5b5a" "#5a5a5a" "brightblack"))
-  ;; (red        '("#daa8a8" "#cc6666" "red"))
-  ;; (orange     '("#de935f" "#dd9955" "brightred"))
-  ;; (yellow     '("#dec89c" "#f0c674" "yellow"))
-  ;; (green      '("#aeba38" "#b5bd68" "green"))
-  ;; (blue       '("#acb6bf" "#88aabb" "brightblue"))
-  ;; (dark-blue  '("#41728e" "#41728e" "blue"))
-  ;; (teal       blue) ; FIXME replace with real teal
-  ;; (magenta    '("#c9b4cf" "#c9b4cf" "magenta"))
-  ;; (violet     '("#b091b9" "#b294bb" "brightmagenta"))
-  ;; (cyan       '("#8abeb7" "#8abeb7" "cyan"))
-  ;; (dark-cyan  (doom-darken cyan 0.4))
-
-  ;; bg #161719
-  ;; red #dac1c1
-  ;; violet #b091b9
-  ;; green #aeba38
-  ;; yellow #dacbac
-  ;; blue #b0b8bf
-  ;; orange #de935f
-
-  ;; face categories
-  (highlight      blue)
-  (vertical-bar   base0)
-  (selection      "#333535");;`(,(car (doom-lighten bg 0.1)) ,@(cdr base1)))
-  (builtin        blue)
-  (comments       grey)
-  (doc-comments   (doom-lighten grey 0.14))
-  (constants      orange)
-  (functions      blue)
-  (keywords       violet)
-  (methods        blue)
-  (operators      fg)
-  (type           yellow)
-  (strings        green)
-  (variables      red)
-  (numbers        orange)
-  (region         selection)
-  (error          red)
-  (warning        yellow)
-  (success        green)
-  (vc-modified    fg-alt)
-  (vc-added       green)
-  (vc-deleted     red)
-
-  ;; custom categories
-  (border          base5)
-  (modeline-bg     base0);;`(,(doom-darken (car bg) 0.3) ,@(cdr base3)))
-  (modeline-bg-alt bg);;`(,(car bg) ,@(cdr base1)))
-  (modeline-fg     base8)
-  (modeline-fg-alt comments)
-  (-modeline-pad   nil))
-
- ;; --- faces ------------------------------
- (((line-number &override) :foreground base4 :italic nil)
-  ((line-number-current-line &override) :foreground base7 :bold bold :italic nil)
-  (mode-line
-   :background modeline-bg :foreground modeline-fg
-   :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
-  (mode-line-inactive
-   :background modeline-bg-alt :foreground modeline-fg-alt
-   :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-alt)))
-  ((nobreak-space &override) :foreground base3)
-  ((show-paren-match &override) :background base3)
-  ((evil-ex-lazy-highlight &override) :background base3)
-
-  ;;;; magit
-  ((diff-removed &override) :foreground dark-red)
-  ((magit-diff-removed &override) :foreground dark-red)
-  ((magit-diff-added-highlight &override) :bold nil)
-  ((magit-diff-removed-highlight &override) :foreground dark-red :bold nil)
-  (diff-refine-added :inverse-video nil :bold t :foreground "#d6de91")
-  (diff-refine-removed :inverse-video nil :bold t :foreground "#e88380")
-  ((magit-header-line &override) :box `(:line-width 3 :color ,bg) :foreground fg :background bg)
-
-  (smerge-upper :background bg-alt :foreground dark-red)
-  (smerge-lower :background bg-alt :foreground dark-red)
-
-  (lsp-face-highlight-textual :background base2)
-
-  (sp-pair-overlay-face :background base1)
-
-  (tree-sitter-hl-face:property :inherit 'font-lock-constant-face)
-  ;; (tree-sitter-hl-face:function.macro :inherit 'font-lock-builtin-face)
-  (tree-sitter-hl-face:function.call :foreground fg)
-
-  ((link &override) :weight 'normal);; :underline t)
-
-  (lsp-posframe :foreground fg :background bg)
-  (lsp-posframe-border :foreground border)
-
-  (markdown-code-face :background bg)
-
-  (web-mode-symbol-face :foreground orange)
-
-  ;;;; corfu
-  (corfu-default :background bg)
-  (corfu-current :background base3)
-  (corfu-border :background border)
-  (completions-common-part :foreground blue)
-  (completions-first-difference :weight 'normal)
-
-  ;;;; vertico
-  (vertico-posframe-border :background border)
-
-  ;;;; flycheck
-  (flycheck-error :underline `(:style wave :color ,dark-red))
-  (flycheck-fringe-error :foreground dark-red)
-  (flycheck-posframe-background-face :background base1)
-  (flycheck-posframe-border-face :foreground border)
-  (flycheck-posframe-info-face :inherit 'success)
-  (flycheck-posframe-warning-face :foreground yellow)
-  (flycheck-posframe-error-face :foreground dark-red)
-
-  (eldoc-highlight-function-argument :foreground orange)
-
-  ;;;; mu4e
-  (mu4e-highlight-face :inherit nil :foreground blue :weight 'bold)
-  ((mu4e-header-highlight-face &override) :underline nil :background base2)
-  ((mu4e-unread-face &override) :bold nil)
-
-  ;;;; outline
-  ((outline-1 &override) :weight 'normal)
-  ((outline-2 &override) :weight 'normal)
-
-  ;;;; org
-  (org-block :background "#141517")
-  ;; ((org-block &override)            :background org-block-bg)
-  ;; ((org-block-background &override) :background org-block-bg)
-  ;; ((org-block-begin-line &override) :background org-block-bg)
-  ;; ((org-quote &override)            :background org-block-bg)
-  (org-habit-overdue-face :foreground "#eee" :background "#7f3f44")
-  (org-habit-clear-face :foreground "#eee" :background "#719258")
-  (org-habit-ready-face :foreground "#eee" :background "#6c8e22" :weight 'normal)
-  (org-habit-clear-future-face :foreground "#000" :background "#566d46")
-  (org-habit-ready-future-face :foreground "#eee" :background "#6c8e22" :weight 'normal)
-
-  ;;;; rainbow-delimiters
-  (rainbow-delimiters-depth-1-face :foreground violet)
-  (rainbow-delimiters-depth-2-face :foreground blue)
-  (rainbow-delimiters-depth-3-face :foreground orange)
-  (rainbow-delimiters-depth-4-face :foreground green)
-  (rainbow-delimiters-depth-5-face :foreground magenta)
-  (rainbow-delimiters-depth-6-face :foreground yellow)
-  (rainbow-delimiters-depth-7-face :foreground teal)
-
-  ;;;; doom-modeline
-  (doom-modeline-bar-inactive      :foreground bg :background bg)
-  (doom-modeline-buffer-path       :foreground violet :bold bold)
-  (doom-modeline-buffer-major-mode :inherit 'doom-modeline-buffer-path)))
-#+end_src
-
-* Light Theme
-
-#+begin_src emacs-lisp :tangle ar-tomorrow-day-theme.el
-;;; themes/ar-tomorrow-day-theme.el -*- lexical-binding: t; -*-
-
-(require 'doom-themes)
-
-(def-doom-theme
- ar-tomorrow-day
- "A light theme based off of Chris Kempson's Tomorrow Dark."
-
- ;; name        gui       256       16
- ((bg         '("#ffffff" "white"   "white" ))
-  (bg-alt     '("#fcfcfc" nil       nil     ))
-  ;; (base0      '("#f2f2f2" "white"   "white" ))
-  ;; (base1      '("#e4e4e4" "#e4e4e4"         ))
-  ;; (base2      '("#dedede" "#cccccc"         ))
-  (base0      '("#fafafa" "#e4e4e4"         ))
-  (base1      '("#f8f8f8" "#cccccc"         ))
-  (base2      '("#f2f2f2" "white"   "white" ))
-  (base3      '("#d6d4d4" "#cccccc" "silver"))
-  (base4      '("#c0bfbf" "#c0c0c0" "silver"))
-
-  (base5      '("#a3a1a1" "#adadad" "silver"))
-  (base6      '("#8a8787" "#949494" "silver"))
-  (base7      '("#696769" "#6b6b6b" "silver"))
-  (base8      '("#000000" "#000000" "black" ))
-  (fg         '("#4d4d4c" "#3a3a3a" "black"))
-  (fg-alt     (doom-darken fg 0.6))
-
-  ;; (grey       '("#8e908c" "#999999" "silver"))
-  ;; ;; (red        '("#c82829" "#cc3333" "red"))
-  ;; (red        '("#ad353d" "#cc3333" "red"))
-  ;; ;; (orange     '("#f5871f" "#ff9933" "brightred"))
-  ;; ;; (orange     '("#d4741b" "#ff9933" "brightred"))
-  ;; ;; (orange     '("#bc793b" "#ff9933" "brightred"))
-  ;; (orange     '("#c0913b" "#ff9933" "brightred"))
-  ;; (yellow     '("#eab700" "#ffcc00" "yellow"))
-  ;; (dark-yellow '("#9b8e3b" "#ffcc00" "yellow"))
-  ;; (green      '("#718c00" "#669900" "green"))
-  ;; ;; (blue       '("#4271ae" "#339999" "brightblue"))
-  ;; (blue       '("#3b649b" "#339999" "brightblue"))
-  ;; (dark-blue  (doom-darken blue 0.25))
-  ;; ;; (teal       '("#3e999f" "#339999" "brightblue"))
-  ;; (teal       '("#327A7F" "#339999" "brightblue"))
-  ;; ;; (magenta    '("#c678dd" "#c9b4cf" "magenta"))
-  ;; (magenta    '("#9e60b1" "#c9b4cf" "magenta"))
-  ;; (violet     '("#8959a8" "#996699" "brightmagenta"))
-  ;; ;; (violet     '("#7d519a" "#996699" "brightmagenta"))
-  ;; ;; (violet     '("#925EB4" "#996699" "brightmagenta"))
-  ;; (cyan       '("#8abeb7" "#8abeb7" "cyan"))
-  ;; ;; (cyan       '("#5D817C" "#8abeb7" "cyan"))
-  ;; (dark-cyan  (doom-lighten cyan 0.4))
-
-  (grey        '("#8e908c" "#999999" "silver"))
-  ;; (red         '("#7f3f44" "#cc3333" "red"))
-  (red         '("#723F43" "#cc3333" "red"))
-  (light-red   '("#ad353d" "#cc3333" "red"))
-  ;; (orange      '("#b37300" "#ff9933" "brightred"))
-  (orange      '("#b27200" "#ff9933" "brightred"))
-  (yellow      '("#cfa400" "#ffcc00" "yellow"))
-  ;; (dark-yellow '("727239" "#ffcc00" "yellow"))
-  (dark-yellow '("#a68a00" "#ffcc00" "yellow"))
-  (green       '("#6b8501" "#669900" "green"))
-  ;; (blue        '("#3f5a7f" "#339999" "brightblue"))
-  (blue        '("#3f5573" "#339999" "brightblue"))
-  (dark-blue   (doom-darken blue 0.25))
-  (teal        '("#327a7f" "#339999" "brightblue"))
-  (magenta     '("#72457f" "#c9b4cf" "magenta"))
-  (violet      '("#744b8f" "#996699" "brightmagenta"))
-  (cyan        '("#5d817c" "#8abeb7" "cyan"))
-  (dark-cyan   (doom-lighten cyan 0.4))
-
-  ;; face categories
-
-  ;; face categories
-  (highlight      blue)
-  (vertical-bar   base3)
-  (selection      base2)
-  (builtin        blue)
-  (comments       grey)
-  (doc-comments   grey)
-  (constants      orange)
-  (functions      blue)
-  (keywords       violet)
-  (methods        blue)
-  (operators      fg)
-  (type           dark-yellow);;(doom-darken yellow 0.5))
-  (strings        green)
-  (variables      red)
-  (numbers        orange)
-  (region         selection)
-  (error          red)
-  (warning        yellow)
-  (success        green)
-  (vc-modified    (doom-lighten yellow 0.4))
-  (vc-added       (doom-lighten green 0.4))
-  (vc-deleted     red)
-
-  ;; custom categories
-  (border                   base4)
-  (org-block-bg             "#fdfdfd")
-  (modeline-bg              `(,(doom-lighten (car bg-alt) 0.4) ,@(cdr base3)))
-  (modeline-bg-alt          bg)
-  (modeline-bg-inactive     bg) ;; `(,(doom-darken (car bg) 0.04) ,@(cdr base1)))
-  (modeline-bg-alt-inactive bg)
-  (modeline-fg              fg)
-  (modeline-fg-inactive     comments)
-  (modeline-fg-alt-inactive comments)
-  (-modeline-pad            nil))
-
- ;;;; Base theme face overrides
- (;;((font-lock-doc-face &override) :slant 'italic)
-  ((line-number &override) :foreground base4 :italic nil)
-  ((line-number-current-line &override) :foreground base8 :italic nil)
-  (mode-line
-   :background modeline-bg :foreground modeline-fg
-   :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
-  (mode-line-inactive
-   :background modeline-bg-inactive :foreground modeline-fg-inactive
-   :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-inactive)))
-  (mode-line-highlight :inherit 'bold :background highlight :foreground base2)
-  ((header-line &override) :background base2)
-  ((nobreak-space &override) :foreground "#e4e4e4")
-  ((show-paren-match &override) :background base3)
-  ((evil-ex-lazy-highlight &override) :background base1)
-  (lsp-face-highlight-textual :background base0)
-
-  ;;;; magit
-  ((magit-diff-context &override) :foreground base6 :background bg-alt)
-  ((magit-diff-context-highlight &override) :foreground fg :background bg)
-  ((magit-diff-added &override) :foreground "#6b8501" :background "#f6f7ef")
-  ((magit-diff-removed &override) :foreground "#a44f56" :background "#fbf3f3")
-  ((magit-diff-added-highlight &override) :bold nil :foreground "#6b8501" :background "#f6f7ef")
-  ((magit-diff-removed-highlight &override) :bold nil :foreground "#a44f56" :background "#fbf3f3")
-  ((magit-header-line &override) :box `(:line-width 3 :color ,bg) :foreground fg :background bg)
-  (magit-diff-revision-summary-highlight :foreground base8 :background bg-alt :bold nil)
-  (magit-diff-revision-summary :foreground base8 :background bg)
-  ((magit-diff-hunk-heading &override) :foreground base7 :bold nil)
-  ;; (magit-diff-file-heading :foreground fg)
-  (magit-tag :foreground orange)
-
-  (diff-refine-added :inverse-video nil :bold t :foreground "#6b8501" :background "#f6f7ef")
-  (diff-refine-removed :inverse-video nil :bold t :foreground "#a44f56" :background "#fbf3f3")
-
-  ;;;; doom-modeline
-  (doom-modeline-bar :background highlight)
-  (doom-modeline-bar-inactive :foreground bg :background bg)
-  (doom-modeline-buffer-path :foreground violet :weight 'bold)
-  (doom-modeline-buffer-major-mode :inherit 'doom-modeline-buffer-path)
-
-  (lsp-face-highlight-textual :background base2)
-
-  (tree-sitter-hl-face:property :inherit 'font-lock-constant-face)
-  (tree-sitter-hl-face:function.call :foreground fg)
-
-  (eldoc-highlight-function-argument :foreground orange)
-
-  (markdown-code-face :background bg)
-
-  (web-mode-symbol-face :foreground orange)
-
-  ;; ((tooltip &override) :foreground fg :background bg)
-  (lsp-posframe :foreground fg :background bg)
-  (lsp-posframe-border :foreground border)
-
-  ;;;; corfu
-  (corfu-default :background bg)
-  (corfu-current :background base2)
-  (completions-common-part :foreground blue)
-  (completions-first-difference :weight 'normal)
-
-  ;;;; vertico
-  (vertico-posframe-border :background border)
-
-  ;;;; flycheck
-  (flycheck-error :underline `(:style wave :color ,light-red))
-  (flycheck-fringe-error :foreground light-red)
-  (flycheck-posframe-background-face :background "#fdfdfd")
-  (flycheck-posframe-border-face :foreground border)
-  (flycheck-posframe-info-face :inherit 'success)
-  (flycheck-posframe-warning-face :foreground orange)
-  (flycheck-posframe-error-face :foreground light-red)
-
-  ;;;; mu4e
-  (mu4e-highlight-face :inherit nil :foreground blue :weight 'bold)
-  ((mu4e-header-highlight-face &override) :underline nil :background base1)
-  ((mu4e-unread-face &override) :bold nil)
-
-  ;;;; ivy
-  (ivy-current-match :background region :distant-foreground grey :weight 'ultra-bold)
-  (ivy-minibuffer-match-face-1 :foreground base5 :weight 'light)
-  (ivy-minibuffer-match-face-2 :inherit 'ivy-minibuffer-match-face-1 :foreground violet :weight 'ultra-bold)
-  (ivy-minibuffer-match-face-3 :inherit 'ivy-minibuffer-match-face-2 :foreground blue)
-  (ivy-minibuffer-match-face-4 :inherit 'ivy-minibuffer-match-face-2 :foreground red)
-
-  ((link &override) :weight 'normal);; :underline t)
-
-  ;;;; org <built-in>
-  (org-block :background org-block-bg)
-  ;; ((org-block &override)            :background org-block-bg)
-  ;; ((org-block-background &override) :background org-block-bg)
-  ;; ((org-block-begin-line &override) :background org-block-bg)
-  ;; ((org-quote &override)            :background org-block-bg)
-  (org-habit-overdue-face :foreground "#eee" :background "#ad353d")
-  (org-habit-clear-face :foreground "#eee" :background "#85b861")
-  (org-habit-ready-face :foreground "#eee" :background "#6c8e22" :weight 'normal)
-  (org-habit-clear-future-face :foreground "#000" :background "#c4dbb5")
-  (org-habit-ready-future-face :foreground "#eee" :background "#6c8e22" :weight 'normal)
-
-  ;;;; outline <built-in>
-  ((outline-1 &override) :foreground teal :weight 'normal)
-  ((outline-2 &override) :foreground blue :weight 'normal)
-  ((outline-3 &override) :foreground violet)
-  ((outline-4 &override) :foreground blue)
-  ((outline-5 &override) :foreground violet)
-  ((outline-6 &override) :foreground blue)
-  ((outline-7 &override) :foreground violet)
-  ((outline-8 &override) :foreground blue)
-
-  ;;;; rainbow-delimiters
-  ;; (rainbow-delimiters-depth-1-face :foreground violet)
-  ;; (rainbow-delimiters-depth-2-face :foreground blue)
-  ;; (rainbow-delimiters-depth-3-face :foreground green)
-  ;; (rainbow-delimiters-depth-4-face :foreground magenta)
-  ;; (rainbow-delimiters-depth-5-face :foreground orange)
-  ;; (rainbow-delimiters-depth-6-face :foreground yellow)
-  ;; (rainbow-delimiters-depth-7-face :foreground teal)
-  ;; (rainbow-delimiters-depth-8-face :foreground violet)
-  ;; (rainbow-delimiters-depth-9-face :foreground blue)
-  (rainbow-delimiters-depth-1-face :foreground base7)
-  (rainbow-delimiters-depth-2-face :foreground base6)
-  (rainbow-delimiters-depth-3-face :foreground base7)
-  (rainbow-delimiters-depth-4-face :foreground base6)
-  (rainbow-delimiters-depth-5-face :foreground base7)
-  (rainbow-delimiters-depth-6-face :foreground base6)
-  (rainbow-delimiters-depth-7-face :foreground base7)
-  (rainbow-delimiters-depth-8-face :foreground base6)
-  (rainbow-delimiters-depth-9-face :foreground base7)
-
-  ;;;; solaire-mode
-  (solaire-mode-line-face :inherit 'mode-line :background modeline-bg-alt)
-  (solaire-mode-line-inactive-face
-   :inherit 'mode-line-inactive
-   :background modeline-bg-alt-inactive
-   :foreground modeline-fg-alt-inactive)
-
-  ;;;; treemacs
-  (treemacs-git-untracked-face :foreground yellow)
-
-  ;;;; whi
-  (whitespace-tab :background (doom-lighten base2 0.6)
-                  :foreground comments)))
-#+end_src
-
-* Limits
-
-#+begin_src emacs-lisp
 ;; lower value means more but faster gc runs
 (setq gc-cons-threshold (* 2 1024 1024))
 
@@ -4518,4 +3298,3 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
 (setq read-process-output-max (* 10 1024 1024))
 
 (setq warning-minimum-level :error)
-#+end_src

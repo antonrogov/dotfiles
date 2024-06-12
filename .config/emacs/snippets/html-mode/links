@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: link rel=stylesheet
+# group : meta
+# --
+<link rel="stylesheet" type="text/css" href="$1" crossorigin="anonymous">$0

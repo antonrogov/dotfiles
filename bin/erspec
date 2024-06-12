@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+rspec --require ~/.config/emacs/rspec_formatter.rb --format EmacsRspecFormatter "$@"
