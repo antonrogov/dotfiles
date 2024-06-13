@@ -20,17 +20,20 @@ if ! emacsclient --suppress-output --eval nil 2>/dev/null; then
   trap cleanup EXIT INT TERM
 fi
 
-cmd="+org-capture/open-frame"
+if [ "$1" = "-l" ]; then
+  emacsclient -a "" -e "(ar/capture-url \"$2\" \"$3\")"
+  exit
+fi
 
 # org-capture key mapped to argument flags
 # keys=$(emacsclient -e "(+org-capture-available-keys)" | cut -d '"' -f2)
 while getopts "k:nl" opt; do
   case "${opt}" in
     k)
-      key="\"$OPTARG\""
+      key=" \"$OPTARG\""
+      cmd="+org-capture/open-frame"
       ;;
     n)
-      # cmd="ar/org-roam-capture-open-frame"
       cmd="ar/capture-note"
       ;;
     l)
@@ -52,4 +55,4 @@ esac
 
 # Non-daemon servers flicker a lot if frames are created from terminal, so we do
 # it internally instead.
-emacsclient -a "" -e "($cmd \"$str\")"
+emacsclient -a "" -e "($cmd \"$str\"$key)"

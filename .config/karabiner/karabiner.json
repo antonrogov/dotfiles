@@ -24,14 +24,20 @@
                                 "from": {
                                     "key_code": "caps_lock",
                                     "modifiers": {
-                                        "optional": ["any"]
+                                        "optional": [
+                                            "any"
+                                        ]
                                     }
                                 },
                                 "to": [
-                                    {"key_code": "left_control"}
+                                    {
+                                        "key_code": "left_control"
+                                    }
                                 ],
                                 "to_if_alone": [
-                                    {"key_code": "escape"}
+                                    {
+                                        "key_code": "escape"
+                                    }
                                 ],
                                 "type": "basic"
                             }
@@ -44,12 +50,18 @@
                                 "from": {
                                     "key_code": "h",
                                     "modifiers": {
-                                        "mandatory": ["fn"],
-                                        "optional": ["any"]
+                                        "mandatory": [
+                                            "fn"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
                                     }
                                 },
                                 "to": [
-                                    {"key_code": "left_arrow"}
+                                    {
+                                        "key_code": "left_arrow"
+                                    }
                                 ],
                                 "type": "basic"
                             },
@@ -57,12 +69,18 @@
                                 "from": {
                                     "key_code": "j",
                                     "modifiers": {
-                                        "mandatory": ["fn"],
-                                        "optional": ["any"]
+                                        "mandatory": [
+                                            "fn"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
                                     }
                                 },
                                 "to": [
-                                    {"key_code": "down_arrow"}
+                                    {
+                                        "key_code": "down_arrow"
+                                    }
                                 ],
                                 "type": "basic"
                             },
@@ -70,12 +88,18 @@
                                 "from": {
                                     "key_code": "k",
                                     "modifiers": {
-                                        "mandatory": ["fn"],
-                                        "optional": ["any"]
+                                        "mandatory": [
+                                            "fn"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
                                     }
                                 },
                                 "to": [
-                                    {"key_code": "up_arrow"}
+                                    {
+                                        "key_code": "up_arrow"
+                                    }
                                 ],
                                 "type": "basic"
                             },
@@ -83,188 +107,352 @@
                                 "from": {
                                     "key_code": "l",
                                     "modifiers": {
-                                        "mandatory": ["fn"],
-                                        "optional": ["any"]
+                                        "mandatory": [
+                                            "fn"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
                                     }
                                 },
                                 "to": [
-                                    {"key_code": "right_arrow"}
+                                    {
+                                        "key_code": "right_arrow"
+                                    }
                                 ],
                                 "type": "basic"
                             }
                         ]
                     },
                     {
-                      "description": "Mouse keys",
-                      "manipulators": [
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "h",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
+                        "description": "Mouse keys",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "mouse_keys_mode_scroll",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "h",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "horizontal_wheel": 64
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "mouse_keys_mode_scroll",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "j",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "vertical_wheel": 64
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "mouse_keys_mode_scroll",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "k",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "vertical_wheel": -64
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "mouse_keys_mode_scroll",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "l",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "horizontal_wheel": -64
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "h",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "x": -1500
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "j",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "y": 1500
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "k",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "y": -1500
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "l",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "x": 1500
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "d",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "pointing_button": "button1"
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "f",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "pointing_button": "button2"
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "v",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "pointing_button": "button3"
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "s",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "set_variable": {
+                                            "name": "mouse_keys_mode_scroll",
+                                            "value": 1
+                                        }
+                                    }
+                                ],
+                                "to_after_key_up": [
+                                    {
+                                        "set_variable": {
+                                            "name": "mouse_keys_mode_scroll",
+                                            "value": 0
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "a",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "speed_multiplier": 3
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "z",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "right_command"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "mouse_key": {
+                                            "speed_multiplier": 0.4
+                                        }
+                                    }
+                                ],
+                                "type": "basic"
                             }
-                          },
-                          "to": [{"mouse_key": {"horizontal_wheel": -64}}],
-                          "conditions": [{"type": "variable_if", "name": "mouse_keys_mode_scroll", "value": 1}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "j",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"vertical_wheel": 64}}],
-                          "conditions": [{"type": "variable_if", "name": "mouse_keys_mode_scroll", "value": 1}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "k",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"vertical_wheel": -64}}],
-                          "conditions": [{"type": "variable_if", "name": "mouse_keys_mode_scroll", "value": 1}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "l",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"horizontal_wheel": 64}}],
-                          "conditions": [{"type": "variable_if", "name": "mouse_keys_mode_scroll", "value": 1}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "h",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"x": -1500}}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "j",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"y": 1500}}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "k",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"y": -1500}}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "l",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"mouse_key": {"x": 1500}}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "d",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"pointing_button": "button1"}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "f",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"pointing_button": "button2"}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "v",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [{"pointing_button": "button3"}]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "s",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [
-                            {"set_variable": {"name": "mouse_keys_mode_scroll", "value": 1}}
-                          ],
-                          "to_after_key_up": [
-                            {"set_variable": {"name": "mouse_keys_mode_scroll", "value": 0}}
-                          ]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "a",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [
-                            {"mouse_key": {"speed_multiplier": 3}}
-                          ]
-                        },
-                        {
-                          "type": "basic",
-                          "from": {
-                            "key_code": "z",
-                            "modifiers": {
-                              "mandatory": ["right_command"],
-                              "optional": ["any"]
-                            }
-                          },
-                          "to": [
-                            {"mouse_key": {"speed_multiplier": 0.4}}
-                          ]
-                        }
-                      ]
+                        ]
                     }
                 ]
             },
@@ -363,6 +551,20 @@
                         "vendor_id": 1452
                     },
                     "ignore": false,
+                    "manipulate_caps_lock_led": true,
+                    "simple_modifications": [],
+                    "treat_as_built_in_keyboard": false
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": true,
+                        "product_id": 24926,
+                        "vendor_id": 7504
+                    },
+                    "ignore": true,
                     "manipulate_caps_lock_led": true,
                     "simple_modifications": [],
                     "treat_as_built_in_keyboard": false

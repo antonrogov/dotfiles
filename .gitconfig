@@ -47,6 +47,9 @@
   sp = stash pop
   st = status
   where = symbolic-ref --short HEAD
+  wa = worktree add
+  wls = worktree list
+  wrm = worktree remove
 [color]
   branch = auto
   status = auto
@@ -65,11 +68,11 @@
 [push]
   default = simple
 [filter "lfs"]
-	clean = git lfs clean %f
-	smudge = git lfs smudge %f
-	required = true
+  clean = git lfs clean %f
+  smudge = git lfs smudge %f
+  required = true
 [init]
-	defaultBranch = master
+  defaultBranch = master
 [color "diff"]
   frag = blue
 [color "diff-highlight"]
