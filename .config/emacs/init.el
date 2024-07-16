@@ -1250,7 +1250,11 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
   :straight t
   :config
   (add-to-list 'yas-snippet-dirs (expand-file-name "snippets" init-emacs-directory))
-  (yas-global-mode))
+  (yas-global-mode)
+  (general-def
+    :keymaps 'yas-minor-mode-map
+    :states 'insert
+    "M-<tab>" #'yas-expand))
 
 (use-package yasnippet-capf
   :straight t
@@ -2640,8 +2644,8 @@ The functions `cape-wrap-super' and `cape-capf-super' are experimental."
                   :override #'ar/copilot--post-command-debounce)))
   (ar/copilot-auto t)
   :bind (:map copilot-mode-map
-         ("M-<tab>" . 'copilot-complete)
-         ("M-TAB" . 'copilot-complete)
+         ;;("M-<tab>" . 'copilot-complete)
+         ;;("M-TAB" . 'copilot-complete)
          ("S-M-<tab>" . copilot-panel-complete)
          ("S-M-TAB" . copilot-panel-complete)
          :map copilot-completion-map

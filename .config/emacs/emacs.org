@@ -1506,7 +1506,11 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
   :straight t
   :config
   (add-to-list 'yas-snippet-dirs (expand-file-name "snippets" init-emacs-directory))
-  (yas-global-mode))
+  (yas-global-mode)
+  (general-def
+    :keymaps 'yas-minor-mode-map
+    :states 'insert
+    "M-<tab>" #'yas-expand))
 
 (use-package yasnippet-capf
   :straight t
@@ -3365,8 +3369,8 @@ Return same value as `lsp--while-no-input' and respecting `non-essential'."
                   :override #'ar/copilot--post-command-debounce)))
   (ar/copilot-auto t)
   :bind (:map copilot-mode-map
-         ("M-<tab>" . 'copilot-complete)
-         ("M-TAB" . 'copilot-complete)
+         ;;("M-<tab>" . 'copilot-complete)
+         ;;("M-TAB" . 'copilot-complete)
          ("S-M-<tab>" . copilot-panel-complete)
          ("S-M-TAB" . copilot-panel-complete)
          :map copilot-completion-map
