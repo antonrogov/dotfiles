@@ -1532,9 +1532,10 @@ http://joaotavora.github.io/yasnippet/snippet-development.html
                                        (car completion-at-point-functions))
                       (cdr completion-at-point-functions))))
 
-  (add-hook 'conf-mode-hook 'snippets-setup-capf)
-  (add-hook 'prog-mode-hook 'snippets-setup-capf)
-  (add-hook 'text-mode-hook 'snippets-setup-capf))
+  ;; (add-hook 'conf-mode-hook 'snippets-setup-capf)
+  ;; (add-hook 'prog-mode-hook 'snippets-setup-capf)
+  ;; (add-hook 'text-mode-hook 'snippets-setup-capf)
+  )
 #+end_src
 
 #+begin_src emacs-lisp :tangle no

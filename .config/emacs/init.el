@@ -1276,9 +1276,10 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
                                        (car completion-at-point-functions))
                       (cdr completion-at-point-functions))))
 
-  (add-hook 'conf-mode-hook 'snippets-setup-capf)
-  (add-hook 'prog-mode-hook 'snippets-setup-capf)
-  (add-hook 'text-mode-hook 'snippets-setup-capf))
+  ;; (add-hook 'conf-mode-hook 'snippets-setup-capf)
+  ;; (add-hook 'prog-mode-hook 'snippets-setup-capf)
+  ;; (add-hook 'text-mode-hook 'snippets-setup-capf)
+  )
 
 (defun ar/switch-project-action ()
   (persp-switch (projectile-project-name))
