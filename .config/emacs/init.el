@@ -1329,7 +1329,13 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
         compilation-save-buffers-predicate #'projectile-current-project-buffer-p))
 
 (defun ar/magit-display-buffer (buffer)
-  (display-buffer buffer '(display-buffer-same-window)))
+  (let ((buffer-mode (buffer-local-value 'major-mode buffer)))
+    (display-buffer
+     buffer (if (bound-and-true-p git-commit-mode)
+                (let ((size 0.75))
+                  `(display-buffer-below-selected
+                    . ((window-height . ,(truncate (* (window-height) size))))))
+              '(display-buffer-same-window)))))
 
 (use-package magit
   :straight t
