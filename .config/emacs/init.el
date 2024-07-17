@@ -1034,7 +1034,10 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
   (if buffer-file-name
       (->> command
            (s-replace "%f" (shell-quote-argument (file-relative-name buffer-file-name)))
-           (s-replace "%l" (number-to-string (line-number-at-pos))))
+           (s-replace "%l" (concat
+                            (shell-quote-argument (file-relative-name buffer-file-name))
+                            ":"
+                            (number-to-string (line-number-at-pos)))))
     command))
 
 (defun ar/compile (&optional arg)
