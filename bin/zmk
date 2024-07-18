@@ -1,0 +1,39 @@
+#!/bin/bash
+
+CONFIG_DIR=$HOME/.config/zmk
+BUILD_DIR=$HOME/.local/share/zmk/build
+SRC_DIR=$HOME/code/zmk
+TARGET_DIR=/Volumes/NICENANO
+
+case "$1" in
+build)
+  mkdir -p $BUILD_DIR
+  rm -rf $BUILD_DIR/left $BUILD_DIR/right
+  export VIRTUAL_ENV=$SRC_DIR/.env
+  export PATH=$VIRTUAL_ENV/bin:$PATH
+  cd $SRC_DIR/app
+	west build -b nice_nano_v2 -d $BUILD_DIR/left -- -DSHIELD=corne_left -DZMK_CONFIG=$CONFIG_DIR
+	west build -b nice_nano_v2 -d $BUILD_DIR/right -- -DSHIELD=corne_right -DZMK_CONFIG=$CONFIG_DIR
+  ;;
+copy)
+  if test -d $TARGET_DIR; then
+    case "$2" in
+    left)
+      cp $BUILD_DIR/left/zephyr/zmk.uf2 $TARGET_DIR
+      ;;
+    right)
+      cp $BUILD_DIR/right/zephyr/zmk.uf2 $TARGET_DIR
+      ;;
+    *)
+      echo "Usage: zmk copy left|right"
+      exit 1
+    esac
+  else
+    echo "ERROR: $TARGET_DIR not found"
+    exit 1
+  fi
+  ;;
+*)
+  echo "Usage: zmk build|copy"
+  exit 1
+esac
