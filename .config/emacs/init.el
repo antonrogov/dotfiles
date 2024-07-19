@@ -1622,15 +1622,15 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
   :config
   (setq slim-indent-offset 2))
 
-(general-define-key
-  :states '(normal motion)
-  :keymaps 'ruby-base-mode-map
+(general-def
+  :states 'normal
+  :keymaps 'ruby-ts-mode-map
   "[ t" (lambda () (interactive) (ruby-move-to-block -1))
   "] t" (lambda () (interactive) (ruby-move-to-block 1)))
 
 (ar/local-leader-def
-  :states '(normal motion)
-  :keymaps 'ruby-base-mode-map
+  :states 'normal
+  :keymaps 'ruby-ts-mode-map
   "'" #'ruby-toggle-string-quotes)
 
 ;; (general-define-key
@@ -1644,10 +1644,11 @@ If FORCE-P, overwrite the destination file if it exists, without confirmation."
 ;;   "RET" #'ar/rspec-run)
 
 (ar/local-leader-def
-  :states '(normal motion)
+  :states 'normal
   :keymaps '(rspec-verifiable-mode-map rspec-mode-map)
-  "t b" #'ar/rspec-enter-toggle
-  "t t" #'rspec-toggle-spec-and-target)
+  ;; "t b" #'ar/rspec-enter-toggle
+  ;; "t t" #'rspec-toggle-spec-and-target)
+  "t" #'rspec-toggle-spec-and-target)
 
 (use-package realgud
   :straight t
