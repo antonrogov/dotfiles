@@ -1,0 +1,29 @@
+#!/bin/bash
+
+base_dir=${PROJECTS_PATH:-$HOME/code}
+
+find_gits() {
+  fd -t d -d 3 --follow --prune -c never -H '\.git$' --base-directory $base_dir
+}
+
+list_dirs() {
+  (
+    tmux list-windows -F '#W';
+    find_gits | sed -E 's/^\.\/(.*)\/\.git$/\1/'
+  ) | awk '!seen[$0]++'
+}
+
+open() {
+  dir=$1
+  tmux select-window -t "$dir" || tmux new-window -c $base_dir/$dir -n "$dir"
+}
+
+if [[ "$1" == "" ]]; then
+  if test -t 0; then
+    open "$(list_dirs | mf --reverse)"
+  else
+    list_dirs
+  fi
+elif [[ -d "$base_dir/$1" ]]; then
+  open "$1"
+fi

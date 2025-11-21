@@ -1,0 +1,5 @@
+image/*; open %s ;
+application/pdf; open %s ;
+text/html; open %s ; nametemplate=%s.html
+text/html; ma fmt %s; nametemplate=%s.html; copiousoutput;
+text/plain; ma fmt %s ; nametemplate=%s.txt; copiousoutput;

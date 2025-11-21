@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+exec fzf --border=none \
+         --prompt ' ' \
+         --pointer='' \
+         --highlight-line \
+         --no-info \
+         --no-scrollbar \
+         --no-bold \
+         --color='separator:239,prompt:179,hl:179,hl+:179,fg+:7' "$@"

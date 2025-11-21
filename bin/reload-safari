@@ -1,7 +1,0 @@
-osascript -e '
-tell application "Safari"
-  activate
-  set sameURL to URL of current tab of front window
-  set URL of current tab of front window to sameURL
-end tell
-' > /dev/null

@@ -1,23 +1,23 @@
 /* ~/Library/KeyBindings/DefaultKeyBinding.dict */
 {
     "~f" = "moveWordForward:";
+    "~а" = "moveWordForward:";
     "~b" = "moveWordBackward:";
-    "~<" = "moveToBeginningOfDocument:";
-    "~>" = "moveToEndOfDocument:";
+    "~и" = "moveWordBackward:";
     "~v" = "pageUp:";
     "^f" = "moveForward:";
-    "^b" = "moveBackward:";
-    "~d" = "deleteWordForward:";
-    "^w" = "deleteWordBackward:";
-    "^[" = "cancelOperation:";
-    "~а" = "moveWordForward:";
-    "~и" = "moveWordBackward:";
-    "~в" = "deleteWordForward:";
-    "^ц" = "deleteWordBackward:";
-    "^р" = "deleteBackward:";
     "^а" = "moveForward:";
+    "^b" = "moveBackward:";
     "^и" = "moveBackward:";
+    "~d" = "deleteWordForward:";
+    "~в" = "deleteWordForward:";
+    "^w" = "deleteWordBackward:";
+    "^ц" = "deleteWordBackward:";
+    "^[" = "cancelOperation:";
+    "^х" = "cancelOperation:";
+    "~<" = "moveToBeginningOfDocument:";
+    "~>" = "moveToEndOfDocument:";
+    "^в" = "deleteForward:";
     "^ф" = "moveToBeginningOfLine:";
     "^у" = "moveToEndOfLine:";
-    "^х" = "cancelOperation:";
 }

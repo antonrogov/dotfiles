@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-file=${1:-.}
-dir=$(cd "$(dirname -- "$file")" > /dev/null; pwd -P)
-name=$(basename -- "$file")
-vterm_cmd find-file "$dir/$name"

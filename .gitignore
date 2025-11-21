@@ -1,6 +1,4 @@
 .DS_Store
-.envrc
-/.*
 /Desktop
 /Documents
 /Downloads
@@ -15,4 +13,3 @@
 /code
 /notes
 /ref
-

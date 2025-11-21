@@ -1,0 +1,32 @@
+background = #161719
+foreground = #c5c8c6
+
+palette = 0=#161719
+# hsl 0 20 80
+palette = 1=#cca3a3
+# hsl 75 45 80
+palette = 2=#b5cc70
+# hsl 50 45 80
+palette = 3=#ccbd70
+# hsl 215 15 85
+palette = 4=#adbacc
+# hsl 275 25 80
+palette = 5=#b799cc
+# hsl 165 20 80
+palette = 6=#a3ccc2
+palette = 7=#c5c8c6
+
+# hsl 0 40 85
+palette = 9=#d98282
+# hsl 75 50 90
+palette = 10=#c9e573
+# hsl 50 50 90
+palette = 11=#e5d273
+# hsl 215 40 90
+palette = 12=#95b5e5
+# hsl 275 40 85
+palette = 13=#b582d9
+# hsl 165 40 85
+palette = 14=#82d9c4
+
+palette = 179=#de935f

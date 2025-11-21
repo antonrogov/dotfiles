@@ -1,9 +1,0 @@
-#!/bin/bash
-set -e
-
-DIR=~/Downloads/org-backup
-
-cd
-FILE=$DIR/$(date +%F-%H).tbz
-test -f $FILE || tar Lcjf $FILE org/*.org
-find $DIR -type f -mtime +1d -exec rm -- {} \;
