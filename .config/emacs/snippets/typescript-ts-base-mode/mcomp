@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: MobX Component
-# --
-
-const $1: FC<$1Props> = observer(function $1() {
-  $0
-})

@@ -1,0 +1,49 @@
+font-family = "GeistMono Nerd Font"
+font-size = 12.5
+adjust-cell-width = -5%
+adjust-cell-height = 30%
+cursor-style = block
+cursor-style-blink = false
+theme = light:ar-light,dark:ar-dark
+
+macos-option-as-alt = true
+macos-icon=xray
+window-decoration = none
+quit-after-last-window-closed = true
+
+keybind = super+r=reload_config
+keybind = option+super+i=inspector:toggle
+# keybind = super+-=increase_font_size
+# keybind = super+==decrease_font_size
+
+keybind = super+h=csi:104;9u
+keybind = super+j=csi:106;9u
+keybind = super+k=csi:107;9u
+keybind = super+l=csi:108;9u
+keybind = super+o=csi:111;9u
+keybind = super+p=csi:112;9u
+
+keybind = super+t=text:\x11\x63
+keybind = super+,=text:\x11\x6c
+
+keybind = super+digit_0=text:\x11\x30
+keybind = super+digit_1=text:\x11\x31
+keybind = super+digit_2=text:\x11\x32
+keybind = super+digit_3=text:\x11\x33
+keybind = super+digit_4=text:\x11\x34
+keybind = super+digit_5=text:\x11\x35
+keybind = super+digit_6=text:\x11\x36
+keybind = super+digit_7=text:\x11\x37
+keybind = super+digit_8=text:\x11\x38
+keybind = super+digit_9=text:\x11\x39
+
+keybind = super+ctrl+digit_0=csi:48;13u
+keybind = super+ctrl+digit_1=csi:49;13u
+keybind = super+ctrl+digit_2=csi:50;13u
+keybind = super+ctrl+digit_3=csi:51;13u
+keybind = super+ctrl+digit_4=csi:52;13u
+keybind = super+ctrl+digit_5=csi:53;13u
+keybind = super+ctrl+digit_6=csi:54;13u
+keybind = super+ctrl+digit_7=csi:55;13u
+keybind = super+ctrl+digit_8=csi:56;13u
+keybind = super+ctrl+digit_9=csi:57;13u

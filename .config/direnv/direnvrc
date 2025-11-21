@@ -1,0 +1,74 @@
+use_ruby() {
+  local version=${1:-}
+  if [[ -z $version && -f .ruby-version ]]; then
+    version=$(<.ruby-version)
+  fi
+  if [[ -z $version ]]; then
+    version=$(ls /opt/ruby | tail -n 1)
+    log_status "No ruby version specified, using latest: ${version}"
+  fi
+
+  version=$(find /opt/ruby -type d -name "${version}*" -exec basename {} \;)
+  if [[ -z $version ]]; then
+    log_error "Unknown node version $requested"
+    return 1
+  fi
+
+  local ruby_dir=/opt/ruby/$version
+  load_prefix $ruby_dir
+  layout ruby
+}
+
+use_node() {
+  local version=${1:-}
+  if [[ -z $version && -f .node-version ]]; then
+    version=$(<.node-version)
+  fi
+  if [[ -z $version ]]; then
+    version=$(ls /opt/node | tail -n 1)
+    log_status "No node version specified, using latest: ${version}"
+  fi
+
+  requested=$version
+  version=$(find /opt/node -type d -name "${version}*" -exec basename {} \;)
+  if [[ -z $version ]]; then
+    log_error "Unknown node version $requested"
+    return 1
+  fi
+
+  if [[ "$version" = "14.20.1" ]]; then
+    load_prefix /opt/python/2.7.18
+  else
+    load_prefix /opt/homebrew/opt/python@3.13
+  fi
+
+  local node_dir=/opt/node/$version
+  load_prefix $node_dir
+  layout node
+}
+
+use_python-venv() {
+  export VIRTUAL_ENV="$(direnv_layout_dir)/python"
+  # layout python
+  if [[ ! -d $VIRTUAL_ENV ]]; then
+    python$1 -m venv "$VIRTUAL_ENV"
+  fi
+  PATH_add "$VIRTUAL_ENV/bin"
+}
+
+use_python() {
+  local version=${1:-}
+  if [[ -z $version ]]; then
+    log_error "No python version specified"
+    return 1
+  fi
+
+  local python_dir=/opt/python/$version
+  load_prefix $python_dir
+
+  use_python_venv
+}
+
+use_brew() {
+  load_prefix /opt/homebrew/opt/$1
+}

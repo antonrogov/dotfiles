@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+file=$1
+dir=$(cd "$(dirname -- "$file")" > /dev/null; pwd -P)
+name=$(basename -- "$file")
+echo "$dir/$name"

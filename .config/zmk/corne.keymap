@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#define ZMK_MOUSE_DEFAULT_MOVE_VAL 2000
+#define ZMK_MOUSE_DEFAULT_MOVE_VAL 2400
 #define ZMK_MOUSE_DEFAULT_SCRL_VAL 20
 
 #include <behaviors.dtsi>
@@ -15,22 +15,27 @@
 #include <dt-bindings/zmk/outputs.h>
 
 &soft_off {
-    hold-time-ms = <2000>;
+    hold-time-ms = <1000>;
 };
 
 &mmv {
-    time-to-max-speed-ms = <900>;
+    time-to-max-speed-ms = <750>;
 };
 
 / {
     behaviors {
-        resht: return_shift_tap {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "hold-preferred";
-            tapping-term-ms = <150>;
-            quick-tap-ms = <50>;
-            bindings = <&kp>, <&kp>;
+        cs_1: cmd_space_l1 {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&mo 1>, <&kp LG(SPC)>;
+        };
+
+        as_2: alt_shift_l2 {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&mo 2>, <&kp LA(LSHIFT)>;
         };
     };
 
@@ -40,10 +45,6 @@
             if-layers = <1 2>;
             then-layer = <3>;
         };
-        tri_game_layer {
-            if-layers = <5 2>;
-            then-layer = <3>;
-        };
     };
 
     keymap {
@@ -51,63 +52,63 @@
 
         default_layer {
             bindings = <
-    &kp TAB        &kp Q &kp W &kp E &kp R &kp T     &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
-    &mt LCTRL ESC  &kp A &kp S &kp D &kp F &kp G     &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
-    &kp LSHFT      &kp Z &kp X &kp C &kp V &kp B     &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp RSHIFT
-                   &kp LGUI &mo 1 &kp SPACE          &kp RET &mo 2 &kp LALT
+    &kp TAB       &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
+    &mt LCTRL ESC &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
+    &kp LSHFT     &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp RSHIFT
+                       &kp LGUI &cs_1 &kp SPACE   &kp RET &as_2 &kp LALT
             >;
         };
 
         lower_layer {
             bindings = <
-    &trans &kp N1     &kp N2     &kp N3     &kp N4     &kp N5         &kp N6   &kp N7      &kp N8 &kp N9    &kp N0             &trans
-    &trans &kp LA(N1) &kp LA(N2) &kp LA(N3) &kp LA(N4) &kp LA(N5)     &kp LEFT &kp DOWN    &kp UP &kp RIGHT &trans             &trans
-    &trans &kp LA(N6) &kp LA(N7) &kp LA(N8) &kp LA(N9) &kp LA(N0)     &trans   &kp LG(SPC) &trans &trans    &kp LG(LS(LC(N4))) &trans
-                                 &trans     &trans     &trans         &trans   &trans      &trans
+    &trans &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &kp N6      &kp N7   &kp N8   &kp N9    &kp N0             &trans
+    &trans &kp LA(N1) &kp LA(N2) &kp LA(N3) &kp LA(N4) &kp LA(N5)   &kp LEFT    &kp DOWN &kp UP   &kp RIGHT &trans             &trans
+    &trans &kp LA(N6) &kp LA(N7) &kp LA(N8) &kp LA(N9) &kp LA(N0)   &kp LG(SPC) &kp TAB  &kp BSPC &kp ESC   &kp LG(LS(LC(N4))) &trans
+                                 &trans     &trans     &trans       &trans      &trans   &trans
             >;
         };
 
         raise_layer {
             bindings = <
-    &trans &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT      &kp CARET &kp AMPS  &kp ASTRK &kp LPAR &kp RPAR &trans
-    &trans &kp LG(N1) &kp LG(N2) &kp LG(N3) &kp LG(N4) &kp LG(N5)     &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT &kp BSLH &kp GRAVE
-    &trans &kp LG(N6) &kp LG(N7) &kp LG(N8) &kp LG(N9) &kp LG(N0)     &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC &kp PIPE &kp TILDE
-                                 &trans     &trans     &trans         &trans    &trans    &trans
+    &to 4  &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT    &kp CARET &kp AMPS  &kp ASTRK &kp LPAR &kp RPAR &trans
+    &trans &kp LG(N1) &kp LG(N2) &kp LG(N3) &kp LG(N4) &kp LG(N5)   &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT &kp BSLH &kp GRAVE
+    &trans &kp LG(N6) &kp LG(N7) &kp LG(N8) &kp LG(N9) &kp LG(N0)   &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC &kp PIPE &kp TILDE
+                                 &trans     &trans     &trans       &trans    &trans    &trans
             >;
         };
 
         third_layer {
             bindings = <
-    &trans &kp F1    &trans         &mmv MOVE_UP   &trans          &bt BT_DISC 0      &kp K_MUTE      &kp K_VOL_DN &kp K_VOL_UP   &trans         &bt BT_SEL 0 &soft_off
-    &trans &kp F2    &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_RIGHT &bt BT_DISC 1      &msc SCRL_RIGHT &msc SCRL_UP &msc SCRL_DOWN &msc SCRL_LEFT &bt BT_SEL 1 &bt BT_CLR
-    &trans &kp KP_N3 &mkp MCLK      &trans         &trans          &bt BT_DISC 2      &trans          &mkp LCLK    &mkp RCLK      &mkp MCLK      &bt BT_SEL 2 &tog 4
-                                    &trans         &trans          &trans             &trans          &trans       &trans
+    &trans &kp F1    &trans         &mmv MOVE_UP   &trans          &bt BT_DISC 0   &trans          &kp K_MUTE   &kp K_VOL_DN   &kp K_VOL_UP   &bt BT_SEL 0 &soft_off
+    &trans &kp F2    &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_RIGHT &bt BT_DISC 1   &msc SCRL_RIGHT &msc SCRL_UP &msc SCRL_DOWN &msc SCRL_LEFT &bt BT_SEL 1 &bt BT_CLR
+    &trans &kp KP_N3 &mkp RCLK      &mkp MCLK      &mkp LCLK       &bt BT_DISC 2   &trans          &mkp LCLK    &mkp RCLK      &mkp MCLK      &bt BT_SEL 2 &trans
+                                    &trans         &trans          &trans          &trans          &trans       &trans
             >;
         };
 
-        game_layer {
+        bind_layer { /* 4 */
             bindings = <
     &trans &trans &trans &trans &trans &trans     &trans &trans &trans &trans &trans &trans
     &trans &trans &trans &trans &trans &trans     &trans &trans &trans &trans &trans &trans
     &trans &trans &trans &trans &trans &trans     &trans &trans &trans &trans &trans &trans
-                     &trans &mo 5 &lt 6 SPACE     &trans &trans &trans
+                         &mo 6  &mo 5  &trans     &trans &trans &trans
             >;
         };
 
-        game_lower_layer {
+        bind_layer_1 { /* 5 */
             bindings = <
     &trans &kp F1 &kp F2 &kp F3 &kp F4 &kp F10     &kp N6   &kp N7      &kp N8 &kp N9    &kp N0             &trans
     &trans &kp N1 &kp N2 &kp N3 &kp N4 &kp N5      &kp LEFT &kp DOWN    &kp UP &kp RIGHT &trans             &trans
-    &trans &kp N6 &kp N7 &kp N8 &kp N9 &kp N0      &trans   &kp LG(SPC) &trans &trans    &kp LG(LS(LC(N4))) &trans
+    &trans &kp N6 &kp N7 &kp N8 &kp N9 &kp N0      &trans   &kp LG(SPC) &trans &trans    &kp LG(LS(LC(N3))) &to 0
                          &trans &trans &trans      &trans   &trans      &trans
             >;
         };
 
-        game_mod_layer {
+        bind_layer_2 { /* 6 */
             bindings = <
     &trans &trans     &kp LS(F2) &kp LS(F3) &kp LS(F4) &trans         &kp N6   &kp N7      &kp N8 &kp N9    &kp N0             &trans
     &trans &kp LC(N1) &kp LC(N2) &kp LC(N3) &kp LC(N4) &kp LC(N5)     &kp LEFT &kp DOWN    &kp UP &kp RIGHT &trans             &trans
-    &trans &kp LC(N6) &kp LC(N7) &kp LC(N8) &kp LC(N9) &kp LC(N0)     &trans   &kp LG(SPC) &trans &trans    &kp LG(LS(LC(N4))) &trans
+    &trans &kp LC(N6) &kp LC(N7) &kp LC(N8) &kp LC(N9) &kp LC(N0)     &trans   &kp LG(SPC) &trans &trans    &kp LG(LS(LC(N3))) &to 0
                                  &trans     &trans     &trans         &trans   &trans     &trans
             >;
         };

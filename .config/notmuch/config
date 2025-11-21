@@ -1,0 +1,13 @@
+[database]
+path=/Users/anton/.local/share/mail
+
+[user]
+primary_email=anton@blackbits.pro
+
+[new]
+tags=
+ignore=/(.env|..*.(json|lock|bak))/
+
+[search]
+
+[maildir]

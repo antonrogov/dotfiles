@@ -1,0 +1,161 @@
+set send_charset = "utf-8"
+# set use_from = yes # set envelope_from = yes
+# # set tmpdir = "~/Downloads"
+#
+set folder = "$XDG_DATA_HOME/mail"
+set nm_db_limit = 5000
+set nm_default_url = "notmuch://$XDG_DATA_HOME/mail"
+set mbox_type = "Maildir"
+set sendmail = "ma send"
+
+set from = "anton@blackbits.pro"
+set realname = "Anton Rogov"
+set spoolfile = "Inbox"
+set mark_old = no
+set mime_forward = no
+set forward_attachments = yes
+set wait_key = no
+set fast_reply
+set include
+
+virtual-mailboxes "Inbox" "notmuch://?query=tag:inbox"
+virtual-mailboxes "Archive" "notmuch://?query=not tag:spam and not tag:trash and not tag:Warnings and not tag:feed and not tag:paper-trail"
+virtual-mailboxes "The Feed" "notmuch://?query=tag:feed and not tag:trash"
+virtual-mailboxes "Paper Trail" "notmuch://?query=tag:paper-trail and not tag:trash"
+virtual-mailboxes "Sent" "notmuch://?query=tag:sent"
+virtual-mailboxes "Drafts" "notmuch://?query=tag:draft"
+virtual-mailboxes "Junk" "notmuch://?query=tag:spam"
+virtual-mailboxes "Trash" "notmuch://?query=tag:trash"
+
+bind attach,index,pager \CD next-page
+bind attach,index,pager \CU previous-page
+
+# bind index,pager \CP sidebar-prev
+# bind index,pager \CN sidebar-next
+# bind index,pager \CB sidebar-toggle-visible
+
+bind attach,index,pager g noop
+bind attach,index gg first-entry
+bind attach,index G last-entry
+bind pager gg top
+bind pager G bottom
+bind pager j next-line
+bind pager k previous-line
+
+bind index,pager a noop
+macro index,pager aa ":unset resolve\n<clear-flag>N<modify-labels>-inbox -trash<enter>:set resolve\n<next-undeleted>"
+macro index,pager af ":unset resolve\n<clear-flag>N<modify-labels>+feed -inbox -trash<enter>:set resolve\n<next-undeleted>"
+macro index,pager ap ":unset resolve\n<clear-flag>N<modify-labels>+paper-trail -inbox -trash<enter>:set resolve\n<next-undeleted>"
+macro index,pager d ":unset resolve\n<clear-flag>N<modify-labels>+trash -inbox<enter>:set resolve\n<next-undeleted>"
+
+macro index,pager gl "<change-vfolder>"
+macro index,pager gi "<change-vfolder>Inbox<enter>"
+macro index,pager ga "<change-vfolder>Archive<enter>"
+macro index,pager gd "<change-vfolder>Drafts<enter>"
+macro index,pager gs "<change-vfolder>Sent<enter>"
+macro index,pager gf "<change-vfolder>The Feed<enter>"
+macro index,pager gp "<change-vfolder>Paper Trail<enter>"
+macro index,pager gj "<change-vfolder>Junk<enter>"
+macro index,pager gt "<change-vfolder>Trash<enter>"
+
+macro index gU "<shell-escape>ma sync<enter><change-vfolder>Inbox<enter>"
+
+set date_format="%b %d, %y %H:%M"
+set index_format="%2C %Z %?X?A& ? %<[y?%<[m?%<[d?%[   %H:%M ]&%[  %a %d ]>&%[  %b %d ]>&%[%b %Y ]> %-15.15F %s"
+
+set sort = "threads"
+set sort_aux = "reverse-last-date-received"
+# set sort_browser = reverse-date
+
+set editor = "nvim"
+set mailcap_path = "$XDG_CONFIG_HOME/neomutt/mailcap"
+
+auto_view text/plain text/html
+alternative_order text/plain text/enriched text/html
+
+set nohelp
+set markers = no
+
+# Default index colors:
+color index color240 default
+color index_author red default
+color index_number blue default
+color index_subject white default
+color index_subject green default '~Y feed'
+color index_subject blue default '~Y paper-trail'
+
+# New mail is boldened:
+color index_date color249 default "~N"
+# color index color240 color234 "~N"
+# color index_author brightred black "~N"
+# color index_subject brightwhite black "~N"
+
+# Tagged mail is highlighted:
+# color index brightyellow blue "~T"
+# color index_author brightred blue "~T"
+# color index_subject brightcyan blue "~T"
+
+# Flagged mail is highlighted:
+# color index color240 color239 "~F"
+color index_number brightred default "~F"
+# color index_author red default "~F"
+# color index_subject yellow default "~F"
+
+color index_date color240 default '~Y trash'
+color index_author color240 default '~Y trash'
+color index_subject color240 default '~Y trash'
+
+# Other colors and aesthetic settings:
+mono bold bold
+mono underline underline
+mono indicator reverse
+mono error bold
+color normal default default
+color indicator brightblack white
+color sidebar_highlight red default
+color sidebar_divider brightblack black
+color sidebar_flagged red black
+color sidebar_new green black
+color error red default
+color tilde black default
+color message cyan default
+color markers red white
+color attachment white default
+color search brightmagenta default
+# color status brightyellow black
+color status color240 black
+color hdrdefault brightgreen default
+color quoted green default
+color quoted1 blue default
+color quoted2 cyan default
+color quoted3 yellow default
+color quoted4 red default
+color quoted5 brightred default
+color signature brightgreen default
+color bold black default
+color underline black default
+
+# Regex highlighting:
+color header brightmagenta default "^From"
+color header brightcyan default "^Subject"
+color header brightwhite default "^(CC|BCC)"
+color header blue default ".*"
+color body brightred default "[\-\.+_a-zA-Z0-9]+@[\-\.a-zA-Z0-9]+" # Email addresses
+color body brightblue default "(https?|ftp)://[\-\.,/%~_:?&=\#a-zA-Z0-9]+" # URL
+color body green default "\`[^\`]*\`" # Green text between ` and `
+color body brightblue default "^# \.*" # Headings as bold blue
+color body brightcyan default "^## \.*" # Subheadings as bold cyan
+color body brightgreen default "^### \.*" # Subsubheadings as bold green
+color body yellow default "^(\t| )*(-|\\*) \.*" # List items as yellow
+color body brightcyan default "[;:][-o][)/(|]" # emoticons
+color body brightcyan default "[;:][)(|]" # emoticons
+color body brightcyan default "[ ][*][^*]*[*][ ]?" # more emoticon?
+color body brightcyan default "[ ]?[*][^*]*[*][ ]" # more emoticon?
+color body red default "(BAD signature)"
+color body cyan default "(Good signature)"
+color body brightblack default "^gpg: Good signature .*"
+color body brightyellow default "^gpg: "
+color body brightyellow red "^gpg: BAD signature from.*"
+mono body bold "^gpg: Good signature"
+mono body bold "^gpg: BAD signature from.*"
+color body red default "([a-z][a-z0-9+-]*://(((([a-z0-9_.!~*'();:&=+$,-]|%[0-9a-f][0-9a-f])*@)?((([a-z0-9]([a-z0-9-]*[a-z0-9])?)\\.)*([a-z]([a-z0-9-]*[a-z0-9])?)\\.?|[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(:[0-9]+)?)|([a-z0-9_.!~*'()$,;:@&=+-]|%[0-9a-f][0-9a-f])+)(/([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*(;([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*)*(/([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*(;([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*)*)*)?(\\?([a-z0-9_.!~*'();/?:@&=+$,-]|%[0-9a-f][0-9a-f])*)?(#([a-z0-9_.!~*'();/?:@&=+$,-]|%[0-9a-f][0-9a-f])*)?|(www|ftp)\\.(([a-z0-9]([a-z0-9-]*[a-z0-9])?)\\.)*([a-z]([a-z0-9-]*[a-z0-9])?)\\.?(:[0-9]+)?(/([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*(;([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*)*(/([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*(;([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*)*)*)?(\\?([-a-z0-9_.!~*'();/?:@&=+$,]|%[0-9a-f][0-9a-f])*)?(#([-a-z0-9_.!~*'();/?:@&=+$,]|%[0-9a-f][0-9a-f])*)?)[^].,:;!)? \t\r\n<>\"]"

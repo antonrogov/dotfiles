@@ -1,41 +1,18 @@
 # .zshrc
 
-export HOMEBREW_PREFIX="/opt/homebrew";
-export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export HOMEBREW_REPOSITORY="/opt/homebrew";
-export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
-export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
-
-typeset -gU path fpath
-
-path=(
-  $HOME/bin(N)
-  $HOME/.cargo/bin(N)
-  /opt/homebrew/opt/imagemagick@6/bin(N)
-  /opt/homebrew/{,s}bin(N)
-  /usr/local/{,s}bin(N)
-  $path
-)
-
 alias h='history 25'
 alias j='jobs -l'
-alias la='ls -a'
-alias ll='ls -lA'
-alias pn='pnpm'
-alias ff='find . -name'
-alias view='vim -R'
-alias v='view -'
-alias vg="view -c 'set filetype=git nowrap' -"
-alias fetch='curl -L -C - -O'
-bgrep() { grep -R "${@:1:-1}" $(bundle show ${@: -1}) }
+alias l='ls -lA --color'
+brg() { rg "${@:2}" $(bundle show $1) }
 
-export EDITOR=${EDITOR:-vim}
-export CLICOLOR=1
+# export EDITOR=${EDITOR:-v}
+export EDITOR=v
+# export CLICOLOR=1
 export LSCOLORS=exfxcxdxbxexexexexAxAx
 export LC_CTYPE=en_US.UTF-8
 export LANG=en_US.UTF-8
-export ACK_COLOR_MATCH=red
-export GREP_OPTIONS=--color
+# export ACK_COLOR_MATCH=red
+# export GREP_OPTIONS=--color
 set -o emacs
 
 HISTFILE=${ZDOTDIR:-$HOME}/.history
@@ -52,9 +29,11 @@ setopt CSH_JUNKIE_LOOPS
 setopt APPEND_HISTORY
 setopt EXTENDED_HISTORY
 setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt COMPLETE_IN_WORD
 setopt PROMPT_SUBST
+unsetopt flowcontrol
 
 escape() { echo "%{\e[0${1}m%}" }
 color() { escape ";3${1}" }
@@ -74,41 +53,42 @@ else
   fi
 fi
 
-function q-history-search-backward() {
-  if [[ ( $LASTWIDGET != 'q-history-search-backward' ) && ( $LASTWIDGET != 'q-history-search-forward' ) ]]; then
-    HIST_CURSOR=$CURSOR
-  else
-    CURSOR=$HIST_CURSOR
-  fi
-  zle .history-beginning-search-backward
-  zle .end-of-line
+_prompt_executing=""
+function __prompt_precmd() {
+    local ret="$?"
+    if test "$_prompt_executing" != "0"
+    then
+      _PROMPT_SAVE_PS1="$PS1"
+      _PROMPT_SAVE_PS2="$PS2"
+      PS1=$'%{\e]133;P;k=i\a%}'$PS1$'%{\e]133;B\a\e]122;> \a%}'
+      PS2=$'%{\e]133;P;k=s\a%}'$PS2$'%{\e]133;B\a%}'
+    fi
+    if test "$_prompt_executing" != ""
+    then
+       printf "\033]133;D;%s;aid=%s\007" "$ret" "$$"
+    fi
+    printf "\033]133;A;cl=m;aid=%s\007" "$$"
+    _prompt_executing=0
 }
-
-function q-history-search-forward() {
-  if [[ ( $LASTWIDGET != 'q-history-search-backward' ) && ( $LASTWIDGET != 'q-history-search-forward' ) ]]; then
-    HIST_CURSOR=$CURSOR
-  else
-    CURSOR=$HIST_CURSOR
-  fi
-  zle .history-beginning-search-forward
-  zle .end-of-line
+function __prompt_preexec() {
+    PS1="$_PROMPT_SAVE_PS1"
+    PS2="$_PROMPT_SAVE_PS2"
+    printf "\033]133;C;\007"
+    _prompt_executing=1
 }
+preexec_functions+=(__prompt_preexec)
+precmd_functions+=(__prompt_precmd)
 
-zle -N q-history-search-backward
-zle -N q-history-search-forward
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(send-break)
 
-bindkey '^p' q-history-search-backward
-bindkey '^n' q-history-search-forward
-
-autoload -U compinit
-compinit
-
-autoload -U edit-command-line
-zle -N edit-command-line
-bindkey '\C-x\C-e' edit-command-line
-
-# By default, ^S freezes terminal output and ^Q resumes it. Disable that so
-# that those keys can be used for other things.
-unsetopt flowcontrol
+HISTORY_SUBSTRING_SEARCH_PREFIXED=1
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='fg=179'
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='fg=9'
+source $HOMEBREW_PREFIX/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+bindkey '^p' history-substring-search-up
+bindkey '^n' history-substring-search-down
 
 [[ -s ~/.zshrc.local ]] && . ~/.zshrc.local

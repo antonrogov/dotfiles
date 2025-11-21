@@ -5,16 +5,69 @@ BUILD_DIR=$HOME/.local/share/zmk/build
 SRC_DIR=$HOME/code/zmk
 TARGET_DIR=/Volumes/NICENANO
 
-case "$1" in
-build)
+read_key() {
+  echo "$1"
+  read -n 1 -s -r -p "Press any key to continue..."
+  echo
+}
+
+build() {
   mkdir -p $BUILD_DIR
   rm -rf $BUILD_DIR/left $BUILD_DIR/right
   export VIRTUAL_ENV=$SRC_DIR/.env
   export PATH=$VIRTUAL_ENV/bin:$PATH
   cd $SRC_DIR/app
-	west build -b nice_nano_v2 -d $BUILD_DIR/left -- -DSHIELD=corne_left -DZMK_CONFIG=$CONFIG_DIR
-	west build -b nice_nano_v2 -d $BUILD_DIR/right -- -DSHIELD=corne_right -DZMK_CONFIG=$CONFIG_DIR
+  west build -b nice_nano_v2 -d $BUILD_DIR/left -- -DSHIELD=corne_left -DZMK_CONFIG=$CONFIG_DIR
+  west build -b nice_nano_v2 -d $BUILD_DIR/right -- -DSHIELD=corne_right -DZMK_CONFIG=$CONFIG_DIR
+}
+
+copy_all() {
+  while [ -d $TARGET_DIR ]; do
+    read_key "$TARGET_DIR exists, disconnect the keyboard"
+  done
+
+  while [ ! -d $TARGET_DIR ]; do
+    read_key "Connect the LEFT part and double tap the RESET button"
+  done
+
+  echo "Copying..."
+  sleep 0.5
+  cp $BUILD_DIR/left/zephyr/zmk.uf2 $TARGET_DIR
+  if [ $? -eq 0 ]; then
+    echo "ERROR: cp succeeded"
+    exit 1
+  fi
+
+  while [ -d $TARGET_DIR ]; do
+    read_key "$TARGET_DIR exists, disconnect the keyboard"
+  done
+
+  while [ ! -d $TARGET_DIR ]; do
+    read_key "Connect the RIGHT part and double tap the RESET button"
+  done
+
+  echo "Copying..."
+  sleep 0.5
+  cp $BUILD_DIR/right/zephyr/zmk.uf2 $TARGET_DIR
+  if [ $? -eq 0 ]; then
+    echo "ERROR: cp succeeded"
+    exit 1
+  fi
+}
+
+case "$1" in
+build)
+  build
   ;;
+
+copy-all)
+  copy_all
+  ;;
+
+flash)
+  build && copy_all
+  ;;
+
 copy)
   if test -d $TARGET_DIR; then
     case "$2" in
