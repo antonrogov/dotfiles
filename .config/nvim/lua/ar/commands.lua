@@ -3,12 +3,7 @@ local util = require('ar.util')
 local M = {}
 
 function M.run()
-  local buf = vim.api.nvim_get_current_buf()
-  if vim.bo[buf].buftype == 'terminal' then
-    vim.cmd.startinsert()
-    vim.api.nvim_feedkeys('\n', 'n', false)
-    return
-  end
+  if util.term_passthrough('\n') then return end
 
   local buf = util.open_term('cmd')
 
