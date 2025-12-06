@@ -17,6 +17,7 @@ return {
         'query',
         'ruby',
         'rust',
+        'slim',
         'swift',
         'tsx',
         'typescript',

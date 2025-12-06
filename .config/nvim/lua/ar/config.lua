@@ -54,6 +54,14 @@ opt.wildmode = 'list:longest'
 
 opt.clipboard = 'unnamedplus'
 
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  pattern = '*.slim',
+  callback = function()
+    vim.opt_local.filetype = 'slim'
+    vim.opt_local.commentstring = '/%s'
+  end,
+})
+
 vim.diagnostic.config({
   severity_sort = true,
   float = {
