@@ -1,3 +1,5 @@
+local util = require('ar.util')
+
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -103,7 +105,7 @@ keymap.set('n', '<leader>q', '<cmd>q<cr>', opts)
 keymap.set('n', '<leader>fD', function()
   local path = vim.fn.expand('%:p')
   Snacks.bufdelete({ wipe = true })
-  require('ar.util').trash_file(path)
+  util.trash_file(path)
 end, opts)
 
 keymap.set('n', '<leader>fR', function()
@@ -112,7 +114,7 @@ keymap.set('n', '<leader>fR', function()
   if new_name == '' or new_name == old_name then return end
 
   vim.cmd.saveas(new_name)
-  require('ar.util').trash_file(old_name)
+  util.trash_file(old_name)
 end, opts)
 
 keymap.set('n', '<leader>fe', function()
@@ -139,12 +141,6 @@ keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', opts)
 
 keymap.set('n', '<Enter>', function() require('ar.commands').run() end)
 
-vim.api.nvim_create_autocmd('VimResized', {
-  pattern = '*',
-  callback = function(data)
-    vim.cmd.wincmd('=')
-  end,
-})
 
 keymap.set('n', '<leader>wo', function() require('ar.fullscreen').toggle() end)
 
@@ -153,3 +149,10 @@ keymap.set('n', '<leader>mp', function()
   local lines = vim.split(text, '\n')
   vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
 end, opts)
+
+vim.api.nvim_create_autocmd('VimResized', {
+  pattern = '*',
+  callback = function(data)
+    vim.cmd.wincmd('=')
+  end,
+})
