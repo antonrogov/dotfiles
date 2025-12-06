@@ -141,6 +141,11 @@ keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', opts)
 
 keymap.set('n', '<Enter>', function() require('ar.commands').run() end)
 
+keymap.set('n', '<C-c>', function()
+  if not util.term_passthrough('\x03') then
+    vim.api.nvim_feedkeys('<Esc>', 'n', false)
+  end
+end)
 
 keymap.set('n', '<leader>wo', function() require('ar.fullscreen').toggle() end)
 

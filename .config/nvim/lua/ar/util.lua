@@ -73,4 +73,14 @@ function M.list_terms(items)
   end
 end
 
+function M.term_passthrough(keys)
+  local buf = vim.api.nvim_get_current_buf()
+  if vim.bo[buf].buftype ~= 'terminal' then return false end
+
+  vim.cmd.startinsert()
+  vim.api.nvim_feedkeys(keys, 'n', false)
+
+  return true
+end
+
 return M
