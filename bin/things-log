@@ -1,0 +1,41 @@
+#!/usr/bin/env osascript -l JavaScript
+
+function run() {
+  let todos = Application("Things3").lists["Logbook"].toDos()
+  let i = 0
+  let start = new Date(new Date().getTime() - 7 * 24 * 3600 * 1000)
+  let res = {}
+  while (true) {
+    let todo = todos[i++]
+    if (todo.completionDate() < start) break
+
+    let area = todo.area()
+    let project = todo.project()
+    if (project) area = project.area()
+
+    const aname = area ? area.name() : ""
+    const pname = project ? project.name() : ""
+    res[aname] ||= {}
+    res[aname][pname] ||= []
+    res[aname][pname].push(todo.name())
+  }
+
+  let md = ""
+  let as = Object.keys(res)
+  as.sort()
+  for (const a of as) {
+    if (a) md += `\n${a}:\n`
+
+    let ps = Object.keys(res[a])
+    ps.sort()
+    for (const p of ps) {
+      let ts = res[a][p]
+      ts.sort()
+      for (const t of ts) {
+        md += `* ${p ? p + ": " : ""}${t}\n`
+      }
+    }
+  }
+
+  return md
+}
