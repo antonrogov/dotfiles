@@ -46,7 +46,7 @@ if version >= 700
   hi CursorLine ctermbg=235
   hi CursorLineNr ctermfg=7 cterm=none
   hi CursorColumn ctermbg=235 cterm=none
-  hi PMenu ctermbg=233 cterm=none
+  hi PMenu ctermbg=234 cterm=none
   hi PMenuSel ctermbg=236 cterm=none
   hi PMenuKind ctermfg=4
   hi PMenuKindSel ctermfg=4
@@ -87,7 +87,13 @@ hi Type ctermfg=3
 "call <SID>X("Include", s:blue, "", "")
 " call <SID>X("Ignore", "666666", "", "")
 
+hi @lsp.type.attributeBracket.rust ctermfg=245
+hi @lsp.type.decorator.rust ctermfg=245
+
 "hi CmpItemKindDefault ctermfg=4
+
+hi link BlinkCmpSignatureHelpBorder FloatBorder
+hi link BlinkCmpDocBorder FloatBorder
 
 "hi MiniStatuslineModeNormal ctermfg=235 ctermbg=4
 "hi MiniStatuslineModeInsert ctermfg=235 ctermbg=2

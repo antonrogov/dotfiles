@@ -4,7 +4,6 @@ local function is_inside_word()
 
   local line = vim.api.nvim_get_current_line()
   local char = vim.fn.strcharpart(line, col - 1, 1)
-  -- return char:match('[%w_]') ~= nil
   return char:match('%s') == nil
 end
 
@@ -25,14 +24,10 @@ return {
   opts = {
     keymap = {
       preset = 'none',
-
       ['<C-e>'] = { 'hide' },
-      ['<C-p>'] = { 'select_prev', 'fallback_to_mappings' },
-      ['<C-n>'] = { 'select_next', 'fallback_to_mappings' },
-
       ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
       ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
-
+      ['<CR>'] = { 'accept', 'fallback' },
       ['<Tab>'] = {
         function(cmp)
           -- if is_inside_word() then return cmp.show_and_insert() end
@@ -44,7 +39,6 @@ return {
         'snippet_forward',
         'fallback'
       }, ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
-      ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
     },
 
     appearance = {
@@ -61,14 +55,22 @@ return {
         },
       },
       menu = { auto_show = false },
-      documentation = { auto_show = true },
+      documentation = {
+        auto_show = true,
+        window = { border = 'rounded' },
+      },
+    },
+
+    signature = {
+      enabled = true,
+      window = { border = 'rounded' },
     },
 
     -- Default list of enabled providers defined so that you can extend it
     -- elsewhere in your config, without redefining it, due to `opts_extend`
     sources = {
       -- default = { 'lsp', 'path', 'snippets', 'buffer' },
-      default = { 'lsp', 'path', 'buffer' },
+      default = { 'lsp', 'buffer' },
       providers = {
         buffer = {
           opts = {
@@ -82,6 +84,10 @@ return {
                 :totable()
             end,
           },
+        },
+        path = {
+          async = true,
+          fallbacks = {},
         },
         lsp = {
           -- async = true,
