@@ -3,7 +3,7 @@
 base_dir=${PROJECTS_PATH:-$HOME/code}
 
 find_gits() {
-  fd -t d -d 3 --follow --prune -c never -H '\.git$' --base-directory $base_dir
+  fd -d 3 --follow --prune -c never -H '\.git$' --base-directory $base_dir
 }
 
 list_dirs() {
