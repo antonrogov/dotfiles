@@ -26,8 +26,8 @@ function M.switch_to_buf(buf)
   return nil
 end
 
-function M.open_term(name)
-  for buf, buf_name in ipairs(M.term_names) do
+function M.open_term(name, cb)
+  for buf, buf_name in pairs(M.term_names) do
     if not vim.api.nvim_buf_is_valid(buf) then
       M.term_names[buf] = nil
     else
@@ -45,6 +45,8 @@ function M.open_term(name)
   vim.cmd.terminal()
   local buf = vim.api.nvim_get_current_buf()
   M.set_term_name(buf, name)
+  if cb then cb() end
+
   return buf
 end
 
