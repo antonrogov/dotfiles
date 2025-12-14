@@ -76,7 +76,7 @@ return {
   },
   keys = {
     { 'gt', function () Snacks.picker.treesitter() end },
-    { '<leader>bd', function() Snacks.bufdelete({ wipe = true }) end },
+    { '<leader>q', function() Snacks.bufdelete({ wipe = true }) end },
     { '<leader>.', function() Snacks.picker.files({ hidden = true }) end },
     { '<leader>/', function() Snacks.picker.grep({ hidden = true }) end },
     { '<leader>;', function() Snacks.picker.buffers() end },

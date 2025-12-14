@@ -96,6 +96,23 @@ local keymap = vim.keymap
 local opts = { noremap = true, silent = true }
 
 keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+keymap.set('n', '-', '<cmd>Oil<CR>')
+keymap.set('n', ';', ':', opts)
+keymap.set('n', ':', ';', opts)
+
+keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', opts)
+keymap.set('n', '<Enter>', function() require('ar.commands').run() end)
+keymap.set('n', '<C-c>', function()
+  if not util.term_passthrough('\x03') then
+    vim.api.nvim_feedkeys('<Esc>', 'n', false)
+  end
+end)
+
+keymap.set('n', 'ge', vim.diagnostic.open_float)
+
+keymap.set('n', '[e', ':cp<CR>', opts)
+keymap.set('n', ']e', ':cn<CR>', opts)
+
 keymap.set('v', '<', '<gv', opts)
 keymap.set('v', '>', '>gv', opts)
 
@@ -104,11 +121,7 @@ keymap.set({ 'n', 'i', 't' }, '<C-j>', function() vim.cmd.wincmd('j') end, opts)
 keymap.set({ 'n', 'i', 't' }, '<C-k>', function() vim.cmd.wincmd('k') end, opts)
 keymap.set({ 'n', 'i', 't' }, '<C-l>', function() vim.cmd.wincmd('l') end, opts)
 
-keymap.set('n', '-', '<CMD>Oil<CR>')
-
 keymap.set('n', '<leader>,', '<C-^>', opts)
-
-keymap.set('n', '<leader>q', '<cmd>q<cr>', opts)
 
 keymap.set('n', '<leader>fD', function()
   local path = vim.fn.expand('%:p')
@@ -139,21 +152,7 @@ end, opts)
 keymap.set('n', '<leader>fy', function() vim.fn.setreg('+', vim.fn.expand('%')) end, opts)
 keymap.set('n', '<leader>fY', function() vim.fn.setreg('+', vim.fn.expand('%:p')) end, opts)
 
-keymap.set('n', 'ge', vim.diagnostic.open_float)
-
-keymap.set('n', '[e', ':cp<CR>', opts)
-keymap.set('n', ']e', ':cn<CR>', opts)
-
 keymap.set('n', '<leader>pt', function() vim.cmd.terminal() end, opts)
-keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', opts)
-
-keymap.set('n', '<Enter>', function() require('ar.commands').run() end)
-
-keymap.set('n', '<C-c>', function()
-  if not util.term_passthrough('\x03') then
-    vim.api.nvim_feedkeys('<Esc>', 'n', false)
-  end
-end)
 
 keymap.set('n', '<leader>wo', function() require('ar.fullscreen').toggle() end)
 
