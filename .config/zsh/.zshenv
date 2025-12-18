@@ -12,6 +12,8 @@ export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
 export CARGO_HOME=$XDG_DATA_HOME/cargo
 export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 export CODEX_HOME=$XDG_DATA_HOME/codex
+export CLAUDE_CONFIG_DIR=$XDG_DATA_HOME/claude
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 
 typeset -gU path fpath
 path=(
