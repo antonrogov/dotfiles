@@ -1,0 +1,5 @@
+---
+BUNDLE_BUILD__OJ: "--with-cflags=-Wno-error=implicit-function-declaration"
+BUNDLE_BUILD__MYSQL2: "--with-ldflags=-L/opt/homebrew/opt/zstd/lib --with-mysql-dir=/opt/homebrew/opt/mysql@8.4/"
+BUNDLE_BUILD__HIVE_GEOIP2: "--with-maxminddb-dir=/opt/homebrew/opt/libmaxminddb"
+BUNDLE_BUILD__NIO4R: "--with-cflags=-std=c99"
