@@ -93,3 +93,5 @@ newHighlight = white bold green
 
 ; [http]
 ; proxy = http://localhost:8081
+[init]
+	defaultBranch = main
