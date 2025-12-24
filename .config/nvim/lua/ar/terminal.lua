@@ -1,5 +1,62 @@
 local nvim_terminal_augroup = vim.api.nvim_create_augroup('nvim.terminal', { clear = true })
+
+vim.api.nvim_create_autocmd('TermClose', {
+  group = nvim_terminal_augroup,
+  nested = true,
+  callback = function(args)
+    if vim.bo.filetype == '' then
+      Snacks.bufdelete({ wipe = true })
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd('TermRequest', {
+  group = nvim_terminal_augroup,
+  desc = 'Handles OSC foreground/background color requests',
+  callback = function(args)
+    --- @type integer
+    local channel = vim.bo[args.buf].channel
+    if channel == 0 then
+      return
+    end
+    local fg_request = args.data.sequence == '\027]10;?'
+    local bg_request = args.data.sequence == '\027]11;?'
+    if fg_request or bg_request then
+      -- WARN: This does not return the actual foreground/background color,
+      -- but rather returns:
+      --   - fg=white/bg=black when Nvim option 'background' is 'dark'
+      --   - fg=black/bg=white when Nvim option 'background' is 'light'
+      local red, green, blue = 0, 0, 0
+      local bg_option_dark = vim.o.background == 'dark'
+      if (fg_request and bg_option_dark) or (bg_request and not bg_option_dark) then
+        red, green, blue = 65535, 65535, 65535
+      end
+      local command = fg_request and 10 or 11
+      local data = string.format('\027]%d;rgb:%04x/%04x/%04x\007', command, red, green, blue)
+      vim.api.nvim_chan_send(channel, data)
+    end
+  end,
+})
+
 local nvim_terminal_prompt_ns = vim.api.nvim_create_namespace('nvim.terminal.prompt')
+vim.api.nvim_create_autocmd('TermRequest', {
+  group = nvim_terminal_augroup,
+  desc = 'Mark shell prompts indicated by OSC 133 sequences for navigation',
+  callback = function(args)
+    if string.match(args.data.sequence, '^\027]133;A') then
+      local lnum = args.data.cursor[1] ---@type integer
+      if lnum >= 1 then
+        vim.api.nvim_buf_set_extmark(
+          args.buf,
+          nvim_terminal_prompt_ns,
+          lnum - 1,
+          0,
+          { right_gravity = false }
+        )
+      end
+    end
+  end,
+})
 
 ---@param ns integer
 ---@param buf integer
@@ -64,53 +121,5 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end, { buffer = args.buf, desc = 'Jump [count] shell prompts forward' })
 
     vim.cmd.startinsert()
-  end,
-})
-
-vim.api.nvim_create_autocmd('TermClose', {
-  group = nvim_terminal_augroup,
-  callback = function(data)
-    if vim.bo.filetype == '' then
-      Snacks.bufdelete({ wipe = true })
-    end
-  end,
-})
-
-vim.api.nvim_create_autocmd('TermRequest', {
-  group = nvim_terminal_augroup,
-  desc = 'Handles OSC foreground/background color requests',
-  callback = function(args)
-    --- @type integer
-    local channel = vim.bo[args.buf].channel
-    if channel == 0 then
-      return
-    end
-    local fg_request = args.data.sequence == '\027]10;?'
-    local bg_request = args.data.sequence == '\027]11;?'
-    if fg_request or bg_request then
-      -- WARN: This does not return the actual foreground/background color,
-      -- but rather returns:
-      --   - fg=white/bg=black when Nvim option 'background' is 'dark'
-      --   - fg=black/bg=white when Nvim option 'background' is 'light'
-      local red, green, blue = 0, 0, 0
-      local bg_option_dark = vim.o.background == 'dark'
-      if (fg_request and bg_option_dark) or (bg_request and not bg_option_dark) then
-        red, green, blue = 65535, 65535, 65535
-      end
-      local command = fg_request and 10 or 11
-      local data = string.format('\027]%d;rgb:%04x/%04x/%04x\007', command, red, green, blue)
-      vim.api.nvim_chan_send(channel, data)
-    end
-  end,
-})
-
-vim.api.nvim_create_autocmd('TermRequest', {
-  group = nvim_terminal_augroup,
-  desc = 'Mark shell prompts indicated by OSC 133 sequences for navigation',
-  callback = function(args)
-    if string.match(args.data.sequence, '^\027]133;A') then
-      local lnum = args.data.cursor[1] ---@type integer
-      vim.api.nvim_buf_set_extmark(args.buf, nvim_terminal_prompt_ns, lnum - 1, 0, {})
-    end
   end,
 })
