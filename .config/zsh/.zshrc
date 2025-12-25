@@ -5,14 +5,19 @@ alias j='jobs -l'
 alias l='ls -lA --color'
 brg() { rg "${@:2}" $(bundle show $1) }
 
-# export EDITOR=${EDITOR:-v}
-export EDITOR=v
-# export CLICOLOR=1
-export LSCOLORS=exfxcxdxbxexexexexAxAx
 export LC_CTYPE=en_US.UTF-8
 export LANG=en_US.UTF-8
-# export ACK_COLOR_MATCH=red
-# export GREP_OPTIONS=--color
+export EDITOR=v
+
+export LSCOLORS=exfxcxdxbxexexexexgxEx
+export LESS_TERMCAP_mb=$'\e[31m'
+export LESS_TERMCAP_md=$'\e[1;34m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[33m'
+export LESS_TERMCAP_se=$'\e[0m'
+export LESS_TERMCAP_us=$'\e[31m'
+export LESS_TERMCAP_ue=$'\e[0m'
+
 set -o emacs
 
 HISTFILE=${ZDOTDIR:-$HOME}/.history
