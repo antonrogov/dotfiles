@@ -1,0 +1,266 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROCFILE="${PROCFILE:-Procfile}"
+SESSION_NAME="procs-$(basename "$PWD")"
+FIFO_DIR="/tmp/procs-$$"
+WINDOW_HEIGHT=20
+
+parse_procfile() {
+  if [[ ! -f "$PROCFILE" ]]; then
+    echo "$PROCFILE not found" >&2
+    exit 1
+  fi
+
+  grep -v '^#' "$PROCFILE" | grep -v '^[[:space:]]*$' | while IFS=: read -r name command; do
+    name=$(echo "$name" | xargs)  # trim whitespace
+    command=$(echo "$command" | xargs)
+    if [[ -n "$name" && -n "$command" ]]; then
+      echo "$name:$command"
+    fi
+  done
+}
+
+start_processes() {
+  if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session $SESSION_NAME already exists."
+    exit 1
+  fi
+
+  local first=true
+
+  while IFS=: read -r name command; do
+    command="de zsh -c '$command'"
+
+    if $first; then
+      tmux new-session -d -s "$SESSION_NAME" -n "$name" -x 1000 -y $WINDOW_HEIGHT "$command"
+      tmux set-option -t "$SESSION_NAME:$name" remain-on-exit on
+      first=false
+    else
+      tmux new-window -t "$SESSION_NAME" -n "$name" "$command"
+      tmux resize-window -t "$SESSION_NAME:$name" -x 1000 -y $WINDOW_HEIGHT
+      tmux set-option -t "$SESSION_NAME:$name" remain-on-exit on
+    fi
+  done < <(parse_procfile)
+}
+
+show_logs() {
+  local lines=$WINDOW_HEIGHT
+  local force_plain=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -n)
+        force_plain=true
+        shift
+        ;;
+      *)
+        if [[ "$1" =~ ^[0-9]+$ ]]; then
+          lines="$1"
+        fi
+        shift
+        ;;
+    esac
+  done
+
+  if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session $SESSION_NAME not found. Start it first." >&2
+    exit 1
+  fi
+
+  local max_length=0
+  while IFS=: read -r name command; do
+    if [[ ${#name} -gt $max_length ]]; then
+      max_length=${#name}
+    fi
+  done < <(parse_procfile)
+
+  local is_interactive=false
+  if [[ -t 1 ]] && ! $force_plain; then
+    is_interactive=true
+  fi
+
+  local first_line=$((WINDOW_HEIGHT - lines - 1))
+  local color=3
+  local capture_flags="-Jet"
+  if ! $is_interactive; then
+    capture_flags="-Jt"
+  fi
+
+  while IFS=: read -r name command; do
+    local output=$(tmux capture-pane $capture_flags "$SESSION_NAME:$name" -p -S $first_line 2>/dev/null || echo "")
+
+    if [[ -n "$output" ]]; then
+      while IFS= read -r line; do
+        if [[ -n "$line" ]]; then
+          if $is_interactive; then
+            printf "\033[1;3${color}m%-${max_length}s\033[0m │ %s\n" "$name" "$line"
+          else
+            printf "%-${max_length}s │ %s\n" "$name" "$line"
+          fi
+        fi
+      done <<< "$output"
+    fi
+
+    color=$(((color % 7) + 1))
+  done < <(parse_procfile)
+}
+
+stream_logs() {
+  if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session $SESSION_NAME not found. Start it first." >&2
+    exit 1
+  fi
+
+  local max_length=0
+  while IFS=: read -r name command; do
+    if [[ ${#name} -gt $max_length ]]; then
+      max_length=${#name}
+    fi
+  done < <(parse_procfile)
+
+  local is_interactive=false
+  if [[ -t 1 ]]; then
+    is_interactive=true
+  fi
+
+  mkdir -p "$FIFO_DIR"
+
+  local pids=()
+
+  cleanup_logs() {
+    for pid in "${pids[@]}"; do
+      kill "$pid" 2>/dev/null || true
+    done
+    exit 0
+  }
+
+  trap cleanup_logs EXIT INT TERM
+
+  local color=3
+  while IFS=: read -r name command; do
+    local fifo="$FIFO_DIR/$name"
+    local process_color=$color
+    color=$(((color % 7) + 1))
+
+    if [[ ! -p "$fifo" ]]; then
+      mkfifo "$fifo"
+      tmux pipe-pane -t "$SESSION_NAME:$name" "cat >> '$fifo'"
+    fi
+
+    (
+      while IFS= read -r line; do
+        if ! $is_interactive; then
+          line=$(echo "$line" | sed $'s/\033\\[[0-9;]*m//g')
+        fi
+
+        if $is_interactive; then
+          printf "\033[1;3${process_color}m%-${max_length}s\033[0m │ %s\n" "$name" "$line"
+        else
+          printf "%-${max_length}s │ %s\n" "$name" "$line"
+        fi
+      done < "$fifo"
+    ) 2>/dev/null &
+    pids+=($!)
+  done < <(parse_procfile)
+
+  for pid in "${pids[@]}"; do
+    wait "$pid" 2>/dev/null || true
+  done
+}
+
+restart_process() {
+  local process_name="$1"
+
+  if [[ -z "$process_name" ]]; then
+    echo "Process name required" >&2
+    echo "Usage: procs restart <process_name>" >&2
+    exit 1
+  fi
+
+  if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session $SESSION_NAME not found. Start it first." >&2
+    exit 1
+  fi
+
+  local process_command=""
+  while IFS=: read -r name command; do
+    if [[ "$name" == "$process_name" ]]; then
+      process_command="$command"
+      break
+    fi
+  done < <(parse_procfile)
+
+  if [[ -z "$process_command" ]]; then
+    echo "Process '$process_name' not found in Procfile" >&2
+    exit 1
+  fi
+
+  if ! tmux list-windows -t "$SESSION_NAME" -F "#{window_name}" | grep -q "^${process_name}$"; then
+    echo "Window '$process_name' not found in session" >&2
+    exit 1
+  fi
+
+  tmux respawn-window -t "$SESSION_NAME:$process_name" -k "de $process_command"
+}
+
+stop_processes() {
+  if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    while IFS=: read -r name command; do
+      tmux set-option -t "$SESSION_NAME:$name" remain-on-exit off
+      tmux send-keys -t "$SESSION_NAME:$name" C-c
+    done < <(parse_procfile)
+    rm -rf "$FIFO_DIR"
+  else
+    echo "Session $SESSION_NAME not found"
+  fi
+}
+
+usage() {
+  cat << EOF
+Usage: procs [command]
+
+Commands:
+    start, s            Start processes from Procfile in tmux (default)
+    logs, l             Stream logs from running processes
+    show [-n] [N]       Show last N lines from all processes (default: 20)
+                        -n: plain output without colors
+    restart, r <name>   Restart a specific process by name
+    stop, q             Stop the tmux session
+    attach, a           Attach to the tmux session
+
+Environment:
+    PROCFILE  Path to Procfile (default: ./Procfile)
+EOF
+}
+
+case "$1" in
+  start|s)
+    start_processes
+    ;;
+  logs|l)
+    stream_logs
+    ;;
+  show)
+    shift
+    show_logs "$@"
+    ;;
+  restart|r)
+    restart_process "$2"
+    ;;
+  stop|q)
+    stop_processes
+    ;;
+  attach|a)
+    tmux attach -t "$SESSION_NAME"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    echo "Unknown command: $1" >&2
+    usage
+    exit 1
+    ;;
+esac
