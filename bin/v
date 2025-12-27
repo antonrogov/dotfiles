@@ -1,6 +1,8 @@
 #!/bin/zsh
 
-if [ -n "$NVIM" ]; then
+if [ ! -t 0 ]; then
+  exec nvim "$@" -R -
+elif [ -n "$NVIM" ]; then
   nvim --server $NVIM --remote "$(expand-path ${1:-.})"
 else
   exec nvim "$@"
